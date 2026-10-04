@@ -160,3 +160,12 @@ body.github-preview-open{overflow:hidden}
 .github-preview-modal .github-preview-dialog{width:100%;max-height:94vh;overflow:auto;margin:0}
 body.github-preview-open{overflow:hidden}
 @media(max-width:640px){.github-preview-modal{width:calc(100vw - 20px);max-height:98vh}.github-preview-modal .github-preview-dialog{max-height:96vh}}
+
+/* Aura Digital 5.6.16 · Actualizador de plataforma */
+.aura-system-panel{gap:14px}
+.aura-system-version-row,.aura-system-package{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 14px;border:1px solid rgba(38,34,31,.10);border-radius:14px;background:rgba(255,255,255,.62)}
+.aura-system-version-row span,.aura-system-package span{font-size:12px;color:var(--muted,#6f6863)}
+.aura-system-version-row strong,.aura-system-package strong{font-size:14px;letter-spacing:.02em}
+.aura-system-package small{width:100%;color:var(--muted,#6f6863);line-height:1.4}
+.aura-system-install,.aura-system-reload{width:100%;justify-content:center}
+.aura-system-install:disabled{opacity:.48;cursor:not-allowed}

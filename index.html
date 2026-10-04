@@ -5,14 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#f2eee8" />
   <title>Aura Digital · Studio de Invitaciones</title>
-  <link rel="stylesheet" href="css/style.css?v=5.6.14" />
+  <link rel="stylesheet" href="css/style.css?v=5.6.16" />
   <script src="js/vendor/jszip.min.js"></script>
   
 </head>
 <body>
   <div id="app">
     <header class="topbar">
-      <div class="topbar-brand"><span class="brand-mark small">A</span><div><strong>AURA DIGITAL</strong><small>Invitation Studio · v5.6.14 · Preview repositorios modal</small></div></div>
+      <div class="topbar-brand"><span class="brand-mark small">A</span><div><strong>AURA DIGITAL</strong><small>Invitation Studio · v5.6.16 · Actualizador de plataforma</small></div></div>
       <div class="topbar-actions">
         <span class="save-indicator"><i></i> Vista en vivo</span>
         <button type="button" id="open-preview-window" class="btn secondary">Abrir preview ↗</button>
@@ -294,6 +294,31 @@
               </div>
             </div>
           </details>
+
+          <details class="form-section" id="sec-system">
+            <summary><span><b>15</b> Sistema · Actualizar Aura</span><i>+</i></summary>
+            <div class="section-body aura-system-panel">
+              <p class="helper"><strong>Actualizador de la plataforma.</strong> Usa la misma conexión de GitHub de la sección 14. Aura valida el ZIP antes de tocar el repositorio.</p>
+              <div class="aura-system-version-row">
+                <span>Versión instalada</span><strong id="auraSystemCurrentVersion">5.6.16</strong>
+              </div>
+              <label>Repositorio donde vive Aura <small>se detecta automáticamente si abriste Aura desde GitHub Pages</small>
+                <input type="text" id="auraSystemRepo" autocomplete="off" spellcheck="false" placeholder="usuario/AuraDigital-App">
+              </label>
+              <p id="auraSystemRepoHint" class="helper"></p>
+              <label>ZIP de actualización
+                <input type="file" id="auraSystemZip" accept=".zip,application/zip,application/x-zip-compressed">
+              </label>
+              <div id="auraSystemPackage" class="aura-system-package" hidden>
+                <span>Nueva versión</span><strong id="auraSystemNewVersion">—</strong><small id="auraSystemPackageInfo"></small>
+              </div>
+              <button type="button" id="auraSystemInstall" class="btn primary aura-system-install" disabled>Instalar actualización</button>
+              <div class="github-progress" id="auraSystemProgress" hidden><span id="auraSystemProgressBar"></span></div>
+              <p id="auraSystemStatus" class="github-publish-status" aria-live="polite"></p>
+              <a id="auraSystemOnlineLink" class="github-pages-link" href="#" target="_blank" rel="noopener" hidden>Abrir Aura online ↗</a>
+              <button type="button" id="auraSystemReload" class="btn secondary aura-system-reload" hidden>Recargar Aura actualizada</button>
+            </div>
+          </details>
         </form>
       </aside>
 
@@ -326,7 +351,7 @@
     </section>
   </dialog>
 
-  <script src="js/font-data.js?v=5.6.14"></script>
-  <script src="js/script.js?v=5.6.14"></script>
+  <script src="js/font-data.js?v=5.6.16"></script>
+  <script src="js/script.js?v=5.6.16"></script>
 </body>
 </html>

@@ -2224,7 +2224,7 @@ function initEditorGroups564(){
   content:['sec-evento','sec-ubicaciones','sec-familia','sec-cierre'],
   media:['sec-transferencia','sec-video','sec-media'],
   order:['sec-orden'],
-  file:['sec-exportar','sec-github']
+  file:['sec-exportar','sec-github','sec-system']
  };
  // sec-apariencia se añadió históricamente sin id; resolver por número 03.
  const all=Array.from(document.querySelectorAll('details.form-section'));
@@ -2232,7 +2232,7 @@ function initEditorGroups564(){
  const names={design:'Diseño',content:'Contenido',media:'Multimedia',order:'Orden',file:'Archivo'};
  Object.entries(groups).forEach(([g,ids])=>ids.forEach(id=>{const d=document.getElementById(id);if(!d)return;d.dataset.editorGroup=g;const span=d.querySelector('summary span');if(span&&!span.querySelector('.editor-group-tag'))span.insertAdjacentHTML('beforeend',`<small class="editor-group-tag">${names[g]}</small>`)}));
  const note=document.getElementById('editor-guide-note');
- const notes={all:'Ves todos los apartados. Elige un grupo para reducir el menú.',design:'Temas, portada, colores y movimiento.',content:'Fecha, lugares, familia, confirmación y cierre.',media:'Regalo, video, fotografías, banners y música.',order:'Acomoda u oculta las secciones de la invitación.',file:'Importa configuraciones y publica directamente en GitHub.'};
+ const notes={all:'Ves todos los apartados. Elige un grupo para reducir el menú.',design:'Temas, portada, colores y movimiento.',content:'Fecha, lugares, familia, confirmación y cierre.',media:'Regalo, video, fotografías, banners y música.',order:'Acomoda u oculta las secciones de la invitación.',file:'Importa configuraciones, publica en GitHub y administra actualizaciones de Aura.'};
  const apply=g=>{
   all.forEach(d=>{const show=g==='all'||d.dataset.editorGroup===g;d.classList.toggle('editor-filtered',!show);if(!show)d.open=false});
   nav.querySelectorAll('button[data-editor-group]').forEach(b=>b.classList.toggle('active',b.dataset.editorGroup===g));
@@ -3104,3 +3104,177 @@ async function auraGithubOpenRepoPreview(repo,button){
 
 const _configObject5615=configObject;
 configObject=function(p){const c=_configObject5615(p);c.schemaVersion=5.615;c.studioVersion='5.6.15';return c};
+
+/* ==========================================================
+   Aura Digital 5.6.16 · Actualizador de la propia plataforma
+   - Lee un ZIP firmado lógicamente con aura-version.json.
+   - Detecta el repo actual cuando Aura corre en github.io.
+   - Reemplaza el contenido del repo seleccionado sin cambiar su URL.
+   - Usa la misma credencial temporal de la integración GitHub.
+   ========================================================== */
+const AURA_STUDIO_PRODUCT_5616='Aura Digital Studio';
+const AURA_STUDIO_VERSION_5616='5.6.16';
+const auraSystemState5616={zipFile:null,zip:null,manifest:null,prefix:'',files:null,busy:false,lastInstalledVersion:'',lastInstalledUrl:'',lastInstalledRepo:''};
+
+function auraSystemSetStatus5616(text,type=''){
+  const el=$('auraSystemStatus');if(!el)return;
+  el.textContent=text||'';el.className='github-publish-status'+(type?` ${type}`:'');
+}
+function auraSystemProgress5616(percent,text){
+  const box=$('auraSystemProgress'),bar=$('auraSystemProgressBar');
+  if(box)box.hidden=false;if(bar)bar.style.width=`${Math.max(0,Math.min(100,Number(percent)||0))}%`;
+  if(text)auraSystemSetStatus5616(text);
+}
+function auraSystemNormalizeRepo5616(value){
+  const raw=String(value||'').trim().replace(/^https?:\/\/github\.com\//i,'').replace(/\.git$/i,'').replace(/^\/+|\/+$/g,'');
+  const parts=raw.split('/').filter(Boolean);
+  if(parts.length!==2)return '';
+  const owner=parts[0].replace(/[^A-Za-z0-9-]/g,'');
+  const repo=parts[1].replace(/[^A-Za-z0-9._-]/g,'');
+  return owner&&repo?`${owner}/${repo}`:'';
+}
+function auraSystemDetectRepo5616(){
+  const host=String(location.hostname||'').toLowerCase();
+  if(!host.endsWith('.github.io'))return '';
+  const owner=host.slice(0,-'.github.io'.length);
+  if(!owner)return '';
+  const parts=location.pathname.split('/').filter(Boolean).map(v=>decodeURIComponent(v));
+  const repo=parts[0]||`${owner}.github.io`;
+  return auraSystemNormalizeRepo5616(`${owner}/${repo}`);
+}
+function auraSystemPackageReset5616(){
+  auraSystemState5616.zipFile=null;auraSystemState5616.zip=null;auraSystemState5616.manifest=null;auraSystemState5616.prefix='';auraSystemState5616.files=null;
+  const box=$('auraSystemPackage'),btn=$('auraSystemInstall');if(box)box.hidden=true;if(btn)btn.disabled=true;
+  const reload=$('auraSystemReload'),online=$('auraSystemOnlineLink');if(reload)reload.hidden=true;if(online)online.hidden=true;
+}
+function auraSystemCleanZipPath5616(path){
+  const p=String(path||'').replace(/\\/g,'/').replace(/^\/+/, '');
+  if(!p||p.split('/').some(part=>part==='..'))throw new Error(`Ruta no permitida en el ZIP: ${path}`);
+  return p;
+}
+async function auraSystemReadPackage5616(file){
+  auraSystemPackageReset5616();
+  if(!file)return;
+  if(!window.JSZip){auraSystemSetStatus5616('No está disponible JSZip para leer la actualización.','error');return}
+  if(file.size>100*1024*1024){auraSystemSetStatus5616('El ZIP supera 100 MB. Revisa que sea un paquete de Aura válido.','error');return}
+  auraSystemSetStatus5616('Validando paquete de actualización…');
+  try{
+    const zip=await JSZip.loadAsync(file);
+    const names=Object.keys(zip.files).filter(name=>!zip.files[name].dir&&!/^__MACOSX\//.test(name));
+    const manifests=names.filter(name=>/(^|\/)aura-version\.json$/i.test(name));
+    if(manifests.length!==1)throw new Error('El ZIP debe contener un único aura-version.json.');
+    const manifestPath=manifests[0];
+    const prefix=manifestPath.slice(0,manifestPath.length-'aura-version.json'.length);
+    const manifest=JSON.parse(await zip.files[manifestPath].async('text'));
+    if(manifest?.product!==AURA_STUDIO_PRODUCT_5616)throw new Error('El ZIP no se identifica como Aura Digital Studio.');
+    if(!/^\d+\.\d+\.\d+(?:[-+][A-Za-z0-9.-]+)?$/.test(String(manifest.version||'')))throw new Error('El paquete no tiene un número de versión válido.');
+    for(const required of ['index.html','css/style.css','js/script.js','js/vendor/jszip.min.js']){
+      if(!zip.files[prefix+required]||zip.files[prefix+required].dir)throw new Error(`Falta ${required} en el paquete.`);
+    }
+    const packageNames=names.filter(name=>name.startsWith(prefix)).map(name=>auraSystemCleanZipPath5616(name.slice(prefix.length))).filter(rel=>rel&&!/(^|\/)\.DS_Store$/i.test(rel));
+    if(!packageNames.includes('aura-version.json'))throw new Error('No pude localizar el manifiesto dentro del paquete.');
+    if(packageNames.length<6)throw new Error('El paquete parece incompleto.');
+    auraSystemState5616.zipFile=file;auraSystemState5616.zip=zip;auraSystemState5616.manifest=manifest;auraSystemState5616.prefix=prefix;auraSystemState5616.files=packageNames;
+    const box=$('auraSystemPackage'),ver=$('auraSystemNewVersion'),info=$('auraSystemPackageInfo'),btn=$('auraSystemInstall');
+    if(ver)ver.textContent=String(manifest.version);
+    if(info)info.textContent=`${packageNames.length} archivos · ${(file.size/1024/1024).toFixed(2)} MB · ${file.name}`;
+    if(box)box.hidden=false;if(btn)btn.disabled=false;
+    const same=String(manifest.version)===AURA_STUDIO_VERSION_5616;
+    auraSystemSetStatus5616(same?'Paquete válido. Es la misma versión; puedes reinstalarla si lo necesitas.':'Paquete válido y listo para instalar.','ok');
+  }catch(err){
+    console.error('Aura updater package',err);auraSystemPackageReset5616();auraSystemSetStatus5616(err.message||'No se pudo validar el ZIP.','error');
+  }
+}
+async function auraSystemZipFiles5616(onProgress){
+  const {zip,prefix,files}=auraSystemState5616;if(!zip||!files)throw new Error('Selecciona primero un ZIP válido.');
+  let done=0;
+  const out=await auraGithubMapLimit(files,4,async rel=>{
+    const entry=zip.files[prefix+rel];if(!entry||entry.dir)throw new Error(`No pude leer ${rel}.`);
+    const content=await entry.async('base64');done++;onProgress?.(done,files.length,rel);
+    return {path:rel,encoding:'base64',content};
+  });
+  return out;
+}
+async function auraSystemPublishTree5616(owner,repo,branch,files,version,onProgress){
+  const ref=await auraGithubWaitForRef(owner,repo,branch);
+  const parentSha=ref?.object?.sha;if(!parentSha)throw new AuraGithubError('No pude leer la rama principal de Aura.');
+  let done=0;
+  const tree=await auraGithubMapLimit(files,4,async file=>{
+    const blob=await auraGithubRequest(`/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/git/blobs`,{method:'POST',body:{content:String(file.content||'').replace(/\s+/g,''),encoding:'base64'}});
+    done++;onProgress?.(done,files.length,file.path);
+    return {path:file.path,mode:'100644',type:'blob',sha:blob.sha};
+  });
+  /* Sin base_tree: el repo dedicado a Aura queda exactamente igual al ZIP validado. */
+  const newTree=await auraGithubRequest(`/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/git/trees`,{method:'POST',body:{tree}});
+  const commit=await auraGithubRequest(`/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/git/commits`,{method:'POST',body:{message:`Actualizar Aura Digital a v${version} · ${new Date().toISOString()}`,tree:newTree.sha,parents:[parentSha]}});
+  await auraGithubRequest(`/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}/git/refs/heads/${encodeURIComponent(branch)}`,{method:'PATCH',body:{sha:commit.sha,force:false}});
+  return commit;
+}
+async function auraSystemInstall5616(){
+  if(auraSystemState5616.busy)return;
+  const manifest=auraSystemState5616.manifest;if(!manifest){auraSystemSetStatus5616('Selecciona primero un ZIP válido de Aura.','error');return}
+  const repoField=$('auraSystemRepo');const full=auraSystemNormalizeRepo5616(repoField?.value||'');
+  if(!full){auraSystemSetStatus5616('Escribe el repositorio como usuario/repositorio.','error');return}
+  if(repoField)repoField.value=full;
+  if(!auraGithubState.user||!auraGithubState.token){await auraGithubConnect();if(!auraGithubState.user){auraSystemSetStatus5616('Conecta GitHub en la sección 14 antes de actualizar Aura.','error');return}}
+  const detected=auraSystemDetectRepo5616();
+  if(detected&&detected.toLowerCase()!==full.toLowerCase()){
+    const ok=window.confirm(`Aura está abierta desde ${detected}, pero elegiste actualizar ${full}.\n\n¿Seguro que quieres continuar con otro repositorio?`);if(!ok)return;
+  }
+  const ok=window.confirm(`Actualizarás la plataforma Aura en:\n${full}\n\nVersión actual: ${AURA_STUDIO_VERSION_5616}\nPaquete: ${manifest.version}\n\nEl contenido de ese repositorio será reemplazado por el ZIP validado. La URL de GitHub Pages no cambia.\n\n¿Continuar?`);
+  if(!ok)return;
+  auraSystemState5616.busy=true;const btn=$('auraSystemInstall');if(btn){btn.disabled=true;btn.textContent='Actualizando…'}
+  const reload=$('auraSystemReload');if(reload)reload.hidden=true;
+  try{
+    auraSystemProgress5616(3,'Revisando repositorio de Aura…');
+    const [owner,repo]=full.split('/');
+    let repoInfo=null;
+    try{repoInfo=await auraGithubRequest(`/repos/${encodeURIComponent(owner)}/${encodeURIComponent(repo)}`)}
+    catch(err){
+      if(err.status!==404)throw err;
+      if(String(auraGithubState.user?.login||'').toLowerCase()!==owner.toLowerCase())throw new AuraGithubError('Ese repositorio no existe y Aura solo puede crear automáticamente repositorios en tu propia cuenta.',404);
+      auraSystemProgress5616(5,'El repositorio no existe. Creándolo para Aura…');
+      repoInfo=await auraGithubRequest('/user/repos',{method:'POST',body:{name:repo,description:'Aura Digital · Studio de invitaciones',private:false,auto_init:true,has_issues:false,has_projects:false,has_wiki:false}});
+      await auraGithubWaitForRef(owner,repo,repoInfo.default_branch||'main');
+    }
+    if(repoInfo.private)throw new AuraGithubError('El repositorio de Aura debe ser público para usarlo como sitio de GitHub Pages.',409);
+    if(repoInfo.permissions&&repoInfo.permissions.admin===false)throw new AuraGithubError('El token no tiene permiso de administración sobre ese repositorio.',403);
+    const branch=repoInfo.default_branch||'main';
+    auraSystemProgress5616(10,'Leyendo archivos del ZIP…');
+    const files=await auraSystemZipFiles5616((n,total,path)=>auraSystemProgress5616(10+Math.round((n/Math.max(total,1))*22),`Leyendo ${n}/${total} · ${path}`));
+    auraSystemProgress5616(34,'Subiendo nueva versión de Aura…');
+    await auraSystemPublishTree5616(owner,repo,branch,files,String(manifest.version),(n,total,path)=>auraSystemProgress5616(34+Math.round((n/Math.max(total,1))*51),`Subiendo ${n}/${total} · ${path}`));
+    auraSystemProgress5616(88,'Confirmando GitHub Pages…');
+    const pages=await auraGithubEnablePages(owner,repo,branch);
+    const fallback=repo.toLowerCase()===`${owner.toLowerCase()}.github.io`?`https://${owner}.github.io/`:`https://${owner}.github.io/${repo}/`;
+    const appUrl=pages?.html_url||fallback;
+    auraSystemState5616.lastInstalledVersion=String(manifest.version);auraSystemState5616.lastInstalledUrl=appUrl;auraSystemState5616.lastInstalledRepo=`${owner}/${repo}`;
+    const online=$('auraSystemOnlineLink');if(online){online.href=appUrl;online.hidden=false}
+    auraSystemProgress5616(100,`Aura v${manifest.version} fue enviada a GitHub. GitHub Pages conservará el mismo enlace.`);
+    if(reload)reload.hidden=false;
+  }catch(err){
+    console.error('Aura self update',err);auraSystemSetStatus5616(auraGithubFriendlyError(err),'error');const box=$('auraSystemProgress');if(box)box.hidden=true;
+  }finally{
+    auraSystemState5616.busy=false;if(btn){btn.disabled=!auraSystemState5616.manifest;btn.textContent='Instalar actualización'}
+  }
+}
+function auraSystemReload5616(){
+  const version=auraSystemState5616.lastInstalledVersion||auraSystemState5616.manifest?.version||Date.now().toString();
+  const detected=auraSystemDetectRepo5616();
+  const base=(auraSystemState5616.lastInstalledUrl&&(!detected||detected.toLowerCase()!==String(auraSystemState5616.lastInstalledRepo||'').toLowerCase()))?auraSystemState5616.lastInstalledUrl:location.href;
+  const url=new URL(base);url.searchParams.set('aura_app_v',version);url.searchParams.set('_',Date.now().toString());location.href=url.toString();
+}
+function initAuraSystemUpdater5616(){
+  const current=$('auraSystemCurrentVersion');if(current)current.textContent=AURA_STUDIO_VERSION_5616;
+  const repo=$('auraSystemRepo'),hint=$('auraSystemRepoHint');const detected=auraSystemDetectRepo5616();
+  if(repo&&!repo.value&&detected)repo.value=detected;
+  if(hint)hint.textContent=detected?`Detectado desde este enlace: ${detected}`:'Aura está abierta fuera de github.io; escribe manualmente el repositorio de la plataforma.';
+  $('auraSystemZip')?.addEventListener('change',e=>auraSystemReadPackage5616(e.target.files?.[0]||null));
+  $('auraSystemInstall')?.addEventListener('click',()=>auraSystemInstall5616());
+  $('auraSystemReload')?.addEventListener('click',auraSystemReload5616);
+  repo?.addEventListener('blur',()=>{const v=auraSystemNormalizeRepo5616(repo.value);if(v)repo.value=v});
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initAuraSystemUpdater5616);else initAuraSystemUpdater5616();
+
+const _configObject5616=configObject;
+configObject=function(p){const c=_configObject5616(p);c.schemaVersion=5.616;c.studioVersion='5.6.16';return c};

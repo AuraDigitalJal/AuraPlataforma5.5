@@ -1,0 +1,10 @@
+AURA DIGITAL 5.6.16 · ACTUALIZADOR DE PLATAFORMA
+
+- Añade Sistema > Actualizar Aura.
+- Valida aura-version.json dentro del ZIP.
+- Detecta usuario/repositorio cuando Aura corre desde github.io.
+- Puede usar un repo escrito manualmente cuando se abre localmente.
+- Reemplaza el contenido del repositorio seleccionado mediante Git Data API.
+- Conserva el mismo repositorio y la misma URL de GitHub Pages.
+- No guarda el token ni lo incluye en los archivos publicados.
+- El botón Recargar Aura usa un parámetro de versión para evitar cargar el index anterior desde caché.
