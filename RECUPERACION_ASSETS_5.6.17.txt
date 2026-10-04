@@ -1,0 +1,6 @@
+Aura Digital v5.6.17
+
+Cambio único funcional:
+- Recuperar proyecto desde el link público ahora descarga config.json, fotos publicadas y música.
+- Los archivos recuperados se preservan byte a byte al volver a exportar/publicar; no pasan de nuevo por compresión de imagen.
+- Fotos nuevas seleccionadas por el usuario siguen usando el optimizador normal (~500 KB).

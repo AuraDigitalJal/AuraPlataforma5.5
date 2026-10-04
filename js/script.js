@@ -3113,7 +3113,7 @@ configObject=function(p){const c=_configObject5615(p);c.schemaVersion=5.615;c.st
    - Usa la misma credencial temporal de la integración GitHub.
    ========================================================== */
 const AURA_STUDIO_PRODUCT_5616='Aura Digital Studio';
-const AURA_STUDIO_VERSION_5616='5.6.16';
+const AURA_STUDIO_VERSION_5616='5.6.17';
 const auraSystemState5616={zipFile:null,zip:null,manifest:null,prefix:'',files:null,busy:false,lastInstalledVersion:'',lastInstalledUrl:'',lastInstalledRepo:''};
 
 function auraSystemSetStatus5616(text,type=''){
@@ -3278,3 +3278,143 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 
 const _configObject5616=configObject;
 configObject=function(p){const c=_configObject5616(p);c.schemaVersion=5.616;c.studioVersion='5.6.16';return c};
+
+
+/* =======================================================================
+   AURA DIGITAL · v5.6.17 · RECUPERACIÓN COMPLETA DESDE LINK
+   - Recupera config.json + assets publicados (fotos y música).
+   - Los archivos recuperados se marcan para NO recomprimirlos al exportar
+     o volver a publicar, evitando pérdida acumulativa de calidad.
+   - No modifica el comportamiento de archivos nuevos seleccionados por usuario.
+   ======================================================================= */
+const AURA_STUDIO_VERSION_5617='5.6.17';
+const auraRecoveredAssetFiles5617=new WeakSet();
+const auraRecoveredAssets5617={
+  portadaFile:null,bannerFile:null,bannerExtraFile:null,bannerExtra2File:null,
+  bgFile:null,videoPosterFile:null,transferPhotoFile:null,musicFile:null,galleryFiles:[]
+};
+function auraRecoveredAllFiles5617(){
+  return [auraRecoveredAssets5617.portadaFile,auraRecoveredAssets5617.bannerFile,auraRecoveredAssets5617.bannerExtraFile,
+    auraRecoveredAssets5617.bannerExtra2File,auraRecoveredAssets5617.bgFile,auraRecoveredAssets5617.videoPosterFile,
+    auraRecoveredAssets5617.transferPhotoFile,auraRecoveredAssets5617.musicFile,...(auraRecoveredAssets5617.galleryFiles||[])].filter(Boolean);
+}
+function auraClearRecoveredAssets5617(){
+  for(const f of auraRecoveredAllFiles5617()){
+    try{const u=fileUrls?.get?.(f);if(u){URL.revokeObjectURL(u);fileUrls.delete(f)}}catch(e){}
+  }
+  for(const k of Object.keys(auraRecoveredAssets5617))auraRecoveredAssets5617[k]=k==='galleryFiles'?[]:null;
+}
+function auraRecoveredMime5617(name,type=''){
+  if(type)return type;
+  const ext=(String(name).split('.').pop()||'').toLowerCase();
+  return ({jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/png',webp:'image/webp',gif:'image/gif',avif:'image/avif',
+    mp3:'audio/mpeg',m4a:'audio/mp4',aac:'audio/aac',ogg:'audio/ogg',wav:'audio/wav'})[ext]||'application/octet-stream';
+}
+function auraProjectUrls5617(value){
+  let raw=String(value||'').trim();if(!raw)return null;
+  try{
+    let u=new URL(raw);u.hash='';u.search='';
+    if(u.hostname==='github.com'&&u.pathname.includes('/blob/')){
+      const parts=u.pathname.split('/').filter(Boolean),i=parts.indexOf('blob');
+      if(i>=2&&parts[i+1])u=new URL(`https://raw.githubusercontent.com/${parts[0]}/${parts[1]}/${parts[i+1]}/${parts.slice(i+2).join('/')}`);
+    }
+    let path=u.pathname;
+    if(/\/(?:config\.json|index\.html)$/i.test(path))path=path.replace(/(?:config\.json|index\.html)$/i,'');
+    else if(/\.(?:json|html?)$/i.test(path))path=path.replace(/[^/]+$/,'');
+    if(!path.endsWith('/'))path+='/';u.pathname=path;u.search='';u.hash='';
+    const base=u.toString();return {base,config:new URL('config.json',base).toString(),index:new URL('index.html',base).toString()};
+  }catch(e){return null}
+}
+function auraExtractAssetPaths5617(html){
+  const found=new Set();
+  const re=/assets\/[A-Za-z0-9._~%+\/-]+(?:\?[^"'\s)<]*)?/g;
+  for(const m of String(html||'').matchAll(re)){
+    const clean=m[0].replace(/&amp;/g,'&').split('?')[0].replace(/^\.\//,'');
+    if(!clean.startsWith('assets/fonts/'))found.add(clean);
+  }
+  return [...found];
+}
+function auraClassifyAsset5617(path){
+  const name=decodeURIComponent(String(path).split('/').pop()||'').toLowerCase();
+  if(/^portada\./.test(name))return {key:'portadaFile'};
+  if(/^banner-extra-2\./.test(name))return {key:'bannerExtra2File'};
+  if(/^banner-extra\./.test(name))return {key:'bannerExtraFile'};
+  if(/^banner\./.test(name))return {key:'bannerFile'};
+  if(/^fondo\./.test(name))return {key:'bgFile'};
+  if(/^video-poster\./.test(name))return {key:'videoPosterFile'};
+  if(/^regalo-foto\./.test(name))return {key:'transferPhotoFile'};
+  if(/^musica\./.test(name))return {key:'musicFile'};
+  const g=name.match(/^foto-(\d+)\./);if(g)return {key:'galleryFiles',index:Number(g[1])};
+  return null;
+}
+async function auraFetchRecoveredFile5617(url,path){
+  const r=await fetch(url,{cache:'no-store'});if(!r.ok)throw new Error(`No se pudo descargar ${path} (${r.status})`);
+  const blob=await r.blob(),name=decodeURIComponent(String(path).split('/').pop()||'asset');
+  const file=new File([blob],name,{type:auraRecoveredMime5617(name,blob.type),lastModified:Date.now()});
+  auraRecoveredAssetFiles5617.add(file);return file;
+}
+async function auraRecoverPublishedAssets5617(base,indexHtml,statusEl){
+  const paths=auraExtractAssetPaths5617(indexHtml),jobs=[];
+  for(const path of paths){const info=auraClassifyAsset5617(path);if(info)jobs.push({path,info})}
+  jobs.sort((a,b)=>(a.info.key==='galleryFiles'?a.info.index:0)-(b.info.key==='galleryFiles'?b.info.index:0));
+  const gallery=[];let images=0,music=0,failed=0;
+  for(let i=0;i<jobs.length;i++){
+    const {path,info}=jobs[i];if(statusEl)statusEl.textContent=`Recuperando archivos ${i+1}/${jobs.length}…`;
+    try{
+      const file=await auraFetchRecoveredFile5617(new URL(path,base).toString(),path);
+      if(info.key==='galleryFiles')gallery.push({index:info.index,file});else auraRecoveredAssets5617[info.key]=file;
+      if(info.key==='musicFile')music++;else images++;
+    }catch(err){console.warn('Aura: no se pudo recuperar asset',path,err);failed++}
+  }
+  auraRecoveredAssets5617.galleryFiles=gallery.sort((a,b)=>a.index-b.index).map(x=>x.file);
+  return {images,music,failed,total:jobs.length};
+}
+const _getFormParams5617=getFormParams;
+getFormParams=function(){
+  const p=_getFormParams5617();
+  for(const key of ['portadaFile','bannerFile','bannerExtraFile','bannerExtra2File','bgFile','videoPosterFile','transferPhotoFile','musicFile']){
+    if(!p[key]&&auraRecoveredAssets5617[key])p[key]=auraRecoveredAssets5617[key];
+  }
+  if((p.galleryFiles?.length||0)===0&&(auraRecoveredAssets5617.galleryFiles?.length||0)>0)p.galleryFiles=[...auraRecoveredAssets5617.galleryFiles];
+  return p;
+};
+const _optimizeImageForZip5617=optimizeImageForZip;
+optimizeImageForZip=async function(file){
+  if(file&&auraRecoveredAssetFiles5617.has(file)){
+    return {blob:file,ext:fileExt(file.name),optimized:false,recovered:true,sourceSize:file.size,finalSize:file.size};
+  }
+  return _optimizeImageForZip5617(file);
+};
+async function importConfig5617(){
+  const s=$('configStatus'),source=String($('configUrl')?.value||'').trim(),urls=auraProjectUrls5617(source);
+  if(!urls){if(s)s.textContent='Pega un enlace válido.';return}
+  auraClearRecoveredAssets5617();
+  try{
+    if(s)s.textContent='Cargando configuración…';
+    const cfgRes=await fetch(urls.config,{cache:'no-store'});if(!cfgRes.ok)throw new Error(`config ${cfgRes.status}`);
+    const cfg=await cfgRes.json();applyConfig(cfg);
+    let result={images:0,music:0,failed:0,total:0};
+    try{
+      if(s)s.textContent='Leyendo archivos publicados…';
+      const htmlRes=await fetch(urls.index,{cache:'no-store'});if(!htmlRes.ok)throw new Error(`index ${htmlRes.status}`);
+      result=await auraRecoverPublishedAssets5617(urls.base,await htmlRes.text(),s);
+    }catch(assetErr){console.warn('Aura: configuración recuperada sin assets',assetErr)}
+    if(typeof renderPhotoFraming554==='function')try{renderPhotoFraming554()}catch(e){}
+    updatePreview();
+    const galleryCount=auraRecoveredAssets5617.galleryFiles.length;
+    const pieces=[];if(result.images)pieces.push(`${result.images} foto${result.images===1?'':'s'}`);if(result.music)pieces.push('música');
+    if(s)s.textContent=pieces.length?`Proyecto recuperado ✓ · ${pieces.join(' + ')}${result.failed?` · ${result.failed} archivo(s) no disponible(s)`:''}`:'Configuración aplicada ✓ · sin archivos publicados detectables';
+  }catch(e){console.error('Aura recuperar proyecto',e);if(s)s.textContent='No se pudo cargar';alert('No se pudo recuperar esta invitación. Revisa que el enlace sea público y apunte a una invitación de Aura.')}
+}
+importConfig=importConfig5617;
+function initRecovery5617(){
+  const helper=$('configUrl')?.closest('.section-body')?.querySelector('.helper');if(helper)helper.textContent='Pega el link público de la invitación o de su config.json. Aura recuperará también las fotos y la música publicadas cuando estén disponibles.';
+  const btn=$('btnLoadConfig');if(btn)btn.textContent='Recuperar proyecto';
+  const map={portadaFile:'portadaFile',bannerFile:'bannerFile',bannerExtraFile:'bannerExtraFile',bannerExtra2File:'bannerExtra2File',bgFile:'bgFile',videoPosterFile:'videoPosterFile',transferPhotoFile:'transferPhotoFile',musicFile:'musicFile',galleryFiles:'galleryFiles'};
+  for(const [id,key] of Object.entries(map))$(id)?.addEventListener('change',()=>{auraRecoveredAssets5617[key]=key==='galleryFiles'?[]:null},{capture:true});
+  $('localConfig')?.addEventListener('change',()=>auraClearRecoveredAssets5617(),{capture:true});
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initRecovery5617);else initRecovery5617();
+
+const _configObject5617=configObject;
+configObject=function(p){const c=_configObject5617(p);c.schemaVersion=5.617;c.studioVersion='5.6.17';return c};
