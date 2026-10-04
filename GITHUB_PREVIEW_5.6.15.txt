@@ -1,0 +1,5 @@
+Aura Digital 5.6.15
+
+Corrección: Vista previa de repositorios ahora usa una ventana emergente real, igual al Preview desprendido de Aura.
+La ventana se abre sincronamente desde el clic y después navega a GitHub Pages, evitando que el navegador la convierta en una pestaña normal.
+No se modificaron diseños, paletas, publicación, eliminación, cache busting ni optimización.

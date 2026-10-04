@@ -1,0 +1,5 @@
+Aura Digital 5.6.10
+Corrección puntual de controles de opacidad sobre la base 5.6.9.
+- Opacidad botón: Entrar, navegación de portada y CTA.
+- Opacidad contenido: se retiraron mínimos artificiales en módulos que ignoraban valores bajos.
+- GitHub, paletas y diseños no fueron modificados.

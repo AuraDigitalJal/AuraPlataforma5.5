@@ -1,0 +1,11 @@
+Aura Digital 5.6.11
+
+Añade cinco modelos premium opcionales de botones de portada para todos los diseños:
+01 Píldora de cristal
+02 Marco editorial
+03 Insignia joya
+04 Etiqueta minimal
+05 Navegación premium
+
+Controles: tamaño, forma, icono, color por paleta/personalizado y opacidad (usa el slider global Opacidad botón).
+El valor Original del diseño conserva exactamente el comportamiento anterior.

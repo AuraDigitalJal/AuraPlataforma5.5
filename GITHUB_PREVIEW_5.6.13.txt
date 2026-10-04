@@ -1,0 +1,9 @@
+Aura Digital v5.6.13
+
+Cambio único sobre v5.6.12:
+- La lista de repositorios de GitHub muestra "Vista previa" cuando el repositorio tiene GitHub Pages activo.
+- La vista previa abre la publicación real dentro de un modal con marco móvil, antes de eliminar el repositorio.
+- Incluye botón Abrir en pestaña nueva como respaldo.
+- Repositorios sin GitHub Pages muestran "Sin Pages".
+
+No se modificaron diseños, paletas, optimización, publicación, cache busting, eliminación ni botones premium.

@@ -1,0 +1,7 @@
+Aura Digital 5.6.14 · Preview de repositorios
+
+- Vista previa usa un <dialog> modal nativo dentro de Aura.
+- El botón Vista previa no abre pestaña o ventana del navegador.
+- Solo el botón “Abrir ↗” abre la publicación en una pestaña nueva.
+- Escape, Cerrar o clic fuera del panel cierran el modal.
+- No se modificaron diseños, paletas, publicación, cache busting ni eliminación de repositorios.

@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#f2eee8" />
+  <title>Aura Digital · Studio de Invitaciones</title>
+  <link rel="stylesheet" href="css/style.css?v=5.6.14" />
+  <script src="js/vendor/jszip.min.js"></script>
+  
+</head>
+<body>
+  <div id="app">
+    <header class="topbar">
+      <div class="topbar-brand"><span class="brand-mark small">A</span><div><strong>AURA DIGITAL</strong><small>Invitation Studio · v5.6.14 · Preview repositorios modal</small></div></div>
+      <div class="topbar-actions">
+        <span class="save-indicator"><i></i> Vista en vivo</span>
+        <button type="button" id="open-preview-window" class="btn secondary">Abrir preview ↗</button>
+        <button type="button" id="update-preview" class="btn secondary">Actualizar</button>
+        <button type="button" id="open-github" class="btn secondary">Publicar en GitHub</button>
+        <button type="button" id="generate-zip" class="btn primary">Generar ZIP</button>
+      </div>
+    </header>
+
+    <main class="workspace">
+      <aside class="editor-pane">
+        <div class="editor-intro">
+          <div class="eyebrow">DIRECCIÓN CREATIVA</div>
+          <h1>Diseña la experiencia.</h1>
+          <p>Una colección para cada celebración. Fotografía, tipografía y color con una misma intención.</p>
+        </div>
+        <div class="editor-guide" aria-label="Organización del editor">
+          <div class="editor-guide-head"><span>¿Qué quieres editar?</span><small>Filtra el menú para trabajar sin perderte.</small></div>
+          <nav class="editor-quicknav editor-groupnav" aria-label="Grupos del editor">
+            <button type="button" data-editor-group="all" class="active">Todo</button>
+            <button type="button" data-editor-group="design">Diseño</button>
+            <button type="button" data-editor-group="content">Contenido</button>
+            <button type="button" data-editor-group="media">Multimedia</button>
+            <button type="button" data-editor-group="order">Orden</button>
+            <button type="button" data-editor-group="file">Archivo</button>
+          </nav>
+          <p class="editor-guide-note" id="editor-guide-note">Ves todos los apartados. Elige un grupo para reducir el menú.</p>
+        </div>
+
+        <form id="config-form">
+          <details class="form-section" id="sec-identidad" open>
+            <summary><span><b>01</b> Identidad</span><i>+</i></summary>
+            <div class="section-body">
+              <label>Tipo de invitación
+                <select id="preset">
+                  <option value="none">Personalizado</option><option value="xv">XV años</option><option value="boda" selected>Boda</option><option value="bautizo">Bautizo</option><option value="cumple">Cumpleaños</option><option value="graduacion">Graduación</option><option value="escolar">Evento escolar</option>
+                </select>
+              </label>
+              <p class="helper">El tipo de evento cambia los textos de ejemplo; conserva el diseño que elegiste.</p><label>Explorar diseños de<select id="designCollection"><option value="event">Sugeridos para este evento</option><option value="all">Todas las colecciones</option><option value="boda">Bodas</option><option value="xv">XV años</option><option value="bautizo">Bautizos</option><option value="cumple">Cumpleaños</option><option value="graduacion">Graduaciones</option><option value="escolar">Eventos escolares</option></select></label><div class="collection-intro"><span id="collection-name">Bodas</span><p id="collection-note"></p></div><label>Estilo de diseño
+                <select id="themeVisual">
+                  <option value="wedding_minimal" selected>01 · Editorial minimal</option>
+                  <option value="editorial_cream">Editorial Cream · minimal</option>
+                  <option value="old_money">Heritage · old money</option>
+                  <option value="monochrome">Noir & Ivory · blanco y negro</option>
+                  <option value="garden">Garden Atelier · botánico</option>
+                  <option value="dark_romance">Dark Romance · nocturno</option>
+                  <option value="contemporary">Contemporary Curve · moderno</option>
+                  <option value="photo_story">Photo Story · fotografía</option>
+                  <option value="xv_couture">XV Couture · fashion</option>
+                  <option value="baptism_air">Pure Air · bautizo</option>
+                </select>
+              </label>
+              <div class="theme-strip" id="theme-strip" aria-label="Temas visuales"></div>
+              <label>Tipografía general
+                <select id="fontPreset">
+                  <option value="default">Predeterminada del tema</option>
+                  <option value="elegant_playfair">Playfair Display</option><option value="garamond_cormorant">Cormorant Garamond</option><option value="classic_serif">Libre Baskerville</option><option value="modern_sans">Manrope</option><option value="editorial_sans">Montserrat</option><option value="clean_inter">Inter</option><option value="script_greatvibes">Great Vibes</option>
+                </select>
+              </label>
+            </div>
+          </details>
+
+          <details class="form-section" id="sec-portada" open>
+            <summary><span><b>02</b> Portada y contenido</span><i>+</i></summary>
+            <div class="section-body">
+              <label>Diseño de portada<select id="heroLayout"><option value="theme">Original del tema</option><option value="silence">Silencio · editorial limpio</option><option value="atelier">Atelier · lateral</option><option value="double_frame">Doble marco · clásico</option><option value="arch">Arco · romántico</option><option value="signature">Firma · caligráfico</option><option value="veil">Velo · cristal suave</option><option value="masthead">Masthead · revista</option><option value="split">Split · composición asimétrica</option><option value="cinema">Cinema · fotograma</option><option value="monogram">Monograma · quiet luxury</option></select></label>
+              <div id="cover-strip" class="cover-strip" aria-label="Diseños de portada"></div>
+              <p class="helper" id="cover-description">Conserva la portada original del tema.</p>
+              <div class="cover-label-settings"><label class="cover-check"><input type="checkbox" id="showHeroLabel" checked> Mostrar etiqueta del evento <small>(opcional)</small></label><label>Texto de la etiqueta<input type="text" id="heroLabelText" placeholder="Automático según el evento"><small id="hero-label-hint" class="field-hint"></small></label><label>Tamaño de etiqueta<select id="heroLabelSize"><option value="auto">Del diseño</option><option value="xs">XS</option><option value="s">S</option><option value="m">M</option><option value="l">L</option><option value="xl">XL</option></select></label></div>
+              <label>Título principal<textarea id="title" rows="2">Ana &amp; Carlos</textarea><small class="field-hint">Enter permite elegir dónde separar los nombres en líneas.</small><span class="text-size-control"><span>Tamaño</span><select class="text-size-select" id="titleSize"><option value="auto" selected>Automático</option><option value="xs">XS</option><option value="s">S</option><option value="m">M</option><option value="l">L</option><option value="xl">XL</option></select></span></label>
+              <label>Subtítulo / frase<textarea id="subtitle" rows="2">Nos llena de alegría compartir este día contigo.</textarea><span class="text-size-control"><span>Tamaño</span><select class="text-size-select" id="subtitleSize"><option value="auto" selected>Automático</option><option value="xs">XS</option><option value="s">S</option><option value="m">M</option><option value="l">L</option><option value="xl">XL</option></select></span></label>
+              <div class="field-grid">
+                <label>Texto botón<input type="text" id="buttonText" value="Descubrir invitación"><span class="text-size-control"><span>Tamaño</span><select class="text-size-select" id="buttonTextSize"><option value="auto" selected>Automático</option><option value="xs">XS</option><option value="s">S</option><option value="m">M</option><option value="l">L</option><option value="xl">XL</option></select></span></label>
+                <label>Orden del texto<select id="heroOrder"><option value="classic">Etiqueta → título → frase</option><option value="phrase_first">Etiqueta → frase → título</option></select></label>
+              </div>
+              <details class="cover-tuning"><summary>Ajustar texto y acomodo</summary><div class="cover-tuning-body">
+                <div class="field-grid"><label>Altura del bloque<select id="heroPosition"><option value="auto">Del diseño</option><option value="start">Arriba</option><option value="center">Al centro</option><option value="end">Abajo</option></select></label><label>Alineación del texto<select id="heroAlignment"><option value="auto">Del diseño</option><option value="left">Izquierda</option><option value="center">Centro</option><option value="right">Derecha</option></select></label></div>
+                <div class="field-grid"><label>Ubicación horizontal<select id="heroBlockPosition"><option value="auto">Del diseño</option><option value="start">Izquierda</option><option value="center">Centro</option><option value="end">Derecha</option></select></label><label>Ancho del bloque (%)<input type="number" id="heroWidth" min="55" max="94" value="86"></label></div>
+                <div class="field-grid"><label>Ajuste vertical (px)<input type="number" id="heroOffset" value="0" min="-200" max="200"><small class="field-hint">Negativo sube; positivo baja. Se limita al espacio disponible.</small></label><label>Separación (px)<input type="number" id="heroSpacing" min="0" max="72" placeholder="Automática"></label></div>
+                <label>Tipografía del título<select id="heroTitleFont"><option value="default">Del diseño de portada</option><option value="elegant_playfair">Playfair Display</option><option value="garamond_cormorant">Cormorant Garamond</option><option value="classic_serif">Libre Baskerville</option><option value="modern_sans">Manrope</option><option value="editorial_sans">Montserrat</option><option value="clean_inter">Inter</option><option value="script_greatvibes">Great Vibes</option></select></label>
+                <div class="field-grid"><label>Espacio entre líneas<input type="number" id="heroTitleLeading" min="0.9" max="1.6" step="0.05" placeholder="Automático"></label><label>Espacio entre letras (em)<input type="number" id="heroTitleTracking" min="-0.08" max="0.15" step="0.01" placeholder="Automático"></label></div>
+                <label>Color de título, frase y etiqueta<input type="color" id="heroTextColor" value="#ffffff"></label>
+                <button type="button" id="reset-cover-layout" class="btn secondary">Restablecer acomodo</button><p class="helper">Conserva los textos escritos, su tamaño y el diseño elegido. Estos controles no ajustan la fotografía.</p>
+              </div></details>
+              <div class="cover-checks"><label class="cover-check"><input type="checkbox" id="showHeroButton" checked> Mostrar botón de entrada</label><label class="cover-check"><input type="checkbox" id="showHeroScroll" checked> Mostrar “Desliza para descubrir”</label></div>
+              <div class="hero-nav-editor">
+                <label class="cover-check"><input type="checkbox" id="showHeroNav" checked> Mostrar botones de navegación al inicio</label>
+                <label>Estilo de navegación<select id="heroNavStyle"><option value="glass_pills" selected>Pastilla translúcida</option><option value="icon_cards">Tarjetas con icono</option></select></label>
+                <p class="helper">Los accesos aparecen solo cuando existe su sección: Confirmación, Ubicación y Galería.</p>
+              </div>
+              <div class="premium-cover-buttons">
+                <label>Modelo premium de botones<select id="heroButtonModel"><option value="original" selected>Original del diseño</option><option value="crystal_pill">01 · Píldora de cristal</option><option value="editorial_frame">02 · Marco editorial</option><option value="jewel_badge">03 · Insignia joya</option><option value="minimal_label">04 · Etiqueta minimal</option><option value="premium_icons">05 · Navegación premium</option></select></label>
+                <div class="field-grid"><label>Tamaño<select id="heroButtonSize"><option value="small">Chico</option><option value="medium" selected>Mediano</option><option value="large">Grande</option></select></label><label>Forma<select id="heroButtonShape"><option value="auto" selected>Del modelo</option><option value="pill">Píldora</option><option value="rounded">Redondeado</option><option value="square">Rectangular</option></select></label></div>
+                <div class="field-grid"><label>Icono del botón principal<select id="heroButtonIcon"><option value="auto" selected>Del modelo</option><option value="sparkle">Destello</option><option value="heart">Corazón</option><option value="diamond">Diamante</option><option value="leaf">Rama</option><option value="star">Estrella</option><option value="arrow">Flecha</option></select></label><label>Color personalizado<input type="color" id="heroButtonColor" value="#a88a58"></label></div>
+                <label class="cover-check"><input type="checkbox" id="heroButtonUsePalette" checked> Usar color principal de la paleta</label>
+                <p class="helper">El control “Opacidad botón” sigue gobernando estos modelos. El tamaño escala icono, texto, borde y espacios juntos para evitar deformaciones.</p>
+              </div>
+              <label>Estilo del botón “Entrar”<select id="buttonStyle"><option value="pill">Pastilla refinada</option><option value="rounded">Redondeado suave</option><option value="square">Editorial rectangular</option><option value="outline_thin">Outline fino</option><option value="glass_soft">Vidrio suave</option><option value="text_only">Solo texto</option></select></label>
+              <div class="field-grid">
+                <label>Overlay portada<input type="color" id="overlayColor" value="#16130f"></label>
+                <label>Opacidad overlay<input type="range" id="overlayOpacity" min="0" max="1" step="0.05" value="0.42"></label>
+              </div>
+            </div>
+          </details>
+
+          <details class="form-section" open>
+            <summary><span><b>03</b> Color y acabado</span><i>+</i></summary>
+            <div class="section-body">
+              <label>Paleta de color<select id="colorPalette"><option value="custom">Personalizada</option><optgroup label="Base premium"><option value="ivory_champagne" selected>Ivory + Champagne</option><option value="sage_stone">Sage + Stone</option><option value="black_ivory">Black + Ivory</option><option value="burgundy_rose">Burgundy + Dusty Rose</option><option value="midnight_silver">Midnight + Silver</option><option value="lavender_pearl">Lavender + Pearl</option><option value="powder_blue">Powder Blue + Cream</option><option value="terracotta_linen">Terracotta + Linen</option><option value="forest_gold">Forest + Antique Gold</option><option value="dark_velvet">Dark Velvet + Antique Gold</option><option value="blush_cocoa">Blush + Cocoa</option></optgroup><optgroup label="Bodas y romance"><option value="rose_taupe">Rose + Taupe</option><option value="olive_ivory">Olive + Ivory</option><option value="blue_sand">Blue Smoke + Sand</option><option value="mocha_blush">Mocha + Blush</option><option value="noir_wine">Noir + Wine</option><option value="copper_nude">Copper + Nude</option></optgroup><optgroup label="XV y fashion"><option value="lilac_gold">Lilac + Soft Gold</option><option value="ballet_silver">Ballet Pink + Silver</option><option value="plum_blush">Plum + Blush</option><option value="night_lavender">Night Blue + Lavender</option><option value="emerald_beige">Emerald + Beige</option><option value="ruby_champagne">Rojo Imperial + Champagne</option><option value="crimson_pearl">Carmín + Perla</option><option value="cherry_blush">Rojo Cereza + Blush</option><option value="scarlet_gold">Escarlata + Oro Suave</option><option value="garnet_ivory">Granate + Marfil</option><option value="red_noir">Rojo Nocturno + Noir</option></optgroup><optgroup label="Bautizo y suave"><option value="sky_pearl">Sky + Pearl</option><option value="linen_gold">Linen + Light Gold</option><option value="soft_lavender">Soft Lavender + Bone</option><option value="pistachio_cream">Pistachio + Cream</option></optgroup><optgroup label="Contemporáneas"><option value="steel_charcoal">Steel + Charcoal</option><option value="sand_ink">Sand + Ink</option><option value="cocoa_mist">Cocoa + Mist</option><option value="clay_ash">Clay + Ash</option></optgroup></select></label>
+              <div class="palette-browser-head"><span>Colecciones de color</span><small>36 combinaciones</small></div><div class="palette-strip" id="palette-strip" aria-label="Paletas visuales"><button type="button" class="palette-chip active" data-palette="ivory_champagne" title="Ivory + Champagne"><span class="palette-swatch" style="background:linear-gradient(90deg,#a88a58 0.000%,#a88a58 16.667%,#2b2824 16.667%,#2b2824 33.333%,#1f1c19 33.333%,#1f1c19 50.000%,#777068 50.000%,#777068 66.667%,#eee8df 66.667%,#eee8df 83.333%,#fbf8f3 83.333%,#fbf8f3 100.000%)"></span><span class="palette-name">Ivory + Champagne</span></button><button type="button" class="palette-chip" data-palette="sage_stone" title="Sage + Stone"><span class="palette-swatch" style="background:linear-gradient(90deg,#72806b 0.000%,#72806b 16.667%,#30352f 16.667%,#30352f 33.333%,#273026 33.333%,#273026 50.000%,#798074 50.000%,#798074 66.667%,#e7e7df 66.667%,#e7e7df 83.333%,#f8f7f2 83.333%,#f8f7f2 100.000%)"></span><span class="palette-name">Sage + Stone</span></button><button type="button" class="palette-chip" data-palette="black_ivory" title="Black + Ivory"><span class="palette-swatch" style="background:linear-gradient(90deg,#171717 0.000%,#171717 16.667%,#24211e 16.667%,#24211e 33.333%,#111111 33.333%,#111111 50.000%,#716d67 50.000%,#716d67 66.667%,#ebe7df 66.667%,#ebe7df 83.333%,#faf8f4 83.333%,#faf8f4 100.000%)"></span><span class="palette-name">Black + Ivory</span></button><button type="button" class="palette-chip" data-palette="burgundy_rose" title="Burgundy + Dusty Rose"><span class="palette-swatch" style="background:linear-gradient(90deg,#783b4a 0.000%,#783b4a 16.667%,#38282d 16.667%,#38282d 33.333%,#52202d 33.333%,#52202d 50.000%,#8b6d73 50.000%,#8b6d73 66.667%,#eadbdd 66.667%,#eadbdd 83.333%,#fbf4f3 83.333%,#fbf4f3 100.000%)"></span><span class="palette-name">Burgundy + Dusty Rose</span></button><button type="button" class="palette-chip" data-palette="midnight_silver" title="Midnight + Silver"><span class="palette-swatch" style="background:linear-gradient(90deg,#9da8b5 0.000%,#9da8b5 16.667%,#e8e8e8 16.667%,#e8e8e8 33.333%,#ffffff 33.333%,#ffffff 50.000%,#b9bdc4 50.000%,#b9bdc4 66.667%,#111722 66.667%,#111722 83.333%,#1b2330 83.333%,#1b2330 100.000%)"></span><span class="palette-name">Midnight + Silver</span></button><button type="button" class="palette-chip" data-palette="lavender_pearl" title="Lavender + Pearl"><span class="palette-swatch" style="background:linear-gradient(90deg,#9d7aa8 0.000%,#9d7aa8 16.667%,#3f3543 16.667%,#3f3543 33.333%,#57425e 33.333%,#57425e 50.000%,#8e7b93 50.000%,#8e7b93 66.667%,#ebe4ee 66.667%,#ebe4ee 83.333%,#faf7fb 83.333%,#faf7fb 100.000%)"></span><span class="palette-name">Lavender + Pearl</span></button><button type="button" class="palette-chip" data-palette="powder_blue" title="Powder Blue + Cream"><span class="palette-swatch" style="background:linear-gradient(90deg,#7297a8 0.000%,#7297a8 16.667%,#36434a 16.667%,#36434a 33.333%,#2c3c43 33.333%,#2c3c43 50.000%,#74858d 50.000%,#74858d 66.667%,#e4edf0 66.667%,#e4edf0 83.333%,#f7faf9 83.333%,#f7faf9 100.000%)"></span><span class="palette-name">Powder Blue + Cream</span></button><button type="button" class="palette-chip" data-palette="terracotta_linen" title="Terracotta + Linen"><span class="palette-swatch" style="background:linear-gradient(90deg,#b66c4e 0.000%,#b66c4e 16.667%,#43322a 16.667%,#43322a 33.333%,#673b2b 33.333%,#673b2b 50.000%,#8d7165 50.000%,#8d7165 66.667%,#ebe0d5 66.667%,#ebe0d5 83.333%,#fbf7f1 83.333%,#fbf7f1 100.000%)"></span><span class="palette-name">Terracotta + Linen</span></button><button type="button" class="palette-chip" data-palette="forest_gold" title="Forest + Antique Gold"><span class="palette-swatch" style="background:linear-gradient(90deg,#a78a58 0.000%,#a78a58 16.667%,#eef0e7 16.667%,#eef0e7 33.333%,#f8f5e8 33.333%,#f8f5e8 50.000%,#bfc4b7 50.000%,#bfc4b7 66.667%,#1c2e26 66.667%,#1c2e26 83.333%,#263d33 83.333%,#263d33 100.000%)"></span><span class="palette-name">Forest + Antique Gold</span></button><button type="button" class="palette-chip" data-palette="dark_velvet" title="Dark Velvet + Antique Gold"><span class="palette-swatch" style="background:linear-gradient(90deg,#b58a68 0.000%,#b58a68 16.667%,#ede5df 16.667%,#ede5df 33.333%,#fff7f3 33.333%,#fff7f3 50.000%,#c2aeb3 50.000%,#c2aeb3 66.667%,#161116 66.667%,#161116 83.333%,#21181e 83.333%,#21181e 100.000%)"></span><span class="palette-name">Dark Velvet + Antique Gold</span></button><button type="button" class="palette-chip" data-palette="blush_cocoa" title="Blush + Cocoa"><span class="palette-swatch" style="background:linear-gradient(90deg,#b8787a 0.000%,#b8787a 16.667%,#4b3532 16.667%,#4b3532 33.333%,#673f41 33.333%,#673f41 50.000%,#927875 50.000%,#927875 66.667%,#eadcda 66.667%,#eadcda 83.333%,#fbf5f2 83.333%,#fbf5f2 100.000%)"></span><span class="palette-name">Blush + Cocoa</span></button><button type="button" class="palette-chip" data-palette="rose_taupe" title="Rose + Taupe"><span class="palette-swatch" style="background:linear-gradient(90deg,#c28c97 0.000%,#c28c97 16.667%,#49363b 16.667%,#49363b 33.333%,#5b444a 33.333%,#5b444a 50.000%,#9b878d 50.000%,#9b878d 66.667%,#f2e7e8 66.667%,#f2e7e8 83.333%,#fcf8f7 83.333%,#fcf8f7 100.000%)"></span><span class="palette-name">Rose + Taupe</span></button><button type="button" class="palette-chip" data-palette="olive_ivory" title="Olive + Ivory"><span class="palette-swatch" style="background:linear-gradient(90deg,#7c8660 0.000%,#7c8660 16.667%,#393b31 16.667%,#393b31 33.333%,#272a22 33.333%,#272a22 50.000%,#8e917f 50.000%,#8e917f 66.667%,#efeee6 66.667%,#efeee6 83.333%,#fcfbf6 83.333%,#fcfbf6 100.000%)"></span><span class="palette-name">Olive + Ivory</span></button><button type="button" class="palette-chip" data-palette="blue_sand" title="Blue Smoke + Sand"><span class="palette-swatch" style="background:linear-gradient(90deg,#7e92a8 0.000%,#7e92a8 16.667%,#37414d 16.667%,#37414d 33.333%,#25313c 33.333%,#25313c 50.000%,#86909a 50.000%,#86909a 66.667%,#ece7dd 66.667%,#ece7dd 83.333%,#fcfaf5 83.333%,#fcfaf5 100.000%)"></span><span class="palette-name">Blue Smoke + Sand</span></button><button type="button" class="palette-chip" data-palette="mocha_blush" title="Mocha + Blush"><span class="palette-swatch" style="background:linear-gradient(90deg,#a98177 0.000%,#a98177 16.667%,#463530 16.667%,#463530 33.333%,#342825 33.333%,#342825 50.000%,#8e7671 50.000%,#8e7671 66.667%,#efe2dc 66.667%,#efe2dc 83.333%,#fbf5f1 83.333%,#fbf5f1 100.000%)"></span><span class="palette-name">Mocha + Blush</span></button><button type="button" class="palette-chip" data-palette="noir_wine" title="Noir + Wine"><span class="palette-swatch" style="background:linear-gradient(90deg,#7d4a5f 0.000%,#7d4a5f 16.667%,#f2e9e7 16.667%,#f2e9e7 33.333%,#fffaf7 33.333%,#fffaf7 50.000%,#c7b0b7 50.000%,#c7b0b7 66.667%,#151215 66.667%,#151215 83.333%,#20181d 83.333%,#20181d 100.000%)"></span><span class="palette-name">Noir + Wine</span></button><button type="button" class="palette-chip" data-palette="copper_nude" title="Copper + Nude"><span class="palette-swatch" style="background:linear-gradient(90deg,#b97b59 0.000%,#b97b59 16.667%,#4b3931 16.667%,#4b3931 33.333%,#603f33 33.333%,#603f33 50.000%,#9f7e72 50.000%,#9f7e72 66.667%,#efe1d8 66.667%,#efe1d8 83.333%,#fbf6f2 83.333%,#fbf6f2 100.000%)"></span><span class="palette-name">Copper + Nude</span></button><button type="button" class="palette-chip" data-palette="lilac_gold" title="Lilac + Soft Gold"><span class="palette-swatch" style="background:linear-gradient(90deg,#a78abd 0.000%,#a78abd 16.667%,#43384c 16.667%,#43384c 33.333%,#574661 33.333%,#574661 50.000%,#9787a5 50.000%,#9787a5 66.667%,#eee6f2 66.667%,#eee6f2 83.333%,#fbf8fc 83.333%,#fbf8fc 100.000%)"></span><span class="palette-name">Lilac + Soft Gold</span></button><button type="button" class="palette-chip" data-palette="ballet_silver" title="Ballet Pink + Silver"><span class="palette-swatch" style="background:linear-gradient(90deg,#d8a8b8 0.000%,#d8a8b8 16.667%,#4a4146 16.667%,#4a4146 33.333%,#5a4f56 33.333%,#5a4f56 50.000%,#a49099 50.000%,#a49099 66.667%,#f3ebee 66.667%,#f3ebee 83.333%,#fcf9fb 83.333%,#fcf9fb 100.000%)"></span><span class="palette-name">Ballet Pink + Silver</span></button><button type="button" class="palette-chip" data-palette="plum_blush" title="Plum + Blush"><span class="palette-swatch" style="background:linear-gradient(90deg,#8f617f 0.000%,#8f617f 16.667%,#43313e 16.667%,#43313e 33.333%,#5a3e51 33.333%,#5a3e51 50.000%,#937d8b 50.000%,#937d8b 66.667%,#efe1e8 66.667%,#efe1e8 83.333%,#fbf6f9 83.333%,#fbf6f9 100.000%)"></span><span class="palette-name">Plum + Blush</span></button><button type="button" class="palette-chip" data-palette="night_lavender" title="Night Blue + Lavender"><span class="palette-swatch" style="background:linear-gradient(90deg,#7b84b6 0.000%,#7b84b6 16.667%,#eef0f7 16.667%,#eef0f7 33.333%,#ffffff 33.333%,#ffffff 50.000%,#b8bbd2 50.000%,#b8bbd2 66.667%,#1d2237 66.667%,#1d2237 83.333%,#262c49 83.333%,#262c49 100.000%)"></span><span class="palette-name">Night Blue + Lavender</span></button><button type="button" class="palette-chip" data-palette="emerald_beige" title="Emerald + Beige"><span class="palette-swatch" style="background:linear-gradient(90deg,#5b846e 0.000%,#5b846e 16.667%,#313e37 16.667%,#313e37 33.333%,#24312a 33.333%,#24312a 50.000%,#7e8d84 50.000%,#7e8d84 66.667%,#ece5d8 66.667%,#ece5d8 83.333%,#fbf8f2 83.333%,#fbf8f2 100.000%)"></span><span class="palette-name">Emerald + Beige</span></button><button type="button" class="palette-chip" data-palette="sky_pearl" title="Sky + Pearl"><span class="palette-swatch" style="background:linear-gradient(90deg,#8bb7c7 0.000%,#8bb7c7 16.667%,#38454b 16.667%,#38454b 33.333%,#2c3a40 33.333%,#2c3a40 50.000%,#83959d 50.000%,#83959d 66.667%,#eaf1f3 66.667%,#eaf1f3 83.333%,#fbfdfd 83.333%,#fbfdfd 100.000%)"></span><span class="palette-name">Sky + Pearl</span></button><button type="button" class="palette-chip" data-palette="linen_gold" title="Linen + Light Gold"><span class="palette-swatch" style="background:linear-gradient(90deg,#b9a171 0.000%,#b9a171 16.667%,#494239 16.667%,#494239 33.333%,#3b352e 33.333%,#3b352e 50.000%,#8c8379 50.000%,#8c8379 66.667%,#f2ede3 66.667%,#f2ede3 83.333%,#fcfaf6 83.333%,#fcfaf6 100.000%)"></span><span class="palette-name">Linen + Light Gold</span></button><button type="button" class="palette-chip" data-palette="soft_lavender" title="Soft Lavender + Bone"><span class="palette-swatch" style="background:linear-gradient(90deg,#b6a3c9 0.000%,#b6a3c9 16.667%,#4a4450 16.667%,#4a4450 33.333%,#5d5465 33.333%,#5d5465 50.000%,#938d98 50.000%,#938d98 66.667%,#f1edf5 66.667%,#f1edf5 83.333%,#fcfbfd 83.333%,#fcfbfd 100.000%)"></span><span class="palette-name">Soft Lavender + Bone</span></button><button type="button" class="palette-chip" data-palette="pistachio_cream" title="Pistachio + Cream"><span class="palette-swatch" style="background:linear-gradient(90deg,#98ae8d 0.000%,#98ae8d 16.667%,#41463c 16.667%,#41463c 33.333%,#34392f 33.333%,#34392f 50.000%,#878d82 50.000%,#878d82 66.667%,#edf0e6 66.667%,#edf0e6 83.333%,#fbfcf8 83.333%,#fbfcf8 100.000%)"></span><span class="palette-name">Pistachio + Cream</span></button><button type="button" class="palette-chip" data-palette="steel_charcoal" title="Steel + Charcoal"><span class="palette-swatch" style="background:linear-gradient(90deg,#768690 0.000%,#768690 16.667%,#e7eaec 16.667%,#e7eaec 33.333%,#ffffff 33.333%,#ffffff 50.000%,#afb7bd 50.000%,#afb7bd 66.667%,#20262b 66.667%,#20262b 83.333%,#2b3339 83.333%,#2b3339 100.000%)"></span><span class="palette-name">Steel + Charcoal</span></button><button type="button" class="palette-chip" data-palette="sand_ink" title="Sand + Ink"><span class="palette-swatch" style="background:linear-gradient(90deg,#b49f87 0.000%,#b49f87 16.667%,#3f3832 16.667%,#3f3832 33.333%,#302925 33.333%,#302925 50.000%,#8e8275 50.000%,#8e8275 66.667%,#efe8df 66.667%,#efe8df 83.333%,#fbf8f4 83.333%,#fbf8f4 100.000%)"></span><span class="palette-name">Sand + Ink</span></button><button type="button" class="palette-chip" data-palette="cocoa_mist" title="Cocoa + Mist"><span class="palette-swatch" style="background:linear-gradient(90deg,#8f786d 0.000%,#8f786d 16.667%,#ece9e6 16.667%,#ece9e6 33.333%,#ffffff 33.333%,#ffffff 50.000%,#b4aaa4 50.000%,#b4aaa4 66.667%,#2e2623 66.667%,#2e2623 83.333%,#3b322f 83.333%,#3b322f 100.000%)"></span><span class="palette-name">Cocoa + Mist</span></button><button type="button" class="palette-chip" data-palette="clay_ash" title="Clay + Ash"><span class="palette-swatch" style="background:linear-gradient(90deg,#bb8b77 0.000%,#bb8b77 16.667%,#493a34 16.667%,#493a34 33.333%,#372b27 33.333%,#372b27 50.000%,#9f8478 50.000%,#9f8478 66.667%,#efe6e1 66.667%,#efe6e1 83.333%,#fbf8f6 83.333%,#fbf8f6 100.000%)"></span><span class="palette-name">Clay + Ash</span></button></div>
+              <div class="field-grid colors"><label>Acento<input type="color" id="primaryColor" value="#a88a58"></label><label>Texto<input type="color" id="textColor" value="#2b2824"></label><label>Títulos<input type="color" id="headingColor" value="#1f1c19"></label><label>Secundario<input type="color" id="mutedColor" value="#777068"></label><label>Fondo<input type="color" id="bgBodyColor" value="#eee8df"></label><label>Tarjeta<input type="color" id="bgContentColor" value="#fbf8f3"></label></div>
+              <div class="field-grid"><label>Opacidad contenido<input type="range" id="contentBgOpacity" min="0" max="1" step="0.05" value="0.94"></label><label>Desenfoque<select id="contentBlur"><option value="none">Sin desenfoque</option><option value="light" selected>Suave</option><option value="strong">Fuerte</option></select></label></div>
+              <label>Opacidad botón<input type="range" id="buttonOpacity" min="0" max="1" step="0.05" value="0.92"></label>
+              <label>Continuidad entre secciones<select id="continuityStyle"><option value="editorial" selected>Editorial · líneas y ritmo</option><option value="soft">Suave · bloques conectados</option><option value="none">Sin continuidad adicional</option></select></label>
+            </div>
+          </details>
+
+          <details class="form-section" id="sec-movimiento">
+            <summary><span><b>04</b> Movimiento</span><i>+</i></summary>
+            <div class="section-body">
+              <label>Estilo de animación<select id="motionPreset"><option value="cinematic" selected>Cinematic</option><option value="subtle">Sutil</option><option value="magazine">Editorial</option><option value="blur_focus">Blur → enfoque</option><option value="parallax">Parallax suave</option><option value="luxe">Luxe flotante</option><option value="none">Sin animación</option></select></label>
+              <label>Intensidad<select id="motionIntensity"><option value="low">Baja</option><option value="med" selected>Media</option><option value="high">Alta</option></select></label>
+            </div>
+          </details>
+
+          <details class="form-section" id="sec-evento" open>
+            <summary><span><b>05</b> Evento</span><i>+</i></summary>
+            <div class="section-body">
+              <label>Fecha y hora<input type="datetime-local" id="eventDate"></label>
+              <label>Título de cuenta regresiva<input type="text" id="countdownLabel" value="Falta para nuestro gran día"><span class="text-size-control"><span>Tamaño</span><select class="text-size-select" id="countdownLabelSize"><option value="auto" selected>Automático</option><option value="xs">XS</option><option value="s">S</option><option value="m">M</option><option value="l">L</option><option value="xl">XL</option></select></span></label>
+              <div class="field-grid"><label>Cuenta regresiva<select id="countdownStyle"><option value="super_minimal" selected>Actual · Números libres</option><option value="soft">Tarjetas suaves</option><option value="simple">Línea minimal</option><option value="outline">Contorno elegante</option><option value="pill">Pastillas</option><option value="glass">Cristal</option><option value="circles">Círculos</option><option value="editorial">Editorial dividido</option><option value="stacked">Bloques 2 × 2</option></select></label><label>Diseño visual de la fecha<select id="dateCardStyle"><option value="auto" selected>Actual · Según diseño</option><option value="editorial">Editorial</option><option value="heritage">Marco clásico</option><option value="arch">Arco suave</option><option value="couture">Doble marco</option><option value="calendar">Calendario moderno</option><option value="vertical">Fecha vertical</option><option value="seal">Sello circular</option><option value="minimal">Línea minimal</option><option value="none">Sin fecha visual</option></select></label></div>
+              <input type="hidden" id="heartStyle" value="minimal"><div class="field-grid"><label>Tamaño fecha<select class="text-size-select" id="dateTextSize"><option value="auto" selected>Automático</option><option value="xs">XS</option><option value="s">S</option><option value="m">M</option><option value="l">L</option><option value="xl">XL</option></select></label><label>Tamaño números cuenta regresiva<select class="text-size-select" id="countdownNumbersSize"><option value="auto" selected>Automático</option><option value="xs">XS</option><option value="s">S</option><option value="m">M</option><option value="l">L</option><option value="xl">XL</option></select></label></div>
+            </div>
+          </details>
+
+          <details class="form-section" id="sec-ubicaciones">
+            <summary><span><b>06</b> Ubicaciones</span><i>+</i></summary>
+            <div class="section-body">
+              <div class="check-row"><label><input type="checkbox" id="showCeremony" checked> Ceremonia</label><label><input type="checkbox" id="showReception" checked> Recepción</label></div><label>Tamaño título de la sección<select class="text-size-select" id="locationsHeadingSize"><option value="auto" selected>Automático</option><option value="xs">XS</option><option value="s">S</option><option value="m">M</option><option value="l">L</option><option value="xl">XL</option></select></label>
+              <label>Texto ceremonia<textarea id="ceremonyText" rows="2">Ceremonia religiosa · Parroquia de San Miguel</textarea><span class="text-size-control"><span>Tamaño</span><select class="text-size-select" id="ceremonyTextSize"><option value="auto" selected>Automático</option><option value="xs">XS</option><option value="s">S</option><option value="m">M</option><option value="l">L</option><option value="xl">XL</option></select></span></label>
+              <label>URL Maps ceremonia<input type="url" id="ceremonyUrl" placeholder="Pega aquí el enlace compartido de Google Maps"><small id="ceremonyMapStatus" class="map-status" aria-live="polite"></small></label>
+              <label>Coordenadas exactas ceremonia (automático)<input type="text" id="ceremonyCoords" inputmode="decimal" placeholder="20.123456, -103.123456"><small class="field-hint">Se rellenan automáticamente al detectar el pin. También puedes escribirlas como respaldo.</small></label>
+              <button type="button" id="clearCeremony" class="text-action danger">Quitar ceremonia</button>
+              <label>Texto recepción<textarea id="receptionText" rows="2">Recepción · Jardín Los Olivos</textarea><span class="text-size-control"><span>Tamaño</span><select class="text-size-select" id="receptionTextSize"><option value="auto" selected>Automático</option><option value="xs">XS</option><option value="s">S</option><option value="m">M</option><option value="l">L</option><option value="xl">XL</option></select></span></label>
+              <label>URL Maps recepción<input type="url" id="receptionUrl" placeholder="Pega aquí el enlace compartido de Google Maps"><small id="receptionMapStatus" class="map-status" aria-live="polite"></small></label>
+              <label>Coordenadas exactas recepción (automático)<input type="text" id="receptionCoords" inputmode="decimal" placeholder="20.123456, -103.123456"><small class="field-hint">Se rellenan automáticamente al detectar el pin. También puedes escribirlas como respaldo.</small></label>
+              <button type="button" id="clearReception" class="text-action danger">Quitar recepción</button>
+              <div class="field-grid"><label>Fondo tarjetas<input type="color" id="locationsBgColor" value="#ffffff"></label><label>Opacidad<input type="range" id="locationsBgOpacity" min="0" max="100" value="88"></label></div>
+            </div>
+          </details>
+
+          <details class="form-section" id="sec-familia">
+            <summary><span><b>07</b> Familia y protagonistas</span><i>+</i></summary>
+            <div class="section-body">
+              <p class="helper">Papás y padrinos usan exactamente la misma jerarquía visual para que ninguno pierda protagonismo.</p>
+              <label class="cover-check"><input type="checkbox" id="showFamily" checked> Mostrar sección de familia</label>
+              <label>Etiqueta <input type="text" id="familyLabel" value="Con el cariño de" placeholder="Ej. Con el cariño de"></label>
+              <label>Título <input type="text" id="familyHeading" value="Quienes nos acompañan desde el corazón" placeholder="Ej. Nuestra familia"></label>
+              <div class="family-editor-grid">
+                <div class="family-editor-card"><label>Título papás<input type="text" id="parentsLabel" value="Papás"></label><label>Nombres de los papás<textarea id="parentsText" rows="3" placeholder="Nombre · Nombre"></textarea></label></div>
+                <div class="family-editor-card"><label>Título padrinos<input type="text" id="godparentsLabel" value="Padrinos"></label><label>Nombres de los padrinos<textarea id="godparentsText" rows="3" placeholder="Nombre · Nombre"></textarea></label></div>
+              </div>
+              <label>Tamaño de nombres<select class="text-size-select" id="familyTextSize"><option value="auto" selected>Automático</option><option value="xs">XS</option><option value="s">S</option><option value="m">M</option><option value="l">L</option><option value="xl">XL</option></select></label>
+            </div>
+          </details>
+
+          <details class="form-section" id="sec-cierre">
+            <summary><span><b>08</b> Confirmación y cierre</span><i>+</i></summary>
+            <div class="section-body">
+              <div class="field-grid"><label>Tamaño título confirmación<select class="text-size-select" id="rsvpHeadingSize"><option value="auto" selected>Automático</option><option value="xs">XS</option><option value="s">S</option><option value="m">M</option><option value="l">L</option><option value="xl">XL</option></select></label><label>Tamaño texto confirmación<select class="text-size-select" id="rsvpCopySize"><option value="auto" selected>Automático</option><option value="xs">XS</option><option value="s">S</option><option value="m">M</option><option value="l">L</option><option value="xl">XL</option></select></label></div><label>Número WhatsApp<input type="text" id="whatsappNumber" placeholder="523311234567"></label>
+              <label>Mensaje WhatsApp<textarea id="whatsappMessage" rows="2">Hola, quiero confirmar mi asistencia.</textarea></label>
+              <label>Mensaje final<textarea id="mainMessage" rows="4">Tu presencia hará este momento aún más especial.</textarea><span class="text-size-control"><span>Tamaño</span><select class="text-size-select" id="mainMessageSize"><option value="auto" selected>Automático</option><option value="xs">XS</option><option value="s">S</option><option value="m">M</option><option value="l">L</option><option value="xl">XL</option></select></span></label><label>Tamaño botón confirmar<select class="text-size-select" id="rsvpButtonSize"><option value="auto" selected>Automático</option><option value="xs">XS</option><option value="s">S</option><option value="m">M</option><option value="l">L</option><option value="xl">XL</option></select></label>
+              <div class="closing-signature-editor"><label class="cover-check"><input type="checkbox" id="showClosingSignature" checked> Mostrar firma al cierre</label><label>Firma <input type="text" id="closingSignature" value="" placeholder="Ej. Alexa Ximena · 15.09.2026"></label><label>Estilo de firma<select id="closingSignatureFont"><option value="script_greatvibes">Caligráfica</option><option value="elegant_playfair">Editorial serif</option><option value="garamond_cormorant">Clásica</option><option value="modern_sans">Minimal sans</option></select></label></div>
+            </div>
+          </details>
+
+          <details class="form-section" id="sec-transferencia">
+            <summary><span><b>09</b> Regalo / transferencia <small>opcional</small></span><i>+</i></summary>
+            <div class="section-body">
+              <label class="cover-check"><input type="checkbox" id="showTransfer"> Mostrar apartado de regalo / transferencia</label>
+              <label>Etiqueta <small>opcional</small><input type="text" id="transferLabel" value="" placeholder="Ej. Un detalle para nosotros"></label>
+              <label>Texto <small>opcional</small><textarea id="transferText" rows="3" placeholder="Ej. Si deseas tener un detalle con nosotros, puedes hacerlo aquí."></textarea></label>
+              <label>Fotografía <small>opcional · vertical recomendada</small><input type="file" id="transferPhotoFile" accept="image/*"></label>
+              <label>Número de cuenta o CLABE <small>opcional</small><input type="text" id="transferNumber" inputmode="numeric" placeholder="Solo si el cliente lo solicita"></label>
+              <p class="helper">El texto y la CLABE/cuenta tienen prioridad visual. La fotografía funciona como apoyo y se integra con un degradado para no competir con la información.</p>
+            </div>
+          </details>
+
+          <details class="form-section" id="sec-video">
+            <summary><span><b>10</b> Video</span><i>+</i></summary>
+            <div class="section-body">
+              <label>Etiqueta del video <small>opcional · déjala vacía para ocultarla</small><input type="text" id="videoLabel" value="" placeholder="Ej. Nuestra historia"><span class="text-size-control"><span>Tamaño</span><select class="text-size-select" id="videoLabelSize"><option value="auto" selected>Automático</option><option value="xs">XS</option><option value="s">S</option><option value="m">M</option><option value="l">L</option><option value="xl">XL</option></select></span></label>
+              <label>Texto del video<textarea id="videoText" rows="2"></textarea><span class="text-size-control"><span>Tamaño</span><select class="text-size-select" id="videoTextSize"><option value="auto" selected>Automático</option><option value="xs">XS</option><option value="s">S</option><option value="m">M</option><option value="l">L</option><option value="xl">XL</option></select></span></label>
+              <label>URL YouTube / Vimeo<input type="url" id="videoUrl" placeholder="https://www.youtube.com/embed/..."></label>
+              <label>Imagen de portada del video<input type="file" id="videoPosterFile" accept="image/*"></label>
+            </div>
+          </details>
+
+          <details class="form-section" id="sec-media">
+            <summary><span><b>11</b> Imágenes y música</span><i>+</i></summary>
+            <div class="section-body media-fields">
+              <label>Portada <small>vertical recomendada</small><input type="file" id="portadaFile" accept="image/*"></label>
+              <label>Banner principal<input type="file" id="bannerFile" accept="image/*"></label>
+              <label>Formato banner principal<select id="bannerMode"><option value="horizontal" selected>Horizontal · acomodo clásico</option><option value="vertical">Vertical · sección completa</option><option value="auto">Automático · conservar proporción</option></select></label>
+              <p class="helper">El banner principal aparece inmediatamente debajo de la portada. Horizontal conserva el acomodo clásico; Vertical y Automático muestran la imagen completa sin estirarla.</p>
+              <label>Banner extra<input type="file" id="bannerExtraFile" accept="image/*"></label>
+              <label>Formato banner extra<select id="bannerExtraMode"><option value="horizontal" selected>Horizontal · acomodo clásico</option><option value="vertical">Vertical · sección completa</option><option value="auto">Automático · conservar proporción</option></select></label>
+              <label>Banner extra 2<input type="file" id="bannerExtra2File" accept="image/*"></label>
+              <label>Formato banner extra 2<select id="bannerExtra2Mode"><option value="horizontal" selected>Horizontal · acomodo clásico</option><option value="vertical">Vertical · sección completa</option><option value="auto">Automático · conservar proporción</option></select></label>
+              <label>Fondo de invitación<input type="file" id="bgFile" accept="image/*"></label>
+              <div class="background-controls"><p class="helper">El fondo permanece fijo mientras se desplaza la invitación.</p><label>Encuadre del fondo<select id="bgFit"><option value="cover">Llenar pantalla</option><option value="contain">Mostrar fotografía completa</option></select></label><div class="field-grid"><label>Posición horizontal<input type="range" id="bgFocusX" min="0" max="100" value="50"></label><label>Posición vertical<input type="range" id="bgFocusY" min="0" max="100" value="50"></label></div><label>Velo de color sobre el fondo<input type="range" id="bgOverlayOpacity" min="0" max="1" step="0.02" value="0.82"></label><p class="helper">Llenar pantalla recorta los bordes según la proporción del celular. Fotografía completa conserva toda la imagen.</p></div>
+              <label>Galería <small>selección múltiple</small><input type="file" id="galleryFiles" accept="image/*" multiple></label>
+              <div class="field-grid">
+                <label>Etiqueta de galería <small>opcional · déjala vacía para ocultarla</small><input type="text" id="galleryLabel" value="" placeholder="Ej. Nuestra historia"><span class="text-size-control"><span>Tamaño</span><select class="text-size-select" id="galleryLabelSize"><option value="auto" selected>Automático</option><option value="xs">XS</option><option value="s">S</option><option value="m">M</option><option value="l">L</option><option value="xl">XL</option></select></span></label>
+                <label>Título de galería <small>opcional · déjalo vacío para mostrar solo las fotos</small><input type="text" id="galleryTitle" value="" placeholder="Ej. Momentos que nos trajeron hasta aquí"><span class="text-size-control"><span>Tamaño</span><select class="text-size-select" id="galleryTitleSize"><option value="auto" selected>Automático</option><option value="xs">XS</option><option value="s">S</option><option value="m">M</option><option value="l">L</option><option value="xl">XL</option></select></span></label>
+              </div>
+              <input type="hidden" id="galleryOffsets" value="[]">
+              <input type="hidden" id="galleryFrames" value="[]">
+              <div class="photo-framing-tools">
+                <div class="photo-framing-head"><span>Encuadre por fotografía</span><small>Se conserva en galería y secciones editoriales</small></div>
+                <div id="photo-framing-list" class="photo-framing-list"><p class="helper">Carga fotografías para ajustar cada encuadre por separado.</p></div>
+              </div>
+              <label>Estilo de galería<select id="galleryStyle"><option value="square">Grid</option><option value="rectangular">Rectangular</option><option value="masonry">Masonry</option><option value="collage">Collage</option><option value="carousel">Carrusel clásico</option><option value="filmstrip">Secuencia · deslizable</option><option value="story">Álbum · foto completa</option><option value="narrative">Álbum narrativo · editorial</option><option value="editorial" selected>Editorial · portada y dípticos</option><option value="polaroid_pro">Polaroid</option></select></label><p class="helper">El estilo de galería es independiente del diseño: Grid, Masonry, Carrusel, Álbum, Editorial y Polaroid conservan su propio acomodo aunque cambies de plantilla.</p>
+              <label class="check-row"><input type="checkbox" id="galleryEditMode"> Ajustar encuadres en la vista previa</label><p class="helper">Activa para arrastrar cada foto en horizontal y vertical. El encuadre se guarda por fotografía y también se usa cuando esa foto aparece en Fecha, Familia, Ubicación o Cierre.</p><label>Posición vertical predeterminada<input type="range" id="galleryFocusY" min="0" max="100" value="50"></label>
+              <label>Música en loop<input type="file" id="musicFile" accept="audio/*"></label>
+            </div>
+          </details>
+
+          <details class="form-section" id="sec-orden">
+            <summary><span><b>12</b> Orden de secciones</span><i>+</i></summary>
+            <div class="section-body"><p class="helper">0 oculta la sección y del 1 al 10 define su posición. Transferencia es independiente de Confirmación y solo aparece cuando la activas.</p>
+              <div class="order-grid"><label>Ubicación<input type="number" id="orderLocations" min="0" max="10" value="1"></label><label>Familia<input type="number" id="orderFamily" min="0" max="10" value="2"></label><label>Confirmación<input type="number" id="orderConfirm" min="0" max="10" value="3"></label><label>Cuenta regresiva<input type="number" id="orderCountdown" min="0" max="10" value="4"></label><label>Galería<input type="number" id="orderGallery" min="0" max="10" value="5"></label><label>Banner extra<input type="number" id="orderBannerExtra" min="0" max="10" value="6"></label><label>Banner extra 2<input type="number" id="orderBannerExtra2" min="0" max="10" value="7"></label><label>Mensaje final<input type="number" id="orderMessage" min="0" max="10" value="8"></label><label>Video<input type="number" id="orderVideo" min="0" max="10" value="9"></label><label>Transferencia<input type="number" id="orderTransfer" min="0" max="10" value="10"></label></div>
+            </div>
+          </details>
+
+          <details class="form-section" id="sec-exportar">
+            <summary><span><b>13</b> Importar configuración</span><i>+</i></summary>
+            <div class="section-body"><p class="helper">Pega el link público de la invitación o de su config.json.</p><label>Link de configuración<input type="text" id="configUrl" placeholder="https://github.com/USUARIO/REPO/blob/main/config.json"></label><label>O selecciona tu config.json<input type="file" id="localConfig" accept=".json,application/json"></label><div class="inline-load"><button type="button" id="btnLoadConfig" class="btn secondary">Cargar configuración</button><span id="configStatus"></span></div></div>
+          </details>
+
+          <details class="form-section" id="sec-github">
+            <summary><span><b>14</b> Publicar en GitHub</span><i>+</i></summary>
+            <div class="section-body github-publish-panel">
+              <p class="helper"><strong>Beta de publicación directa.</strong> Usa un token de GitHub solo durante esta pestaña; Aura no lo guarda ni lo incluye en el ZIP o config.json.</p>
+              <label>Token de GitHub <small>recomendado: fine-grained · Contents, Administration y Pages en escritura</small>
+                <input type="password" id="githubToken" autocomplete="off" spellcheck="false" placeholder="github_pat_… o ghp_…">
+              </label>
+              <div class="github-row">
+                <button type="button" id="githubConnect" class="btn secondary">Conectar GitHub</button>
+                <span id="githubAuthStatus" class="github-status">Sin conectar</span>
+              </div>
+              <label>Repositorio de esta invitación <small>uno por invitación</small>
+                <input type="text" id="githubRepo" autocomplete="off" spellcheck="false" placeholder="xv-nombre-o-boda-nombre">
+              </label>
+              <p class="helper">Si no existe, Aura lo crea público. Si ya existe en tu cuenta, lo actualiza. La publicación reemplaza el contenido del repositorio dedicado a esa invitación.</p>
+              <button type="button" id="githubPublish" class="btn primary github-publish-btn" disabled>Publicar invitación</button>
+              <div class="github-progress" id="githubProgress" hidden><span id="githubProgressBar"></span></div>
+              <p id="githubPublishStatus" class="github-publish-status" aria-live="polite"></p>
+              <div id="githubPagesActions" class="github-pages-actions" hidden>
+                <label class="github-pages-url-label">Enlace de la invitación
+                  <input type="text" id="githubPagesUrl" class="github-pages-url" readonly spellcheck="false" aria-label="Enlace público de la invitación">
+                </label>
+                <div class="github-pages-buttons">
+                  <a id="githubPagesLink" class="github-pages-link" href="#" target="_blank" rel="noopener">Abrir invitación publicada ↗</a>
+                  <button type="button" id="githubCopyLink" class="btn secondary">Copiar enlace</button>
+                </div>
+                <p id="githubCopyStatus" class="github-copy-status" aria-live="polite"></p>
+              </div>
+              <div class="github-repo-manager">
+                <div class="github-repo-manager-head">
+                  <div><strong>Eliminar repositorios</strong><small>Muestra todos los repositorios accesibles con este token.</small></div>
+                  <button type="button" id="githubLoadRepos" class="btn secondary" disabled>Ver repositorios</button>
+                </div>
+                <label class="github-repo-search" for="githubRepoSearch">Buscar repositorio
+                  <input type="search" id="githubRepoSearch" autocomplete="off" placeholder="usuario/repositorio" disabled>
+                </label>
+                <p id="githubRepoStatus" class="github-publish-status" aria-live="polite"></p>
+                <div id="githubRepoList" class="github-repo-list" hidden></div>
+              </div>
+            </div>
+          </details>
+        </form>
+      </aside>
+
+      <section class="preview-pane">
+        <div class="preview-head"><div><span class="eyebrow">PREVIEW</span><h2>Vista móvil</h2></div><div class="preview-tools"><label class="preview-edit-toggle"><input type="checkbox" id="previewEditMode" checked> Tocar para editar</label><span class="device-label">390 × 844 · viewport real</span></div></div>
+        <div class="device-shell"><div class="device-island"></div><iframe id="preview-frame" title="Vista previa invitación"></iframe></div>
+        <p class="preview-note">Toca títulos, frases y nombres dentro del teléfono para abrir su campo en el editor. La invitación exportada conserva este mismo diseño y funcionamiento. También puedes abrir el preview en una ventana independiente.</p>
+      </section>
+    </main>
+  </div>
+
+  <dialog id="githubRepoPreviewModal" class="github-preview-modal" aria-labelledby="githubPreviewTitle">
+    <section class="github-preview-dialog">
+      <div class="github-preview-head">
+        <div>
+          <span class="eyebrow">GITHUB PAGES</span>
+          <strong id="githubPreviewTitle">Vista previa</strong>
+          <small id="githubPreviewUrl"></small>
+        </div>
+        <div class="github-preview-head-actions">
+          <a id="githubPreviewOpen" class="btn secondary" href="#" target="_blank" rel="noopener">Abrir ↗</a>
+          <button type="button" id="githubPreviewClose" class="btn secondary">Cerrar</button>
+        </div>
+      </div>
+      <div class="github-preview-device">
+        <div class="github-preview-island"></div>
+        <iframe id="githubPreviewFrame" title="Vista previa del repositorio publicado" loading="eager"></iframe>
+      </div>
+      <p class="github-preview-note">Esta es la publicación real de GitHub Pages. Si no carga dentro del teléfono, usa “Abrir ↗”.</p>
+    </section>
+  </dialog>
+
+  <script src="js/font-data.js?v=5.6.14"></script>
+  <script src="js/script.js?v=5.6.14"></script>
+</body>
+</html>

@@ -1,0 +1,41 @@
+AURA DIGITAL · PUBLICACIÓN GITHUB · v5.6.9 · CACHE BUSTING + ELIMINAR REPOSITORIOS
+
+Esta versión conserva la v5.6.5 y sus 36 paletas. GitHub es una ruta adicional; "Generar ZIP" sigue funcionando como antes.
+
+PRUEBA DE CONEXIÓN
+1. Crea un token de GitHub para tu propia cuenta.
+2. Recomendado: fine-grained personal access token.
+3. Para publicar y actualizar una invitación, permite escritura en:
+   - Contents
+   - Administration
+   - Pages
+4. Si quieres que Aura pueda crear repositorios nuevos, el token debe tener acceso suficiente para esa operación. Para esta beta conviene usar acceso a todos tus repositorios de la cuenta de pruebas.
+5. Pega el token en "14 · Publicar en GitHub" y pulsa "Conectar GitHub".
+6. Elige un nombre de repositorio y pulsa "Publicar invitación".
+
+SEGURIDAD
+- El token no se guarda en localStorage.
+- El token no se añade al config.json.
+- El token no se añade al ZIP de la invitación.
+- Al recargar/cerrar la pestaña tendrás que pegarlo de nuevo.
+- Para la versión final conviene sustituir este acceso de prueba por GitHub App/OAuth con PKCE.
+
+PUBLICACIÓN
+Aura crea o actualiza un repositorio dedicado a una sola invitación, sube sus archivos mediante la Git Data API y configura GitHub Pages desde la raíz de la rama principal.
+
+
+CAMBIO v5.6.8
+- Mantiene el mismo repositorio y la misma URL de GitHub Pages.
+- Mantiene los nombres físicos de assets (portada.jpg, foto-1.jpg, etc.).
+- En cada publicación, el index usa ?v=<versión> en portada, banners, fondo, galería, póster, regalo y música.
+- Esto fuerza al navegador a solicitar los assets actualizados cuando recibe el index nuevo.
+- No crea repositorios adicionales ni duplica los assets.
+
+
+CAMBIO v5.6.9
+- Agrega un administrador de repositorios dentro de la sección GitHub.
+- "Ver repositorios" lista todos los repositorios accesibles para el token, no solo los creados por Aura.
+- Puede eliminar definitivamente cualquier repositorio sobre el que GitHub permita administración.
+- Para confirmar el borrado hay que escribir exactamente owner/repositorio.
+- Los repositorios donde GitHub reporta que no hay permiso de administración se muestran, pero su botón queda deshabilitado.
+- Borrar un repositorio también deja de servir cualquier GitHub Pages alojado en él.

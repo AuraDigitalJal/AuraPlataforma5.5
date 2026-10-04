@@ -1,0 +1,11 @@
+Aura Digital · Invitation Studio v5.6.4
+
+Base estable con navegación, música, video, editor agrupado y diseños responsivos.
+
+Abre index.html en un navegador moderno.
+
+Optimización de fotografías al exportar ZIP
+- Se aplica a TODAS las imágenes cargadas: portada, banner principal, banners extra, fondo, póster de video, foto de regalo/transferencia y galería.
+- Si una imagen supera 1.4 MiB, se optimiza automáticamente buscando ~1.3 MiB (rango objetivo 1.2–1.4 MiB).
+- Si ya pesa 1.4 MiB o menos, se conserva sin inflarla ni recomprimirla innecesariamente.
+- La música no se modifica.
