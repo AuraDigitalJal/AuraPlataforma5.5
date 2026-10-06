@@ -3113,7 +3113,7 @@ configObject=function(p){const c=_configObject5615(p);c.schemaVersion=5.615;c.st
    - Usa la misma credencial temporal de la integración GitHub.
    ========================================================== */
 const AURA_STUDIO_PRODUCT_5616='Aura Digital Studio';
-const AURA_STUDIO_VERSION_5616='5.6.17';
+const AURA_STUDIO_VERSION_5616='5.6.18';
 const auraSystemState5616={zipFile:null,zip:null,manifest:null,prefix:'',files:null,busy:false,lastInstalledVersion:'',lastInstalledUrl:'',lastInstalledRepo:''};
 
 function auraSystemSetStatus5616(text,type=''){
@@ -3418,3 +3418,241 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 
 const _configObject5617=configObject;
 configObject=function(p){const c=_configObject5617(p);c.schemaVersion=5.617;c.studioVersion='5.6.17';return c};
+
+
+/* =======================================================================
+   AURA DIGITAL · v5.6.18 · VISTA PREVIA WHATSAPP / OPEN GRAPH
+   - Genera whatsapp-preview.jpg en 1200 × 630.
+   - Usa imagen elegida; si falta, banner principal; si falta, portada.
+   - Publicación GitHub genera og:url y og:image absolutos automáticamente.
+   - La URL de og:image lleva versión para ayudar a renovar caché social.
+   - Recupera también la miniatura al abrir una invitación ya publicada.
+   ======================================================================= */
+const AURA_SHARE_W_5618=1200;
+const AURA_SHARE_H_5618=630;
+const auraShareBuildContext5618={publicBase:'',imageVersion:''};
+
+function auraShareSourceFile5618(p){
+  return p?.sharePreviewFile||p?.bannerFile||p?.portadaFile||null;
+}
+function auraShareNormalizeBase5618(value){
+  const raw=String(value||'').trim();if(!raw)return'';
+  try{
+    const u=new URL(raw);u.hash='';u.search='';
+    if(!u.pathname.endsWith('/')){
+      const last=u.pathname.split('/').pop()||'';
+      if(/\.[A-Za-z0-9]{1,8}$/.test(last))u.pathname=u.pathname.replace(/[^/]+$/,'');
+      else u.pathname+='/';
+    }
+    return u.toString();
+  }catch(e){return''}
+}
+function auraShareGithubBase5618(){
+  try{
+    const owner=(typeof auraGithubState!=='undefined'&&auraGithubState.user?.login)?auraGithubState.user.login:'';
+    const raw=$('githubRepo')?.value||'';
+    const repo=typeof auraGithubSlug==='function'?auraGithubSlug(raw):String(raw).trim();
+    if(!owner||!repo)return'';
+    return repo.toLowerCase()===(owner.toLowerCase()+'.github.io')
+      ?'https://'+owner+'.github.io/'
+      :'https://'+owner+'.github.io/'+repo+'/';
+  }catch(e){return''}
+}
+function auraSharePublicBase5618(p){
+  return auraShareNormalizeBase5618(p?.sharePublicUrl)
+    ||auraShareNormalizeBase5618(auraShareBuildContext5618.publicBase)
+    ||auraShareNormalizeBase5618(auraShareGithubBase5618());
+}
+function auraShareAbsolute5618(src,base){
+  const value=String(src||'').trim();if(!value)return'';
+  if(/^(?:https?:|data:|blob:)/i.test(value))return value;
+  if(!base)return value;
+  try{return new URL(value,base).toString()}catch(e){return value}
+}
+function auraShareMetaHtml5618(p,a){
+  const title=String(p?.shareTitle||p?.title||'Invitación').trim().slice(0,120);
+  const description=String(p?.shareDescription||p?.subtitle||p?.mainMessage||'').trim().replace(/\s+/g,' ').slice(0,220);
+  const base=auraSharePublicBase5618(p);
+  let imageRef=String(a?.sharePreview||'').trim();
+  if(imageRef&&auraShareBuildContext5618.imageVersion&&!/^(?:blob:|data:)/i.test(imageRef)){
+    imageRef+=imageRef.includes('?')?'&':'?';
+    imageRef+='v='+encodeURIComponent(auraShareBuildContext5618.imageVersion);
+  }
+  const image=auraShareAbsolute5618(imageRef,base);
+  const page=base;
+  const tags=[
+    '<meta property="og:type" content="website">',
+    '<meta property="og:title" content="'+esc(title)+'">'
+  ];
+  if(description)tags.push('<meta property="og:description" content="'+esc(description)+'">');
+  if(page){
+    tags.push('<meta property="og:url" content="'+esc(page)+'">');
+    tags.push('<link rel="canonical" href="'+esc(page)+'">');
+  }
+  if(image){
+    tags.push('<meta property="og:image" content="'+esc(image)+'">');
+    tags.push('<meta property="og:image:width" content="'+AURA_SHARE_W_5618+'">');
+    tags.push('<meta property="og:image:height" content="'+AURA_SHARE_H_5618+'">');
+    tags.push('<meta property="og:image:type" content="image/jpeg">');
+    tags.push('<meta property="og:image:alt" content="'+esc(title)+'">');
+    tags.push('<meta name="twitter:card" content="summary_large_image">');
+    tags.push('<meta name="twitter:image" content="'+esc(image)+'">');
+  }
+  return tags.join('');
+}
+
+const _getFormParams5618=getFormParams;
+getFormParams=function(){
+  const p=_getFormParams5618();
+  p.shareTitle=$('shareTitle')?.value??'';
+  p.shareDescription=$('shareDescription')?.value??'';
+  p.sharePublicUrl=$('sharePublicUrl')?.value??'';
+  const selected=$('sharePreviewFile')?.files?.[0]||null;
+  p.sharePreviewFile=selected||(typeof auraRecoveredAssets5617!=='undefined'?auraRecoveredAssets5617.sharePreviewFile:null)||null;
+  return p;
+};
+
+const _releaseUnusedFiles5618=releaseUnusedFiles;
+releaseUnusedFiles=function(p){
+  if(p?.sharePreviewFile){
+    const q={...p,galleryFiles:[...(p.galleryFiles||[]),p.sharePreviewFile]};
+    return _releaseUnusedFiles5618(q);
+  }
+  return _releaseUnusedFiles5618(p);
+};
+
+const _previewAssets5618=previewAssets;
+previewAssets=function(p){
+  const a=_previewAssets5618(p),source=auraShareSourceFile5618(p);
+  a.sharePreview=source?fileUrl(source):'';
+  return a;
+};
+
+const _zipAssets5618=zipAssets;
+zipAssets=function(p){
+  const a=_zipAssets5618(p);
+  a.sharePreview=p?.__auraSharePreviewReady5618?'assets/whatsapp-preview.jpg':'';
+  return a;
+};
+
+async function auraPrepareShareImage5618(file){
+  if(!file)return null;
+  if(typeof auraRecoveredAssetFiles5617!=='undefined'&&auraRecoveredAssetFiles5617.has(file)&&/^whatsapp-preview\./i.test(file.name||'')){
+    return {blob:file,sourceSize:file.size,finalSize:file.size,recovered:true};
+  }
+  let decoded;
+  try{
+    decoded=await decodeImageForZip(file);
+    const target=AURA_SHARE_W_5618/AURA_SHARE_H_5618,source=decoded.width/decoded.height;
+    let sx=0,sy=0,sw=decoded.width,sh=decoded.height;
+    if(source>target){sw=decoded.height*target;sx=(decoded.width-sw)/2}
+    else if(source<target){sh=decoded.width/target;sy=(decoded.height-sh)/2}
+    const canvas=document.createElement('canvas');canvas.width=AURA_SHARE_W_5618;canvas.height=AURA_SHARE_H_5618;
+    const ctx=canvas.getContext('2d',{alpha:false});ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.imageSmoothingEnabled=true;ctx.imageSmoothingQuality='high';
+    ctx.drawImage(decoded.source,sx,sy,sw,sh,0,0,canvas.width,canvas.height);
+    let quality=.88,blob=await canvasBlob(canvas,'image/jpeg',quality);
+    while(blob.size>900*1024&&quality>.58){quality-=.08;blob=await canvasBlob(canvas,'image/jpeg',quality)}
+    canvas.width=1;canvas.height=1;
+    return {blob,sourceSize:file.size,finalSize:blob.size,recovered:false};
+  }finally{decoded?.close?.()}
+}
+
+const _prepareZipImages5618=prepareZipImages;
+prepareZipImages=async function(p,onProgress){
+  p.__auraSharePreviewReady5618=false;
+  const result=await _prepareZipImages5618(p,onProgress);
+  const source=auraShareSourceFile5618(p);
+  if(!source)return result;
+  try{
+    const ready=await auraPrepareShareImage5618(source);
+    if(ready?.blob){
+      result.files=(result.files||[]).filter(entry=>entry.name!=='whatsapp-preview.jpg');
+      result.files.push({name:'whatsapp-preview.jpg',blob:ready.blob,meta:{sharePreview:true,sourceSize:ready.sourceSize,finalSize:ready.finalSize,recovered:ready.recovered}});
+      result.sharePreview='assets/whatsapp-preview.jpg';
+      p.__auraSharePreviewReady5618=true;
+    }
+  }catch(e){console.warn('Aura Digital: no se pudo preparar la miniatura de WhatsApp',e)}
+  return result;
+};
+
+const _buildInvitation5618=buildInvitation;
+buildInvitation=function(p,a){
+  let html=_buildInvitation5618(p,a);
+  const meta=auraShareMetaHtml5618(p,a);
+  if(meta)html=html.replace('<title>',meta+'<title>');
+  return html;
+};
+
+const _configObject5618=configObject;
+configObject=function(p){
+  const c=_configObject5618(p);
+  delete c.sharePreviewFile;
+  c.schemaVersion=5.618;c.studioVersion='5.6.18';
+  return c;
+};
+
+if(typeof auraRecoveredAssets5617!=='undefined'&&!Object.prototype.hasOwnProperty.call(auraRecoveredAssets5617,'sharePreviewFile')){
+  auraRecoveredAssets5617.sharePreviewFile=null;
+}
+if(typeof auraRecoveredAllFiles5617==='function'){
+  const _auraRecoveredAllFiles5618=auraRecoveredAllFiles5617;
+  auraRecoveredAllFiles5617=function(){
+    const list=_auraRecoveredAllFiles5618();
+    const f=auraRecoveredAssets5617.sharePreviewFile;
+    if(f&&!list.includes(f))list.push(f);
+    return list;
+  };
+}
+if(typeof auraClassifyAsset5617==='function'){
+  const _auraClassifyAsset5618=auraClassifyAsset5617;
+  auraClassifyAsset5617=function(path){
+    const name=decodeURIComponent(String(path).split('/').pop()||'').toLowerCase();
+    if(/^whatsapp-preview\./.test(name))return {key:'sharePreviewFile'};
+    return _auraClassifyAsset5618(path);
+  };
+}
+
+if(typeof auraGithubBuildFiles==='function'){
+  const _auraGithubBuildFiles5618=auraGithubBuildFiles;
+  auraGithubBuildFiles=async function(onProgress){
+    const previousBase=auraShareBuildContext5618.publicBase,previousVersion=auraShareBuildContext5618.imageVersion;
+    auraShareBuildContext5618.publicBase=auraShareGithubBase5618();
+    auraShareBuildContext5618.imageVersion=Date.now().toString(36);
+    try{return await _auraGithubBuildFiles5618(onProgress)}
+    finally{auraShareBuildContext5618.publicBase=previousBase;auraShareBuildContext5618.imageVersion=previousVersion}
+  };
+}
+
+function auraShareUpdateUi5618(){
+  const custom=$('sharePreviewFile')?.files?.[0]||null;
+  const recovered=(typeof auraRecoveredAssets5617!=='undefined'?auraRecoveredAssets5617.sharePreviewFile:null)||null;
+  const banner=$('bannerFile')?.files?.[0]||(typeof auraRecoveredAssets5617!=='undefined'?auraRecoveredAssets5617.bannerFile:null)||null;
+  const cover=$('portadaFile')?.files?.[0]||(typeof auraRecoveredAssets5617!=='undefined'?auraRecoveredAssets5617.portadaFile:null)||null;
+  const source=custom||recovered||banner||cover||null;
+  const status=$('sharePreviewStatus'),thumb=$('sharePreviewThumb');
+  if(status){
+    if(custom)status.textContent='Miniatura propia: '+custom.name+' · Aura la recortará a 1200 × 630.';
+    else if(recovered)status.textContent='Miniatura recuperada de la invitación publicada.';
+    else if(banner)status.textContent='Automático: se usará el banner principal como miniatura.';
+    else if(cover)status.textContent='Automático: se usará la portada como miniatura.';
+    else status.textContent='Aún no hay imagen disponible para la miniatura de WhatsApp.';
+  }
+  if(thumb){
+    if(source){thumb.src=fileUrl(source);thumb.hidden=false}
+    else{thumb.removeAttribute('src');thumb.hidden=true}
+  }
+}
+function initSharePreview5618(){
+  const share=$('sharePreviewFile');
+  share?.addEventListener('change',()=>{
+    if(typeof auraRecoveredAssets5617!=='undefined')auraRecoveredAssets5617.sharePreviewFile=null;
+    auraShareUpdateUi5618();
+  },{capture:true});
+  $('bannerFile')?.addEventListener('change',auraShareUpdateUi5618);
+  $('portadaFile')?.addEventListener('change',auraShareUpdateUi5618);
+  $('btnLoadConfig')?.addEventListener('click',()=>setTimeout(auraShareUpdateUi5618,900));
+  auraShareUpdateUi5618();
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initSharePreview5618);else initSharePreview5618();
+
