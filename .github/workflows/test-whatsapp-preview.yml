@@ -45,6 +45,7 @@ jobs:
             for(const sel of ['#shareTitle','#shareDescription','#sharePreviewFile','#sharePublicUrl','#generate-zip']){
               if(!(await page.$(sel))) throw new Error('Falta control '+sel);
             }
+            await page.locator('#sec-github').evaluate(el=>{el.open=true});
 
             await page.fill('#shareTitle','Prueba WhatsApp Aura');
             await page.fill('#shareDescription','Prueba automática de vista previa');
