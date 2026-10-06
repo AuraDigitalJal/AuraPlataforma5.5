@@ -1,0 +1,79 @@
+name: Test WhatsApp Preview
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  whatsapp-preview:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Playwright
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install playwright@1.55.0 >/dev/null
+          npx playwright install --with-deps chromium >/dev/null
+
+      - name: Start Aura locally
+        run: |
+          python3 -m http.server 4173 >/tmp/aura-http.log 2>&1 &
+          echo $! >/tmp/aura-http.pid
+          sleep 2
+
+      - name: Browser test and generate ZIP
+        run: |
+          node <<'NODE'
+          const { chromium } = require('playwright');
+          const fs = require('fs');
+          (async()=>{
+            const browser=await chromium.launch({headless:true});
+            const page=await browser.newPage({acceptDownloads:true});
+            const pageErrors=[];
+            page.on('pageerror',e=>pageErrors.push(String(e)));
+            await page.goto('http://127.0.0.1:4173/',{waitUntil:'networkidle'});
+
+            for(const sel of ['#shareTitle','#shareDescription','#sharePreviewFile','#sharePublicUrl','#generate-zip']){
+              if(!(await page.$(sel))) throw new Error('Falta control '+sel);
+            }
+
+            await page.fill('#shareTitle','Prueba WhatsApp Aura');
+            await page.fill('#shareDescription','Prueba automática de vista previa');
+            await page.fill('#sharePublicUrl','https://example.com/prueba/');
+
+            const png=Buffer.from(
+              'iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAFElEQVR42mP8z8AARAwMjDAGBgYAAB0AAf8H6NAAAAAASUVORK5CYII=',
+              'base64'
+            );
+            await page.setInputFiles('#sharePreviewFile',{name:'preview.png',mimeType:'image/png',buffer:png});
+
+            const downloadPromise=page.waitForEvent('download');
+            await page.click('#generate-zip');
+            const download=await downloadPromise;
+            await download.saveAs('/tmp/aura-test.zip');
+
+            if(pageErrors.length) throw new Error('Errores de página: '+pageErrors.join(' | '));
+            await browser.close();
+          })().catch(e=>{console.error(e);process.exit(1)});
+          NODE
+
+      - name: Verify exported Open Graph package
+        run: |
+          unzip -t /tmp/aura-test.zip
+          unzip -l /tmp/aura-test.zip | grep -q 'assets/whatsapp-preview.jpg'
+          unzip -p /tmp/aura-test.zip index.html >/tmp/invitacion.html
+          grep -q 'property="og:title" content="Prueba WhatsApp Aura"' /tmp/invitacion.html
+          grep -q 'property="og:description" content="Prueba automática de vista previa"' /tmp/invitacion.html
+          grep -q 'property="og:url" content="https://example.com/prueba/"' /tmp/invitacion.html
+          grep -q 'property="og:image" content="https://example.com/prueba/assets/whatsapp-preview.jpg"' /tmp/invitacion.html
+          grep -q 'property="og:image:width" content="1200"' /tmp/invitacion.html
+          grep -q 'property="og:image:height" content="630"' /tmp/invitacion.html
