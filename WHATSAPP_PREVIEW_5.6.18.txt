@@ -1,0 +1,9 @@
+AURA DIGITAL · VISTA PREVIA WHATSAPP · v5.6.18
+
+- Añade controles de título, descripción e imagen para la tarjeta al compartir.
+- Genera assets/whatsapp-preview.jpg en 1200 × 630.
+- Si no se elige imagen propia, usa banner principal y después portada.
+- En publicación directa de GitHub genera og:url y og:image absolutos.
+- Versiona la URL de la miniatura para ayudar a renovar el caché de WhatsApp.
+- La recuperación desde link incluye whatsapp-preview.jpg.
+- Generar ZIP conserva la función; para una URL absoluta al publicar manualmente puede indicarse la URL pública personalizada.
