@@ -1,8 +1,8 @@
 {
   "product": "Aura Digital Studio",
   "schema": 1,
-  "version": "5.6.18",
+  "version": "5.6.19",
   "entry": "index.html",
   "channel": "stable",
-  "description": "Aura Digital con recuperación completa desde link y vista previa automática para WhatsApp/Open Graph con miniatura 1200 × 630."
+  "description": "Aura Digital con dominio oficial auradigitaljal.com integrado en publicación, enlaces, Open Graph, previews y actualizador."
 }
