@@ -1,8 +1,8 @@
 {
   "product": "Aura Digital Studio",
   "schema": 1,
-  "version": "5.6.20",
+  "version": "5.6.21",
   "entry": "index.html",
   "channel": "stable",
-  "description": "Aura Digital con protección contra borrado accidental de los repositorios esenciales del dominio y de la plataforma."
+  "description": "Aura Digital permite elegir al exportar o publicar entre el optimizado actual (~500 KB) y conservar la calidad original, sin modificar la ruta de optimización existente."
 }
