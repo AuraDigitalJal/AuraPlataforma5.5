@@ -12,7 +12,7 @@
 <body>
   <div id="app">
     <header class="topbar">
-      <div class="topbar-brand"><span class="brand-mark small">A</span><div><strong>AURA DIGITAL</strong><small>Invitation Studio · v5.6.18 · Vista previa WhatsApp</small></div></div>
+      <div class="topbar-brand"><span class="brand-mark small">A</span><div><strong>AURA DIGITAL</strong><small>Invitation Studio · v5.6.19 · Dominio propio</small></div></div>
       <div class="topbar-actions">
         <span class="save-indicator"><i></i> Vista en vivo</span>
         <button type="button" id="open-preview-window" class="btn secondary">Abrir preview ↗</button>
@@ -256,7 +256,7 @@
           <details class="form-section" id="sec-github">
             <summary><span><b>14</b> Publicar en GitHub</span><i>+</i></summary>
             <div class="section-body github-publish-panel">
-              <p class="helper"><strong>Beta de publicación directa.</strong> Usa un token de GitHub solo durante esta pestaña; Aura no lo guarda ni lo incluye en el ZIP o config.json.</p>
+              <p class="helper"><strong>Publicación directa.</strong> Aura publica en GitHub Pages y entrega el enlace con el dominio oficial <strong>auradigitaljal.com</strong>. El token solo vive durante esta pestaña y no se guarda.</p>
               <div class="github-share-preview">
                 <p class="helper"><strong>Vista previa al compartir.</strong> Aura prepara una miniatura horizontal para WhatsApp. Si no eliges una imagen propia, usará el banner principal y después la portada.</p>
                 <label>Título en WhatsApp <small>opcional · si queda vacío usa el título de la invitación</small>
@@ -270,7 +270,7 @@
                 </label>
                 <img id="sharePreviewThumb" alt="Vista previa de la miniatura para WhatsApp" hidden style="width:100%;aspect-ratio:1200/630;object-fit:cover;border-radius:10px;margin:8px 0 4px;display:block;">
                 <p id="sharePreviewStatus" class="helper" aria-live="polite">Sin imagen propia: Aura usará el banner principal y después la portada.</p>
-                <label>URL pública personalizada <small>opcional · déjala vacía si publicas con el botón de GitHub</small>
+                <label>URL pública personalizada <small>opcional · normalmente déjala vacía; Aura usará auradigitaljal.com</small>
                   <input type="url" id="sharePublicUrl" autocomplete="off" spellcheck="false" placeholder="https://tudominio.com/invitacion/">
                 </label>
               </div>
