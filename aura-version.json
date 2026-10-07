@@ -1,8 +1,8 @@
 {
   "product": "Aura Digital Studio",
   "schema": 1,
-  "version": "5.6.19",
+  "version": "5.6.20",
   "entry": "index.html",
   "channel": "stable",
-  "description": "Aura Digital con dominio oficial auradigitaljal.com integrado en publicación, enlaces, Open Graph, previews y actualizador."
+  "description": "Aura Digital con protección contra borrado accidental de los repositorios esenciales del dominio y de la plataforma."
 }
