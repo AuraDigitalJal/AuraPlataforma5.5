@@ -40,6 +40,9 @@ jobs:
             page.on('pageerror',e=>errors.push(String(e)));
             await page.goto('http://127.0.0.1:4173/',{waitUntil:'networkidle'});
 
+            const png=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAFElEQVR42mP8z8AARAwMjDAGBgYAAB0AAf8H6NAAAAAASUVORK5CYII=','base64');
+            await page.setInputFiles('#sharePreviewFile',{name:'share.png',mimeType:'image/png',buffer:png});
+
             const result=await page.evaluate(async()=>{
               auraGithubState.user={login:'AuraDigitalJal'};
               document.querySelector('#githubRepo').value='pruebawh1';
