@@ -3687,3 +3687,180 @@ function initSharePreview5618(){
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initSharePreview5618);else initSharePreview5618();
 
+
+
+/* =======================================================================
+   AURA DIGITAL · v5.6.21 · ELECCIÓN DE CALIDAD AL EXPORTAR
+   - Conserva intacta la ruta de optimización actual (~500 KB).
+   - Añade una ruta alternativa que copia las imágenes originales sin
+     recomprimirlas.
+   - La elección se hace justo antes de generar ZIP o publicar en GitHub.
+   - La miniatura de WhatsApp mantiene su preparación 1200 × 630 porque es
+     un recurso específico de Open Graph, independiente de las imágenes
+     visibles de la invitación.
+   ======================================================================= */
+
+let auraExportImageMode5621='optimized';
+const _prepareZipImages5621=prepareZipImages;
+
+async function auraPrepareZipImagesOriginal5621(p){
+  if(typeof p.__auraSharePreviewReady5618!=='undefined')p.__auraSharePreviewReady5618=false;
+  const fixed=[
+    ['cover','portada',p.portadaFile],
+    ['banner','banner',p.bannerFile],
+    ['extra','banner-extra',p.bannerExtraFile],
+    ['extra2','banner-extra-2',p.bannerExtra2File],
+    ['bg','fondo',p.bgFile],
+    ['poster','video-poster',p.videoPosterFile],
+    ['transferPhoto','regalo-foto',p.transferPhotoFile]
+  ];
+  const jobs=fixed.filter(x=>x[2]);
+  (p.galleryFiles||[]).forEach((file,i)=>jobs.push(['gallery:'+i,'foto-'+(i+1),file]));
+  const result={gallery:new Array((p.galleryFiles||[]).length).fill(null),files:[]};
+
+  for(const [key,name,file] of jobs){
+    const ext=zipImageSourceExt(file);
+    const entry={
+      name:name+ext,
+      blob:file,
+      meta:{
+        optimized:false,
+        original:true,
+        sourceSize:file.size,
+        finalSize:file.size
+      }
+    };
+    result.files.push(entry);
+    if(key.startsWith('gallery:'))result.gallery[Number(key.split(':')[1])]='assets/'+entry.name;
+    else result[key]='assets/'+entry.name;
+  }
+
+  const shareSource=(typeof auraShareSourceFile5618==='function')?auraShareSourceFile5618(p):null;
+  if(shareSource&&typeof auraPrepareShareImage5618==='function'){
+    try{
+      const ready=await auraPrepareShareImage5618(shareSource);
+      if(ready?.blob){
+        result.files=result.files.filter(entry=>entry.name!=='whatsapp-preview.jpg');
+        result.files.push({
+          name:'whatsapp-preview.jpg',
+          blob:ready.blob,
+          meta:{
+            sharePreview:true,
+            sourceSize:ready.sourceSize,
+            finalSize:ready.finalSize,
+            recovered:ready.recovered
+          }
+        });
+        result.sharePreview='assets/whatsapp-preview.jpg';
+        p.__auraSharePreviewReady5618=true;
+      }
+    }catch(e){
+      console.warn('Aura Digital: no se pudo preparar la miniatura de WhatsApp',e);
+    }
+  }
+  return result;
+}
+
+prepareZipImages=async function(p,onProgress){
+  if(auraExportImageMode5621==='original'){
+    return auraPrepareZipImagesOriginal5621(p);
+  }
+  return _prepareZipImages5621(p,onProgress);
+};
+
+function auraEnsureExportDialogStyle5621(){
+  if(document.getElementById('aura-export-quality-style'))return;
+  const style=document.createElement('style');
+  style.id='aura-export-quality-style';
+  style.textContent=
+    '#auraExportQualityDialog{border:0;border-radius:22px;padding:0;max-width:min(92vw,560px);width:100%;box-shadow:0 24px 80px rgba(36,25,20,.28);background:#fff;color:#2d2723}'+
+    '#auraExportQualityDialog::backdrop{background:rgba(25,20,18,.52);backdrop-filter:blur(4px)}'+
+    '#auraExportQualityDialog .aura-eq-wrap{padding:26px}'+
+    '#auraExportQualityDialog .aura-eq-kicker{font:700 11px/1.2 system-ui,sans-serif;letter-spacing:.16em;text-transform:uppercase;color:#9b7b6c;margin-bottom:8px}'+
+    '#auraExportQualityDialog h3{margin:0 0 8px;font:700 24px/1.15 system-ui,sans-serif}'+
+    '#auraExportQualityDialog .aura-eq-intro{margin:0 0 18px;font:400 14px/1.55 system-ui,sans-serif;color:#6d625c}'+
+    '#auraExportQualityDialog .aura-eq-options{display:grid;gap:12px}'+
+    '#auraExportQualityDialog .aura-eq-option{display:block;width:100%;text-align:left;border:1px solid #e8dfda;background:#fff;border-radius:16px;padding:16px;cursor:pointer}'+
+    '#auraExportQualityDialog .aura-eq-option:hover{border-color:#c9aa9a;background:#fcf8f6}'+
+    '#auraExportQualityDialog .aura-eq-option strong{display:block;font:700 15px/1.25 system-ui,sans-serif;color:#332b27;margin-bottom:4px}'+
+    '#auraExportQualityDialog .aura-eq-option span{display:block;font:400 13px/1.45 system-ui,sans-serif;color:#756861}'+
+    '#auraExportQualityDialog .aura-eq-current{border-color:#b9917f;background:#fbf4f1}'+
+    '#auraExportQualityDialog .aura-eq-actions{display:flex;justify-content:flex-end;margin-top:16px}'+
+    '#auraExportQualityDialog .aura-eq-cancel{border:0;background:transparent;color:#756861;padding:9px 4px;cursor:pointer;font:600 13px/1 system-ui,sans-serif}';
+  document.head.appendChild(style);
+}
+
+function auraChooseExportImageMode5621(kind){
+  if(typeof HTMLDialogElement==='undefined'){
+    const original=window.confirm('Calidad de imágenes\n\nAceptar: conservar calidad original.\nCancelar: usar el optimizado actual (~500 KB).');
+    return Promise.resolve(original?'original':'optimized');
+  }
+  auraEnsureExportDialogStyle5621();
+  return new Promise(resolve=>{
+    const old=document.getElementById('auraExportQualityDialog');
+    if(old)old.remove();
+    const dialog=document.createElement('dialog');
+    dialog.id='auraExportQualityDialog';
+    const action=kind==='github'?'publicar':'generar el ZIP';
+    dialog.innerHTML=
+      '<div class="aura-eq-wrap">'+
+        '<div class="aura-eq-kicker">Calidad de imágenes</div>'+
+        '<h3>¿Cómo quieres '+action+'?</h3>'+
+        '<p class="aura-eq-intro">Elige solo para esta salida. La opción optimizada conserva exactamente el sistema que ya funciona.</p>'+
+        '<div class="aura-eq-options">'+
+          '<button type="button" class="aura-eq-option aura-eq-current" data-mode="optimized">'+
+            '<strong>Optimizado actual · recomendado</strong>'+
+            '<span>Usa exactamente la compresión existente, alrededor de 500 KB por imagen.</span>'+
+          '</button>'+
+          '<button type="button" class="aura-eq-option" data-mode="original">'+
+            '<strong>Conservar calidad original</strong>'+
+            '<span>No recomprime portada, banners, fondo ni galería. Puede aumentar mucho el peso.</span>'+
+          '</button>'+
+        '</div>'+
+        '<div class="aura-eq-actions"><button type="button" class="aura-eq-cancel">Cancelar</button></div>'+
+      '</div>';
+    document.body.appendChild(dialog);
+    let done=false;
+    const finish=mode=>{
+      if(done)return;
+      done=true;
+      try{dialog.close()}catch(e){}
+      dialog.remove();
+      resolve(mode);
+    };
+    dialog.querySelector('[data-mode="optimized"]').addEventListener('click',()=>finish('optimized'));
+    dialog.querySelector('[data-mode="original"]').addEventListener('click',()=>finish('original'));
+    dialog.querySelector('.aura-eq-cancel').addEventListener('click',()=>finish(null));
+    dialog.addEventListener('cancel',e=>{e.preventDefault();finish(null)});
+    dialog.showModal();
+  });
+}
+
+async function auraRunWithExportImageMode5621(kind,fn){
+  const mode=await auraChooseExportImageMode5621(kind);
+  if(!mode)return;
+  const previous=auraExportImageMode5621;
+  auraExportImageMode5621=mode;
+  try{return await fn()}
+  finally{auraExportImageMode5621=previous}
+}
+
+const _generateZip5621=generateZip;
+generateZip=function(){
+  return auraRunWithExportImageMode5621('zip',()=>_generateZip5621());
+};
+
+if(typeof auraGithubPublish==='function'){
+  const _auraGithubPublish5621=auraGithubPublish;
+  auraGithubPublish=function(){
+    return auraRunWithExportImageMode5621('github',()=>_auraGithubPublish5621());
+  };
+}
+
+const _configObject5621=configObject;
+configObject=function(p){
+  const c=_configObject5621(p);
+  c.schemaVersion=5.621;
+  c.studioVersion='5.6.21';
+  return c;
+};
