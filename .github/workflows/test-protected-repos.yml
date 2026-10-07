@@ -1,0 +1,88 @@
+name: Test Protected Repos
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  protected-repos:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Playwright
+        run: |
+          npm init -y >/dev/null 2>&1
+          npm install playwright@1.55.0 >/dev/null
+          npx playwright install --with-deps chromium >/dev/null
+
+      - name: Start Aura locally
+        run: |
+          python3 -m http.server 4173 >/tmp/aura-http.log 2>&1 &
+          sleep 2
+
+      - name: Validate protected repositories
+        run: |
+          node <<'NODE'
+          const { chromium } = require('playwright');
+          (async()=>{
+            const browser=await chromium.launch({headless:true});
+            const page=await browser.newPage();
+            await page.goto('http://127.0.0.1:4173/',{waitUntil:'networkidle'});
+
+            const result=await page.evaluate(()=>{
+              const domain={full_name:'AuraDigitalJal/AuraDigitalJal.github.io',name:'AuraDigitalJal.github.io',permissions:{admin:true},has_pages:true};
+              const app={full_name:'AuraDigitalJal/AuraPlataforma5.5',name:'AuraPlataforma5.5',permissions:{admin:true},has_pages:true};
+              const normal={full_name:'AuraDigitalJal/pruebawh1',name:'pruebawh1',permissions:{admin:true},has_pages:true};
+
+              auraGithubState.repos=[domain,app,normal];
+              auraGithubRenderRepos();
+
+              const rows=[...document.querySelectorAll('#githubRepoList .github-repo-item')];
+              const mapped=rows.map(row=>({
+                name:row.querySelector('strong')?.textContent,
+                button:row.querySelector('.github-delete-btn')?.textContent,
+                disabled:row.querySelector('.github-delete-btn')?.disabled
+              }));
+
+              let prompted=false;
+              const oldPrompt=window.prompt;
+              window.prompt=()=>{prompted=true;return null};
+              auraGithubDeleteRepo(domain,null);
+              const domainPrompted=prompted;
+              prompted=false;
+              auraGithubDeleteRepo(normal,null);
+              const normalPrompted=prompted;
+              window.prompt=oldPrompt;
+
+              return {
+                mapped,
+                domainProtected:auraGithubRepoProtected5620(domain),
+                appProtected:auraGithubRepoProtected5620(app),
+                normalProtected:auraGithubRepoProtected5620(normal),
+                domainPrompted,
+                normalPrompted
+              };
+            });
+
+            const byName=Object.fromEntries(result.mapped.map(x=>[x.name,x]));
+            if(!result.domainProtected||!result.appProtected) throw new Error('Repos esenciales no detectados como protegidos');
+            if(result.normalProtected) throw new Error('Repo normal marcado como protegido');
+            for(const name of ['AuraDigitalJal/AuraDigitalJal.github.io','AuraDigitalJal/AuraPlataforma5.5']){
+              if(byName[name]?.button!=='Protegido'||!byName[name]?.disabled) throw new Error(name+' no muestra botón Protegido deshabilitado');
+            }
+            if(byName['AuraDigitalJal/pruebawh1']?.button!=='Eliminar'||byName['AuraDigitalJal/pruebawh1']?.disabled) throw new Error('Repo normal no conserva Eliminar');
+            if(result.domainPrompted) throw new Error('El repositorio protegido llegó al prompt de borrado');
+            if(!result.normalPrompted) throw new Error('El repo normal no llegó al flujo de borrado');
+            console.log(JSON.stringify(result,null,2));
+            await browser.close();
+          })().catch(e=>{console.error(e);process.exit(1)});
+          NODE
