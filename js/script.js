@@ -2748,6 +2748,15 @@ async function auraGithubListAllRepos(){
     if(button){button.disabled=!auraGithubState.user;button.textContent='Actualizar lista'}
   }
 }
+const AURA_PROTECTED_REPOS_5620=new Set([
+  'auradigitaljal/auradigitaljal.github.io',
+  'auradigitaljal/auraplataforma5.5'
+]);
+function auraGithubRepoProtected5620(repo){
+  const full=String(repo?.full_name||'').trim().toLowerCase();
+  return AURA_PROTECTED_REPOS_5620.has(full);
+}
+
 function auraGithubRenderRepos(){
   const box=$('githubRepoList'),search=$('githubRepoSearch');if(!box)return;
   const q=String(search?.value||'').trim().toLowerCase();
@@ -2769,13 +2778,18 @@ function auraGithubRenderRepos(){
     if(repo.has_pages){preview.textContent='Vista previa';preview.addEventListener('click',()=>auraGithubOpenRepoPreview(repo,preview))}
     else{preview.textContent='Sin Pages';preview.disabled=true;preview.title='Este repositorio no tiene GitHub Pages activo.'}
     const del=document.createElement('button');del.type='button';del.className='btn github-delete-btn';del.textContent='Eliminar';
-    if(repo.permissions&&repo.permissions.admin===false){del.disabled=true;del.textContent='Sin permiso';del.title='GitHub no reporta permiso de administración para este repositorio.'}
+    if(auraGithubRepoProtected5620(repo)){del.disabled=true;del.textContent='Protegido';del.title='Repositorio esencial de Aura. La app no permite eliminarlo.'}
+    else if(repo.permissions&&repo.permissions.admin===false){del.disabled=true;del.textContent='Sin permiso';del.title='GitHub no reporta permiso de administración para este repositorio.'}
     else del.addEventListener('click',()=>auraGithubDeleteRepo(repo,del));
     actions.append(preview,del);row.append(info,actions);box.appendChild(row);
   }
 }
 async function auraGithubDeleteRepo(repo,button){
   if(!repo?.full_name)return;
+  if(auraGithubRepoProtected5620(repo)){
+    auraGithubSetRepoStatus('Este repositorio está protegido por Aura y no se puede eliminar desde la app.','error');
+    return;
+  }
   const expected=repo.full_name;
   const typed=window.prompt(`Vas a eliminar DEFINITIVAMENTE ${expected}.\n\nTambién dejará de funcionar cualquier GitHub Pages publicado desde ese repositorio.\n\nPara confirmar, escribe exactamente:\n${expected}`,'');
   if(typed===null)return;
@@ -3113,7 +3127,7 @@ configObject=function(p){const c=_configObject5615(p);c.schemaVersion=5.615;c.st
    - Usa la misma credencial temporal de la integración GitHub.
    ========================================================== */
 const AURA_STUDIO_PRODUCT_5616='Aura Digital Studio';
-const AURA_STUDIO_VERSION_5616='5.6.19';
+const AURA_STUDIO_VERSION_5616='5.6.20';
 const auraSystemState5616={zipFile:null,zip:null,manifest:null,prefix:'',files:null,busy:false,lastInstalledVersion:'',lastInstalledUrl:'',lastInstalledRepo:''};
 
 function auraSystemSetStatus5616(text,type=''){
@@ -3605,7 +3619,7 @@ const _configObject5618=configObject;
 configObject=function(p){
   const c=_configObject5618(p);
   delete c.sharePreviewFile;
-  c.schemaVersion=5.619;c.studioVersion='5.6.19';
+  c.schemaVersion=5.620;c.studioVersion='5.6.20';
   return c;
 };
 
