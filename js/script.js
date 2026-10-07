@@ -2673,7 +2673,7 @@ async function auraGithubPublish(){
     auraGithubProgress(90,'Configurando GitHub Pages…');
     const pages=await auraGithubEnablePages(owner,repoName,branch);
     const fallback=repoName.toLowerCase()===`${owner.toLowerCase()}.github.io`?`https://${owner}.github.io/`:`https://${owner}.github.io/${repoName}/`;
-    const url=pages?.html_url||fallback;
+    const url=auraPublicUrl5619(owner,repoName,pages?.html_url||fallback);
     const wrap=$('githubPagesActions'),link=$('githubPagesLink'),urlInput=$('githubPagesUrl');
     if(link){link.href=url;link.textContent='Abrir invitación publicada ↗'}
     if(urlInput)urlInput.value=url;
@@ -2996,7 +2996,7 @@ async function auraGithubResolvePagesUrl(repo){
   if(!owner||!name)throw new AuraGithubError('No pude identificar este repositorio.');
   const pages=await auraGithubRequest(`/repos/${encodeURIComponent(owner)}/${encodeURIComponent(name)}/pages`);
   const fallback=name.toLowerCase()===`${owner.toLowerCase()}.github.io`?`https://${owner}.github.io/`:`https://${owner}.github.io/${name}/`;
-  return pages?.html_url||fallback;
+  return auraPublicUrl5619(owner,name,pages?.html_url||fallback);
 }
 function auraGithubCloseRepoPreview(){
   const modal=$('githubRepoPreviewModal'),frame=$('githubPreviewFrame');
@@ -3113,7 +3113,7 @@ configObject=function(p){const c=_configObject5615(p);c.schemaVersion=5.615;c.st
    - Usa la misma credencial temporal de la integración GitHub.
    ========================================================== */
 const AURA_STUDIO_PRODUCT_5616='Aura Digital Studio';
-const AURA_STUDIO_VERSION_5616='5.6.18';
+const AURA_STUDIO_VERSION_5616='5.6.19';
 const auraSystemState5616={zipFile:null,zip:null,manifest:null,prefix:'',files:null,busy:false,lastInstalledVersion:'',lastInstalledUrl:'',lastInstalledRepo:''};
 
 function auraSystemSetStatus5616(text,type=''){
@@ -3135,10 +3135,14 @@ function auraSystemNormalizeRepo5616(value){
 }
 function auraSystemDetectRepo5616(){
   const host=String(location.hostname||'').toLowerCase();
+  const parts=location.pathname.split('/').filter(Boolean).map(v=>decodeURIComponent(v));
+  if(host==='auradigitaljal.com'||host==='www.auradigitaljal.com'){
+    const repo=parts[0]||'AuraDigitalJal.github.io';
+    return auraSystemNormalizeRepo5616('AuraDigitalJal/'+repo);
+  }
   if(!host.endsWith('.github.io'))return '';
   const owner=host.slice(0,-'.github.io'.length);
   if(!owner)return '';
-  const parts=location.pathname.split('/').filter(Boolean).map(v=>decodeURIComponent(v));
   const repo=parts[0]||`${owner}.github.io`;
   return auraSystemNormalizeRepo5616(`${owner}/${repo}`);
 }
@@ -3247,7 +3251,7 @@ async function auraSystemInstall5616(){
     auraSystemProgress5616(88,'Confirmando GitHub Pages…');
     const pages=await auraGithubEnablePages(owner,repo,branch);
     const fallback=repo.toLowerCase()===`${owner.toLowerCase()}.github.io`?`https://${owner}.github.io/`:`https://${owner}.github.io/${repo}/`;
-    const appUrl=pages?.html_url||fallback;
+    const appUrl=auraPublicUrl5619(owner,repo,pages?.html_url||fallback);
     auraSystemState5616.lastInstalledVersion=String(manifest.version);auraSystemState5616.lastInstalledUrl=appUrl;auraSystemState5616.lastInstalledRepo=`${owner}/${repo}`;
     const online=$('auraSystemOnlineLink');if(online){online.href=appUrl;online.hidden=false}
     auraSystemProgress5616(100,`Aura v${manifest.version} fue enviada a GitHub. GitHub Pages conservará el mismo enlace.`);
@@ -3268,7 +3272,7 @@ function initAuraSystemUpdater5616(){
   const current=$('auraSystemCurrentVersion');if(current)current.textContent=AURA_STUDIO_VERSION_5616;
   const repo=$('auraSystemRepo'),hint=$('auraSystemRepoHint');const detected=auraSystemDetectRepo5616();
   if(repo&&!repo.value&&detected)repo.value=detected;
-  if(hint)hint.textContent=detected?`Detectado desde este enlace: ${detected}`:'Aura está abierta fuera de github.io; escribe manualmente el repositorio de la plataforma.';
+  if(hint)hint.textContent=detected?`Detectado desde este enlace: ${detected}`:'No pude detectar automáticamente el repositorio; escríbelo manualmente.';
   $('auraSystemZip')?.addEventListener('change',e=>auraSystemReadPackage5616(e.target.files?.[0]||null));
   $('auraSystemInstall')?.addEventListener('click',()=>auraSystemInstall5616());
   $('auraSystemReload')?.addEventListener('click',auraSystemReload5616);
@@ -3431,6 +3435,21 @@ configObject=function(p){const c=_configObject5617(p);c.schemaVersion=5.617;c.st
 const AURA_SHARE_W_5618=1200;
 const AURA_SHARE_H_5618=630;
 const auraShareBuildContext5618={publicBase:'',imageVersion:''};
+const AURA_PUBLIC_ORIGIN_5619='https://auradigitaljal.com/';
+const AURA_PUBLIC_OWNER_5619='auradigitaljal';
+
+function auraPublicUrl5619(owner,repoName,fallback=''){
+  const ownerText=String(owner||'').trim(),repo=String(repoName||'').trim();
+  if(ownerText.toLowerCase()===AURA_PUBLIC_OWNER_5619&&repo){
+    if(repo.toLowerCase()===ownerText.toLowerCase()+'.github.io')return AURA_PUBLIC_ORIGIN_5619;
+    return AURA_PUBLIC_ORIGIN_5619+repo.replace(/^\/+|\/+$/g,'')+'/';
+  }
+  if(fallback)return fallback;
+  if(!ownerText||!repo)return'';
+  return repo.toLowerCase()===ownerText.toLowerCase()+'.github.io'
+    ?'https://'+ownerText+'.github.io/'
+    :'https://'+ownerText+'.github.io/'+repo+'/';
+}
 
 function auraShareSourceFile5618(p){
   return p?.sharePreviewFile||p?.bannerFile||p?.portadaFile||null;
@@ -3453,9 +3472,7 @@ function auraShareGithubBase5618(){
     const raw=$('githubRepo')?.value||'';
     const repo=typeof auraGithubSlug==='function'?auraGithubSlug(raw):String(raw).trim();
     if(!owner||!repo)return'';
-    return repo.toLowerCase()===(owner.toLowerCase()+'.github.io')
-      ?'https://'+owner+'.github.io/'
-      :'https://'+owner+'.github.io/'+repo+'/';
+    return auraPublicUrl5619(owner,repo);
   }catch(e){return''}
 }
 function auraSharePublicBase5618(p){
@@ -3588,7 +3605,7 @@ const _configObject5618=configObject;
 configObject=function(p){
   const c=_configObject5618(p);
   delete c.sharePreviewFile;
-  c.schemaVersion=5.618;c.studioVersion='5.6.18';
+  c.schemaVersion=5.619;c.studioVersion='5.6.19';
   return c;
 };
 
