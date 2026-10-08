@@ -4132,8 +4132,10 @@ coverHtml=function(p){
     const tpl=document.createElement('template');tpl.innerHTML=html.trim();
     const hero=tpl.content.firstElementChild,inner=hero?.querySelector('.hero-inner');
     if(!inner)return html;
-    const player=auraMusicPlayerMarkup5631(p),enter=inner.querySelector('[data-enter]');
-    if(enter)enter.insertAdjacentHTML('afterend',player);
+    const player=auraMusicPlayerMarkup5631(p),nav=inner.querySelector('.aura-global-nav'),enter=inner.querySelector('[data-enter]');
+    // En portada el reproductor precede a Confirmar, Ubicación y Galería.
+    if(nav)nav.insertAdjacentHTML('beforebegin',player);
+    else if(enter)enter.insertAdjacentHTML('beforebegin',player);
     else inner.insertAdjacentHTML('beforeend',player);
     return hero.outerHTML;
   }catch(e){console.warn('Aura: reproductor en portada',e);return html}
@@ -4308,3 +4310,29 @@ auraRecoverPublishedAssets5617=async function(...args){
 };
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',auraMusicMetadataInit5632);
 else auraMusicMetadataInit5632();
+
+
+/* Afinar la tarjeta de Hatzi sin sustituir diseño ni controles de audio.
+   El tamaño se mantiene compacto y deja aire antes de la navegación. */
+function auraMusicRefinedCss5633(){
+  return `
+.aura-music-player{grid-template-columns:52px minmax(0,1fr) 42px;gap:12px;padding:12px 14px;max-width:520px}
+.aura-music-art{width:52px}
+.aura-music-play{width:42px;height:42px}
+.aura-music-title{font-size:clamp(16px,4vw,18px);line-height:1.15}
+.aura-music-kicker{margin-bottom:2px}
+.aura-music-progress-row{margin-top:7px}
+.hero .aura-music-player{width:min(100%,440px);margin:15px auto 13px;padding:12px 14px}
+.hero .aura-music-player + .aura-global-nav,.hero.aura-premium-buttons.aura-premium-buttons .aura-music-player + .aura-global-nav.aura-global-nav{margin-top:9px!important}
+@media(max-width:430px){
+  .aura-music-player{grid-template-columns:46px minmax(0,1fr) 38px;gap:10px;padding:10px 12px}
+  .aura-music-art{width:46px}
+  .aura-music-play{width:38px;height:38px}
+  .aura-music-title{font-size:16px}
+  .aura-music-progress-row{grid-template-columns:27px minmax(0,1fr) 27px;gap:5px}
+  .hero .aura-music-player{padding:10px 12px;margin:12px auto 11px}
+}
+`;
+}
+const _invitationCss5633=invitationCss;
+invitationCss=function(p,t,a){return _invitationCss5633(p,t,a)+auraMusicRefinedCss5633()};
