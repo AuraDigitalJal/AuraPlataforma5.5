@@ -136,7 +136,7 @@ function extractMapCoords(value){const s=normalizeMapText(value);if(!s)return nu
  ];
  for(const re of patterns){const m=s.match(re);if(!m)continue;const c=validCoords(m[1],m[2]);if(c)return c}
  return null}
-function mapEmbedUrl(url,explicitCoords){const c=extractMapCoords(explicitCoords)||extractMapCoords(url);if(!c)return'';const lat=Number(c[0]).toFixed(7).replace(/0+$/,'').replace(/\.$/,'');const lng=Number(c[1]).toFixed(7).replace(/0+$/,'').replace(/\.$/,'');const pair=`${lat},${lng}`;return `https://www.google.com/maps?q=${encodeURIComponent(pair)}&hl=es&t=k&z=16&output=embed`}
+function mapEmbedUrl(url,explicitCoords){const c=extractMapCoords(explicitCoords)||extractMapCoords(url);if(!c)return'';const lat=Number(c[0]).toFixed(7).replace(/0+$/,'').replace(/\.$/,'');const lng=Number(c[1]).toFixed(7).replace(/0+$/,'').replace(/\.$/,'');const pair=`${lat},${lng}`;return `https://www.google.com/maps?q=${encodeURIComponent(pair)}&hl=es&t=m&z=16&output=embed`}
 function coordsText(c){if(!c)return'';return `${Number(c[0]).toFixed(7).replace(/0+$/,'').replace(/\.$/, '')}, ${Number(c[1]).toFixed(7).replace(/0+$/,'').replace(/\.$/, '')}`}
 function googleMapUrlKind(value){try{const u=new URL(String(value||'').trim());const h=u.hostname.toLowerCase();if(h==='maps.app.goo.gl')return'short';if(h==='goo.gl'&&u.pathname.startsWith('/maps'))return'short';if((h==='www.google.com'||h==='google.com'||h==='maps.google.com'||h.endsWith('.google.com'))&&u.pathname.includes('/maps'))return'google';return''}catch(e){return''}}
 async function mapFetch(url,options={}){const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),4500);try{return await fetch(url,{...options,signal:controller.signal})}finally{clearTimeout(timer)}}
@@ -1152,12 +1152,15 @@ function auraEditorialSections54(p,a){
  const transferStage=transferInner?`<section id="transferencia" class="aura-screen aura-screen-transfer reveal"><div class="aura-screen-shell"><div class="aura-transfer-panel">${transferInner}</div></div></section>`:'';
  const extraBanner=a.extra?bannerHtml557(a.extra,p.bannerExtraMode,'aura-inline-banner aura-inline-banner-1','Banner extra'):'';
  const extraBanner2=a.extra2?bannerHtml557(a.extra2,p.bannerExtra2Mode,'aura-inline-banner aura-inline-banner-2','Banner extra 2'):'';
+ const musicStage=p.musicPlacement==='section'&&a.music&&Number(p.orderMusic)>0?
+  `<section id="musica" class="aura-screen aura-screen-music reveal"><div class="aura-screen-shell">${auraMusicSection5631(p)}</div></section>`:'';
  const stages=[
   {html:locationStage,order:+p.orderLocations||0},
   {html:familyStage,order:+p.orderFamily||0},
   {html:confirmStage,order:+p.orderConfirm||0},
   {html:dateStage,order:+p.orderCountdown||0},
   {html:galleryStage,order:+p.orderGallery||0},
+  {html:musicStage,order:+p.orderMusic||0},
   {html:extraBanner,order:+p.orderBannerExtra||0},
   {html:extraBanner2,order:+p.orderBannerExtra2||0},
   {html:messageStage,order:+p.orderMessage||0},
@@ -2390,13 +2393,14 @@ buildSections=function(p,a){
     confirm:p.whatsappNumber?`<section id="confirmar" class="section center rsvp reveal"><div class="section-label">RSVP</div><h2${sizeAttr(p.rsvpHeadingSize,'sectionTitle')}>¿Nos acompañas?</h2><p class="section-copy"${sizeAttr(p.rsvpCopySize,'body')}>Tu confirmación nos ayuda a preparar cada detalle.</p><a class="cta"${sizeAttr(p.rsvpButtonSize,'button')} target="_blank" href="https://wa.me/${encodeURIComponent(p.whatsappNumber.replace(/\D/g,''))}?text=${encodeURIComponent(p.whatsappMessage)}">Confirmar por WhatsApp →</a></section>`:'',
     countdown:p.eventDate?`<section class="section center reveal date-section"><div class="section-label">Save the date</div><h2 data-edit="countdownLabel"${sizeAttr(p.countdownLabelSize,'sectionTitle')}>${esc(p.countdownLabel)}</h2>${dateCardHtml(p)}<div class="countdown ${countdownStyleClass(p)}" data-date="${esc(p.eventDate)}"><div class="count-item"><b data-d${sizeAttr(p.countdownNumbersSize,'countNumber')}>00</b><span>Días</span></div><div class="count-item"><b data-h${sizeAttr(p.countdownNumbersSize,'countNumber')}>00</b><span>Horas</span></div><div class="count-item"><b data-m${sizeAttr(p.countdownNumbersSize,'countNumber')}>00</b><span>Min</span></div><div class="count-item"><b data-s${sizeAttr(p.countdownNumbersSize,'countNumber')}>00</b><span>Seg</span></div></div></section>`:'',
     gallery:a.gallery.length?`<section id="galeria" class="section reveal gallery-section${(!p.galleryLabel&&!p.galleryTitle)?' gallery-only':''}">${p.galleryLabel?`<div class="section-label" data-edit="galleryLabel"${sizeAttr(p.galleryLabelSize,'sectionLabel')}>${esc(p.galleryLabel)}</div>`:''}${p.galleryTitle?`<h2 data-edit="galleryTitle"${sizeAttr(p.galleryTitleSize,'sectionTitle')}>${esc(p.galleryTitle)}</h2>`:''}<div class="gallery ${esc(p.galleryStyle)}">${a.gallery.map((src,i)=>galleryFigure52(p,src,i,offsets)).join('')}</div>${galleryFooter(p,a.gallery.length)}</section>`:'',
+    music:p.musicPlacement==='section'&&a.music&&Number(p.orderMusic)>0?`<section id="musica" class="section aura-music-section reveal">${auraMusicSection5631(p)}</section>`:'',
     extra:a.extra?bannerHtml557(a.extra,p.bannerExtraMode,'','Banner extra'):'',
     extra2:a.extra2?bannerHtml557(a.extra2,p.bannerExtra2Mode,'','Banner extra 2'):'',
     message:p.mainMessage||p.closingSignature?`<section class="section reveal"><div class="section-label center">Con cariño</div>${p.mainMessage?`<div class="final-message" data-edit="mainMessage"${sizeAttr(p.mainMessageSize,'finalMessage')}>${esc(p.mainMessage).replace(/\n/g,'<br>')}</div>`:''}${p.showClosingSignature&&p.closingSignature?`<div class="closing-signature" data-edit="closingSignature"><span style="font-family:${signatureFont}">${esc(p.closingSignature).replace(/\n/g,'<br>')}</span></div>`:''}</section>`:'',
     video:p.videoUrl?`<section id="video" class="section reveal legacy-video-section">${auraVideo54(p,a)}</section>`:'',
     transfer:auraTransfer54(p,a)?`<section id="transferencia" class="section center reveal transfer-section">${auraTransfer54(p,a)}</section>`:''
   };
-  const order=[['locations',p.orderLocations],['family',p.orderFamily],['confirm',p.orderConfirm],['countdown',p.orderCountdown],['gallery',p.orderGallery],['extra',p.orderBannerExtra],['extra2',p.orderBannerExtra2],['message',p.orderMessage],['video',p.orderVideo],['transfer',p.orderTransfer||10]].filter(x=>+x[1]>0&&parts[x[0]]).sort((a,b)=>+a[1]-+b[1]);
+  const order=[['locations',p.orderLocations],['family',p.orderFamily],['confirm',p.orderConfirm],['countdown',p.orderCountdown],['gallery',p.orderGallery],['music',p.orderMusic],['extra',p.orderBannerExtra],['extra2',p.orderBannerExtra2],['message',p.orderMessage],['video',p.orderVideo],['transfer',p.orderTransfer||10]].filter(x=>+x[1]>0&&parts[x[0]]).sort((a,b)=>+a[1]-+b[1]);
   return order.map(x=>parts[x[0]]).join('');
 };
 
@@ -4083,3 +4087,127 @@ coverHtml=function(params){
     return hero.outerHTML;
   }catch(error){console.warn('Aura: tamaño de navegación',error);return html}
 };
+
+
+/* Aura Digital · reproductor musical integrado en tres ubicaciones.
+   classic mantiene sin modificaciones el reproductor flotante original.
+   cover y section emplean el mismo audio, sin duplicar controles. */
+function auraMusicPlayerMarkup5631(p){
+  const title=String(p.musicTitle||'').trim(),artist=String(p.musicArtist||'').trim();
+  return '<div class="aura-music-player" role="group" aria-label="Reproductor de música">'+
+    '<button type="button" class="aura-music-play" aria-label="Reproducir música" aria-pressed="false"><span class="aura-music-play-glyph" aria-hidden="true"></span></button>'+
+    '<div class="aura-music-copy">'+
+    (title?'<strong data-edit="musicTitle">'+esc(title)+'</strong>':'')+
+    (artist?'<span class="aura-music-artist" data-edit="musicArtist">'+esc(artist)+'</span>':'')+
+    '<input class="aura-music-seek" type="range" min="0" max="1000" step="1" value="0" aria-label="Avanzar o retroceder canción">'+
+    '<div class="aura-music-times"><span class="aura-music-current">0:00</span><span class="aura-music-duration">0:00</span></div>'+
+    '</div></div>';
+}
+function auraMusicSection5631(p){
+  const label=String(p.musicSectionLabel||'').trim();
+  return (label?'<h2 class="aura-music-section-heading" data-edit="musicSectionLabel">'+esc(label)+'</h2>':'')+
+    auraMusicPlayerMarkup5631(p);
+}
+const _getFormParams5631=getFormParams;
+getFormParams=function(){
+  const p=_getFormParams5631();
+  p.musicPlacement=$('musicPlacement')?.value||'classic';
+  p.musicTitle=$('musicTitle')?.value??'Nuestra canción';
+  p.musicArtist=$('musicArtist')?.value??'';
+  p.musicSectionLabel=$('musicSectionLabel')?.value??'';
+  p.orderMusic=$('orderMusic')?.value??'6';
+  return p;
+};
+const _coverHtml5631=coverHtml;
+coverHtml=function(p){
+  const html=_coverHtml5631(p);
+  if(p?.musicPlacement!=='cover'||!p.musicFile)return html;
+  try{
+    const tpl=document.createElement('template');tpl.innerHTML=html.trim();
+    const hero=tpl.content.firstElementChild,inner=hero?.querySelector('.hero-inner');
+    if(!inner)return html;
+    const player=auraMusicPlayerMarkup5631(p),enter=inner.querySelector('[data-enter]');
+    if(enter)enter.insertAdjacentHTML('afterend',player);
+    else inner.insertAdjacentHTML('beforeend',player);
+    return hero.outerHTML;
+  }catch(e){console.warn('Aura: reproductor en portada',e);return html}
+};
+const _buildInvitation5631=buildInvitation;
+buildInvitation=function(p,a){
+  let html=_buildInvitation5631(p,a);
+  if(a.music&&p.musicPlacement!=='classic'&&html.includes('class="aura-music-player"')){
+    html=html.replace('<button class="music-toggle" aria-label="Música">♪</button>','');
+  }
+  return html;
+};
+function auraMusicCss5631(p,t){
+  const accent=p.primaryColor||'#a88a58',body=p.textColor||'#4b4240',heading=p.headingColor||'#2c2826',
+    heroInk=p.heroTextColor||'#fffaf6',card=p.bgContentColor||'#faf6f1',
+    shape=p.heroButtonShape||'auto',radius=shape==='pill'?'28px':shape==='rounded'?'14px':shape==='square'?'2px':(t?.radius||'16px');
+  return [
+    '.aura-music-player{--music-accent:'+accent+';--music-ink:'+heading+';--music-bg:'+rgba(card,.9)+';--music-secondary:'+rgba(body,.72)+';--music-line:'+rgba(heading,.14)+';--music-radius:'+radius+';display:grid;grid-template-columns:44px minmax(0,1fr);align-items:center;gap:15px;width:min(100%,510px);max-width:100%;padding:17px 18px;border:1px solid '+rgba(accent,.28)+';border-radius:var(--music-radius);background:var(--music-bg);color:var(--music-ink);box-sizing:border-box;box-shadow:0 16px 36px '+rgba(heading,.07)+';margin:0 auto}',
+    '.aura-music-player .aura-music-play{width:44px;height:44px;min-width:44px;border:1px solid '+rgba(accent,.4)+';background:'+accent+';color:#fff;border-radius:50%;display:grid;place-items:center;padding:0;cursor:pointer;appearance:none;box-shadow:0 5px 16px '+rgba(accent,.21)+'}',
+    '.aura-music-player .aura-music-play-glyph{width:15px;height:18px;display:block;position:relative}',
+    '.aura-music-player .aura-music-play-glyph:before{content:"";display:block;position:absolute;top:2px;left:4px;border-top:7px solid transparent;border-bottom:7px solid transparent;border-left:11px solid currentColor}',
+    '.aura-music-player.is-playing .aura-music-play-glyph:before,.aura-music-player.is-playing .aura-music-play-glyph:after{content:"";display:block;position:absolute;top:2px;left:2px;width:4px;height:14px;border:0;background:currentColor;border-radius:1px}',
+    '.aura-music-player.is-playing .aura-music-play-glyph:after{left:9px}',
+    '.aura-music-player .aura-music-copy{min-width:0;display:flex;flex-direction:column;gap:0}',
+    '.aura-music-player .aura-music-copy strong{display:block;font:600 13px/1.35 var(--body,system-ui);color:var(--music-ink);white-space:normal;overflow-wrap:anywhere;letter-spacing:0}',
+    '.aura-music-player .aura-music-artist{display:block;margin-top:2px;font:400 11px/1.35 var(--body,system-ui);color:var(--music-secondary);overflow-wrap:anywhere}',
+    '.aura-music-player .aura-music-seek{display:block;width:100%;height:4px;margin:14px 0 7px;appearance:none;-webkit-appearance:none;cursor:pointer;border:0;border-radius:999px;outline-offset:6px;background:linear-gradient(to right,var(--music-accent) var(--music-progress,0%),var(--music-line) var(--music-progress,0%))}',
+    '.aura-music-player .aura-music-seek::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:11px;height:11px;border:2px solid var(--music-bg);border-radius:50%;background:var(--music-accent);box-shadow:0 1px 4px '+rgba(heading,.22)+'}',
+    '.aura-music-player .aura-music-seek::-moz-range-thumb{width:10px;height:10px;border:2px solid var(--music-bg);border-radius:50%;background:var(--music-accent)}',
+    '.aura-music-player .aura-music-times{display:flex;justify-content:space-between;gap:12px;font:500 10px/1.15 var(--body,system-ui);font-variant-numeric:tabular-nums;color:var(--music-secondary)}',
+    '.aura-music-section{padding-top:clamp(24px,5vw,45px)!important;padding-bottom:clamp(24px,5vw,45px)!important}',
+    '.aura-screen-music{min-height:auto!important;padding-top:clamp(30px,6vw,65px)!important;padding-bottom:clamp(30px,6vw,65px)!important}',
+    '.aura-music-section-heading{font:500 clamp(23px,6vw,38px)/1.2 var(--display,serif);color:var(--heading);text-align:center;margin:0 auto 22px}',
+    '.aura-screen-music .aura-music-section-heading{color:var(--heading)}',
+    '.hero .aura-music-player{--music-ink:'+heroInk+';--music-bg:'+rgba(card,.18)+';--music-secondary:'+rgba(heroInk,.78)+';--music-line:'+rgba(heroInk,.35)+';margin:18px auto 0;background:var(--music-bg);border-color:'+rgba(heroInk,.32)+';box-shadow:0 12px 30px rgba(0,0,0,.10);-webkit-backdrop-filter:blur(16px) saturate(110%);backdrop-filter:blur(16px) saturate(110%)}',
+    '.hero .aura-music-player .aura-music-play{background:'+rgba(heroInk,.93)+';color:'+heading+';border-color:'+rgba(heroInk,.35)+'}',
+    '@media(max-width:480px){.aura-music-player{grid-template-columns:40px minmax(0,1fr);gap:11px;padding:14px 13px;border-radius:var(--music-radius)}.aura-music-player .aura-music-play{width:40px;height:40px;min-width:40px}.hero .aura-music-player{width:100%}}'
+  ].join('\n');
+}
+const _invitationCss5631=invitationCss;
+invitationCss=function(p,t,a){return _invitationCss5631(p,t,a)+auraMusicCss5631(p,t)};
+function auraMusicRuntime5631(){
+  const start=()=>{
+    const audio=document.querySelector('audio'),players=Array.from(document.querySelectorAll('.aura-music-player'));
+    if(!audio||!players.length)return;
+    const format=seconds=>{
+      const t=Math.max(0,Math.floor(Number.isFinite(seconds)?seconds:0));
+      return Math.floor(t/60)+':'+String(t%60).padStart(2,'0');
+    };
+    const render=()=>{
+      const duration=Number.isFinite(audio.duration)?audio.duration:0;
+      const current=Number.isFinite(audio.currentTime)?audio.currentTime:0;
+      const percent=duration>0?Math.min(100,Math.max(0,current/duration*100)):0;
+      players.forEach(player=>{
+        player.classList.toggle('is-playing',!audio.paused);
+        const button=player.querySelector('.aura-music-play');
+        if(button){button.setAttribute('aria-label',audio.paused?'Reproducir música':'Pausar música');button.setAttribute('aria-pressed',String(!audio.paused))}
+        const range=player.querySelector('.aura-music-seek');
+        if(range){range.value=String(Math.round(percent*10));range.style.setProperty('--music-progress',percent+'%');range.disabled=duration<=0}
+        const now=player.querySelector('.aura-music-current'),end=player.querySelector('.aura-music-duration');
+        if(now)now.textContent=format(current);
+        if(end)end.textContent=format(duration);
+      });
+    };
+    players.forEach(player=>{
+      player.querySelector('.aura-music-play')?.addEventListener('click',()=>{
+        if(audio.paused)audio.play().catch(()=>{render()});
+        else audio.pause();
+      });
+      player.querySelector('.aura-music-seek')?.addEventListener('input',e=>{
+        if(Number.isFinite(audio.duration)&&audio.duration>0){
+          audio.currentTime=Number(e.target.value)/1000*audio.duration;
+          render();
+        }
+      });
+    });
+    ['play','pause','timeupdate','loadedmetadata','durationchange','ended','seeked'].forEach(event=>audio.addEventListener(event,render));
+    render();
+  };
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
+}
+const _invitationJs5631=invitationJs;
+invitationJs=function(){return _invitationJs5631()+'('+auraMusicRuntime5631.toString()+')();'};
