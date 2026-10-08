@@ -3913,34 +3913,42 @@ configObject=function(p){
   return c;
 };
 
-// Aura 5.6.23 — garantiza destinos para la navegación rápida en todas las plantillas.
-const _buildInvitation5623=buildInvitation;
+// Aura 5.6.24 · destinos de navegación: reparación semántica por sección.
+const _buildInvitation5624=_buildInvitation5623;
 buildInvitation=function(p,a){
-  let html=_buildInvitation5623(p,a);
-  const targets=[
-    ['confirmar','section.rsvp'],
-    ['ubicacion','.section:has(.locations)'],
+  let html=_buildInvitation5624(p,a);
+  const doc=new DOMParser().parseFromString(html,'text/html');
+  const destinations=[
+    ['confirmar','section.rsvp,section.aura-screen-confirm'],
+    ['ubicacion','section.aura-screen-location,section:has(> .locations),section:has(.location-card),section:has(.aura-locations)'],
     ['galeria','section.gallery-section']
   ];
-  // Aplicar al HTML generado, no al DOM del editor.
-  const marker='</body>';
-  if(!html.includes(marker))return html;
-  const page=new DOMParser().parseFromString(html,'text/html');
-  for(const [id,selector] of targets){
-    if(page.getElementById(id))continue;
-    const section=page.querySelector(selector);
-    if(section)section.id=id;
-  }
-  // Evitar serializar el documento completo: conserva intactos scripts, estilos y metadatos.
-  for(const [id,selector] of targets){
-    if(html.includes('id="'+id+'"'))continue;
-    const section=page.getElementById(id);
+  // Reemplazar solamente la etiqueta de apertura exacta de la sección, nunca una sección genérica.
+  for(const [id,selector] of destinations){
+    if(doc.getElementById(id))continue;
+    const section=doc.querySelector(selector);
     if(!section)continue;
-    const classTokens=String(section.className||'').split(/\s+/).filter(Boolean);
-    const anchor=classTokens.includes('rsvp')?'<section class="section center rsvp reveal"':
-      classTokens.includes('gallery-section')?'<section class="section reveal gallery-section':
-      '<section class="section reveal"';
-    if(html.includes(anchor))html=html.replace(anchor,anchor.replace('<section','<section id="'+id+'"'));
+    const start=section.outerHTML.match(/^<section\\b[^>]*>/)?.[0];
+    if(!start||!html.includes(start))continue;
+    const withId=start.replace(/^<section\\b/,'<section id="'+id+'"');
+    html=html.replace(start,withId);
   }
   return html;
+};
+// Cambiar una plantilla editorial debe preservar los ajustes realizados por el usuario.
+const _chooseTheme5624=chooseTheme;
+chooseTheme=function(k){
+  const current=$('themeVisual')?.value||'';
+  if(k===current)return; // Una selección repetida nunca debe reescribir el formulario.
+  const ids=AURA_EDITORIAL_FORCED_FIELDS_531;
+  const preserve=isAuraEditorial53(current)&&isAuraEditorial53(k);
+  const prior=preserve?Object.fromEntries(ids.map(id=>{const el=$(id);return [id,el?.type==='checkbox'?el.checked:el?.value]})) :null;
+  _chooseTheme5624(k);
+  if(prior){
+    for(const [id,v] of Object.entries(prior)){
+      const el=$(id);if(!el||v===undefined)continue;
+      if(el.type==='checkbox')el.checked=!!v;else el.value=v;
+    }
+    syncCoverUi();updatePreview();
+  }
 };
