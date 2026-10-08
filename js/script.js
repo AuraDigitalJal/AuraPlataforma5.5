@@ -3912,3 +3912,35 @@ configObject=function(p){
   c.studioVersion='5.6.21';
   return c;
 };
+
+// Aura 5.6.23 — garantiza destinos para la navegación rápida en todas las plantillas.
+const _buildInvitation5623=buildInvitation;
+buildInvitation=function(p,a){
+  let html=_buildInvitation5623(p,a);
+  const targets=[
+    ['confirmar','section.rsvp'],
+    ['ubicacion','.section:has(.locations)'],
+    ['galeria','section.gallery-section']
+  ];
+  // Aplicar al HTML generado, no al DOM del editor.
+  const marker='</body>';
+  if(!html.includes(marker))return html;
+  const page=new DOMParser().parseFromString(html,'text/html');
+  for(const [id,selector] of targets){
+    if(page.getElementById(id))continue;
+    const section=page.querySelector(selector);
+    if(section)section.id=id;
+  }
+  // Evitar serializar el documento completo: conserva intactos scripts, estilos y metadatos.
+  for(const [id,selector] of targets){
+    if(html.includes('id="'+id+'"'))continue;
+    const section=page.getElementById(id);
+    if(!section)continue;
+    const classTokens=String(section.className||'').split(/\s+/).filter(Boolean);
+    const anchor=classTokens.includes('rsvp')?'<section class="section center rsvp reveal"':
+      classTokens.includes('gallery-section')?'<section class="section reveal gallery-section':
+      '<section class="section reveal"';
+    if(html.includes(anchor))html=html.replace(anchor,anchor.replace('<section','<section id="'+id+'"'));
+  }
+  return html;
+};
