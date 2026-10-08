@@ -3451,7 +3451,9 @@ optimizeImageForZip=async function(file){
   }
   return _optimizeImageForZip5617(file);
 };
+let auraRecoveredIncomplete5626=false;
 async function importConfig5617(){
+  auraRecoveredIncomplete5626=false;
   const s=$('configStatus'),source=String($('configUrl')?.value||'').trim(),urls=auraProjectUrls5617(source);
   if(!urls){if(s)s.textContent='Pega un enlace válido.';return}
   auraClearRecoveredAssets5617();
@@ -3464,7 +3466,8 @@ async function importConfig5617(){
       if(s)s.textContent='Leyendo archivos publicados…';
       const htmlRes=await fetch(urls.index,{cache:'no-store'});if(!htmlRes.ok)throw new Error(`index ${htmlRes.status}`);
       result=await auraRecoverPublishedAssets5617(urls.base,await htmlRes.text(),s);
-    }catch(assetErr){console.warn('Aura: configuración recuperada sin assets',assetErr)}
+    }catch(assetErr){console.warn('Aura: configuración recuperada sin assets',assetErr);auraRecoveredIncomplete5626=true}
+    if(result.failed>0)auraRecoveredIncomplete5626=true;
     if(typeof renderPhotoFraming554==='function')try{renderPhotoFraming554()}catch(e){}
     updatePreview();
     const galleryCount=auraRecoveredAssets5617.galleryFiles.length;
@@ -3974,6 +3977,7 @@ function auraAuditInvitation5625(html,files=[]){
 }
 const _auraGithubBuildFiles5625=auraGithubBuildFiles;
 auraGithubBuildFiles=async function(onProgress){
+  if(auraRecoveredIncomplete5626)throw new Error('Actualización detenida: faltaron archivos al recuperar el proyecto. Vuelve a recuperarlo antes de publicar.');
   const result=await _auraGithubBuildFiles5625(onProgress);
   const html=result.files.find(f=>f.path==='index.html')?.content||'';
   const errors=auraAuditInvitation5625(html,result.files);
