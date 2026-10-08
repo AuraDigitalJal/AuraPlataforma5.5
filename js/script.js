@@ -3984,9 +3984,16 @@ function auraPreserveRecoveredGallery5627(){
     const recovered=auraRecoveredAssets5617.galleryFiles||[];
     const incoming=Array.from(input.files||[]);
     if(!recovered.length||!incoming.length)return;
+    const previousFrames=readFramesEditor554();
     const dt=new DataTransfer();
     [...recovered,...incoming].forEach(file=>dt.items.add(file));
     input.files=dt.files;
+    queueMicrotask(()=>{
+      const frames=recovered.map((_,i)=>previousFrames[i]||{x:50,y:50,fit:'cover'});
+      incoming.forEach(()=>frames.push({x:50,y:50,fit:'cover'}));
+      writeFramesEditor554(frames,{preview:false});
+      renderPhotoFraming554();
+    });
   },true);
 }
 if(document.readyState==='loading'){
