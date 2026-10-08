@@ -2848,7 +2848,57 @@ function auraGithubRenderRepos(){
     if(auraGithubRepoProtected5620(repo)){del.disabled=true;del.textContent='Protegido';del.title='Repositorio esencial de Aura. La app no permite eliminarlo.'}
     else if(repo.permissions&&repo.permissions.admin===false){del.disabled=true;del.textContent='Sin permiso';del.title='GitHub no reporta permiso de administración para este repositorio.'}
     else del.addEventListener('click',()=>auraGithubDeleteRepo(repo,del));
-    actions.append(preview,del);row.append(info,actions);box.appendChild(row);
+    const copy=document.createElement('button');copy.type='button';copy.className='btn github-copy-repo-btn';copy.textContent='Copiar URL';
+    if(repo.has_pages)copy.addEventListener('click',()=>auraGithubCopyRepoUrl5630(repo,copy));
+    else{copy.disabled=true;copy.title='Este repositorio no tiene un enlace público de GitHub Pages.'}
+    actions.append(preview,copy,del);row.append(info,actions);box.appendChild(row);
+  }
+}
+async function auraGithubCopyRepoUrl5630(repo,button){
+  if(!repo?.has_pages){
+    auraGithubSetRepoStatus('Este repositorio no tiene una invitación pública en GitHub Pages.','error');
+    return;
+  }
+  const label=button?.textContent||'Copiar URL';
+  if(button){button.disabled=true;button.textContent='Copiando…'}
+  try{
+    // Misma resolución de dominio y URL utilizada por el botón Vista previa.
+    const url=await auraGithubResolvePagesUrl(repo);
+    let copied=false;
+    try{
+      if(navigator.clipboard&&window.isSecureContext){
+        await navigator.clipboard.writeText(url);
+        copied=true;
+      }
+    }catch(_){}
+    if(!copied){
+      let area=null;
+      try{
+        area=document.createElement('textarea');
+        area.value=url;area.setAttribute('readonly','');
+        area.style.position='fixed';area.style.left='-9999px';area.style.opacity='0';
+        document.body.appendChild(area);
+        area.focus();area.select();area.setSelectionRange(0,area.value.length);
+        copied=!!document.execCommand('copy');
+      }catch(_){}
+      finally{area?.remove()}
+    }
+    if(copied){
+      auraGithubSetRepoStatus('Enlace público copiado: '+url,'ok');
+      if(button)button.textContent='Copiado ✓';
+    }else{
+      auraGithubSetRepoStatus('No se pudo copiar automáticamente. Copia este enlace: '+url,'error');
+      if(button)button.textContent=label;
+    }
+  }catch(err){
+    console.error('Aura: copiar URL de repositorio',err);
+    auraGithubSetRepoStatus(err.status===404?'GitHub Pages no está activo en este repositorio.':auraGithubFriendlyError(err),'error');
+    if(button)button.textContent=label;
+  }finally{
+    if(button){
+      button.disabled=false;
+      if(button.textContent==='Copiado ✓')setTimeout(()=>{if(button.textContent==='Copiado ✓')button.textContent=label},1500);
+    }
   }
 }
 async function auraGithubDeleteRepo(repo,button){
