@@ -3951,3 +3951,35 @@ chooseTheme=function(k){
     syncCoverUi();updatePreview();
   }
 };
+
+/* Audit 5.6.25: validación de integridad antes de generar ZIP o publicar.
+   Sin cambios sobre plantillas ni configuración del usuario. */
+function auraAuditInvitation5625(html,files=[]){
+  const doc=new DOMParser().parseFromString(html,'text/html'),errors=[];
+  const ids=new Set([...doc.querySelectorAll('[id]')].map(x=>x.id));
+  doc.querySelectorAll('.aura-global-nav a[href^="#"],.aura-quick-actions a[href^="#"]').forEach(a=>{
+    const id=a.getAttribute('href').slice(1);
+    if(!id||!ids.has(id))errors.push('Navegación sin destino: '+(id||'(vacío)'));
+  });
+  const paths=new Set(files.map(f=>f.path));
+  if(paths.size){
+    doc.querySelectorAll('img[src],audio[src],video[src]').forEach(el=>{
+      const src=el.getAttribute('src')||'';
+      if(!src.startsWith('assets/'))return;
+      const path=src.split('?')[0].split('#')[0];
+      if(!paths.has(path))errors.push('Archivo no incluido: '+path);
+    });
+  }
+  return [...new Set(errors)];
+}
+const _auraGithubBuildFiles5625=auraGithubBuildFiles;
+auraGithubBuildFiles=async function(onProgress){
+  const result=await _auraGithubBuildFiles5625(onProgress);
+  const html=result.files.find(f=>f.path==='index.html')?.content||'';
+  const errors=auraAuditInvitation5625(html,result.files);
+  if(errors.length)throw new Error('Publicación detenida por integridad:\\n'+errors.join('\\n'));
+  return result;
+};
+const _generateZip5625=generateZip;
+// El ZIP mantiene su flujo; validaremos también su salida en una fase separada,
+// sin alterar el diálogo de calidad ni introducir dobles confirmaciones.
