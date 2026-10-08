@@ -3987,3 +3987,49 @@ auraRecoverPublishedAssets5617=async function(...args){
 };
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',auraOptionalInit5628);
 else auraOptionalInit5628();
+
+
+/* Control independiente del tamaño de la navegación en cualquier diseño.
+   Del diseño = conserva todos los tamaños anteriores sin cambios.
+   Los tamaños explícitos usan estilos inline importantes porque algunos
+   temas y botones premium tienen medidas fijas con !important. */
+const AURA_NAV_SIZES_5629={
+  small:{width:340,pill:42,card:68,font:9,cardFont:7.5,icon:17,pad:12,gap:6},
+  medium:{width:400,pill:50,card:82,font:10,cardFont:8,icon:20,pad:16,gap:8},
+  large:{width:460,pill:60,card:96,font:12,cardFont:9.5,icon:24,pad:20,gap:10},
+  xlarge:{width:510,pill:70,card:110,font:14,cardFont:11,icon:28,pad:23,gap:12}
+};
+const _getFormParams5629=getFormParams;
+getFormParams=function(){
+  const p=_getFormParams5629();
+  p.heroNavSize=$('heroNavSize')?.value||'auto';
+  return p;
+};
+const _coverHtml5629=coverHtml;
+coverHtml=function(params){
+  const size=AURA_NAV_SIZES_5629[params?.heroNavSize];
+  const html=_coverHtml5629(params);
+  if(!size)return html;
+  try{
+    const holder=document.createElement('template');
+    holder.innerHTML=html.trim();
+    const hero=holder.content.firstElementChild;
+    const nav=hero?.querySelector('.aura-global-nav');
+    if(!hero||!nav)return html;
+    const iconsLayout=hero.classList.contains('aura-premium-premium_icons')||
+      (nav.classList.contains('aura-nav-cards')&&!hero.classList.contains('aura-premium-buttons'));
+    nav.style.setProperty('width','min(100%, '+size.width+'px)','important');
+    nav.style.setProperty('gap',size.gap+'px','important');
+    nav.querySelectorAll('.aura-quick-action').forEach(button=>{
+      button.style.setProperty('min-height',(iconsLayout?size.card:size.pill)+'px','important');
+      button.style.setProperty('padding',iconsLayout?'9px 5px':'7px '+size.pad+'px','important');
+      button.querySelectorAll('span').forEach(label=>label.style.setProperty('font-size',(iconsLayout?size.cardFont:size.font)+'px','important'));
+      button.querySelectorAll('svg').forEach(icon=>{
+        icon.style.setProperty('width',size.icon+'px','important');
+        icon.style.setProperty('height',size.icon+'px','important');
+      });
+      button.querySelectorAll('b').forEach(arrow=>arrow.style.setProperty('font-size',(size.icon+2)+'px','important'));
+    });
+    return hero.outerHTML;
+  }catch(error){console.warn('Aura: tamaño de navegación',error);return html}
+};
