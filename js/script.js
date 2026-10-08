@@ -4323,7 +4323,7 @@ function auraMusicRefinedCss5633(){
 .aura-music-kicker{margin-bottom:2px}
 .aura-music-progress-row{margin-top:7px}
 .hero .aura-music-player{width:min(100%,440px);margin:15px auto 13px;padding:12px 14px}
-.hero .aura-music-player + .aura-global-nav{margin-top:9px!important}
+.hero .aura-music-player + .aura-global-nav,.hero.aura-premium-buttons.aura-premium-buttons .aura-music-player + .aura-global-nav.aura-global-nav{margin-top:9px!important}
 @media(max-width:430px){
   .aura-music-player{grid-template-columns:46px minmax(0,1fr) 38px;gap:10px;padding:10px 12px}
   .aura-music-art{width:46px}
