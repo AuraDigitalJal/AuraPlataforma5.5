@@ -136,7 +136,7 @@ function extractMapCoords(value){const s=normalizeMapText(value);if(!s)return nu
  ];
  for(const re of patterns){const m=s.match(re);if(!m)continue;const c=validCoords(m[1],m[2]);if(c)return c}
  return null}
-function mapEmbedUrl(url,explicitCoords){const c=extractMapCoords(explicitCoords)||extractMapCoords(url);if(!c)return'';const lat=Number(c[0]).toFixed(7).replace(/0+$/,'').replace(/\.$/,'');const lng=Number(c[1]).toFixed(7).replace(/0+$/,'').replace(/\.$/,'');const pair=`${lat},${lng}`;return `https://www.google.com/maps?q=${encodeURIComponent(pair)}&hl=es&t=k&z=16&output=embed`}
+function mapEmbedUrl(url,explicitCoords){const c=extractMapCoords(explicitCoords)||extractMapCoords(url);if(!c)return'';const lat=Number(c[0]).toFixed(7).replace(/0+$/,'').replace(/\.$/,'');const lng=Number(c[1]).toFixed(7).replace(/0+$/,'').replace(/\.$/,'');const pair=`${lat},${lng}`;return `https://www.google.com/maps?q=${encodeURIComponent(pair)}&hl=es&t=m&z=16&output=embed`}
 function coordsText(c){if(!c)return'';return `${Number(c[0]).toFixed(7).replace(/0+$/,'').replace(/\.$/, '')}, ${Number(c[1]).toFixed(7).replace(/0+$/,'').replace(/\.$/, '')}`}
 function googleMapUrlKind(value){try{const u=new URL(String(value||'').trim());const h=u.hostname.toLowerCase();if(h==='maps.app.goo.gl')return'short';if(h==='goo.gl'&&u.pathname.startsWith('/maps'))return'short';if((h==='www.google.com'||h==='google.com'||h==='maps.google.com'||h.endsWith('.google.com'))&&u.pathname.includes('/maps'))return'google';return''}catch(e){return''}}
 async function mapFetch(url,options={}){const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),4500);try{return await fetch(url,{...options,signal:controller.signal})}finally{clearTimeout(timer)}}
@@ -1152,12 +1152,15 @@ function auraEditorialSections54(p,a){
  const transferStage=transferInner?`<section id="transferencia" class="aura-screen aura-screen-transfer reveal"><div class="aura-screen-shell"><div class="aura-transfer-panel">${transferInner}</div></div></section>`:'';
  const extraBanner=a.extra?bannerHtml557(a.extra,p.bannerExtraMode,'aura-inline-banner aura-inline-banner-1','Banner extra'):'';
  const extraBanner2=a.extra2?bannerHtml557(a.extra2,p.bannerExtra2Mode,'aura-inline-banner aura-inline-banner-2','Banner extra 2'):'';
+ const musicStage=p.musicPlacement==='section'&&a.music&&Number(p.orderMusic)>0?
+  `<section id="musica" class="aura-screen aura-screen-music reveal"><div class="aura-screen-shell">${auraMusicSection5631(p)}</div></section>`:'';
  const stages=[
   {html:locationStage,order:+p.orderLocations||0},
   {html:familyStage,order:+p.orderFamily||0},
   {html:confirmStage,order:+p.orderConfirm||0},
   {html:dateStage,order:+p.orderCountdown||0},
   {html:galleryStage,order:+p.orderGallery||0},
+  {html:musicStage,order:+p.orderMusic||0},
   {html:extraBanner,order:+p.orderBannerExtra||0},
   {html:extraBanner2,order:+p.orderBannerExtra2||0},
   {html:messageStage,order:+p.orderMessage||0},
@@ -2390,13 +2393,14 @@ buildSections=function(p,a){
     confirm:p.whatsappNumber?`<section id="confirmar" class="section center rsvp reveal"><div class="section-label">RSVP</div><h2${sizeAttr(p.rsvpHeadingSize,'sectionTitle')}>¿Nos acompañas?</h2><p class="section-copy"${sizeAttr(p.rsvpCopySize,'body')}>Tu confirmación nos ayuda a preparar cada detalle.</p><a class="cta"${sizeAttr(p.rsvpButtonSize,'button')} target="_blank" href="https://wa.me/${encodeURIComponent(p.whatsappNumber.replace(/\D/g,''))}?text=${encodeURIComponent(p.whatsappMessage)}">Confirmar por WhatsApp →</a></section>`:'',
     countdown:p.eventDate?`<section class="section center reveal date-section"><div class="section-label">Save the date</div><h2 data-edit="countdownLabel"${sizeAttr(p.countdownLabelSize,'sectionTitle')}>${esc(p.countdownLabel)}</h2>${dateCardHtml(p)}<div class="countdown ${countdownStyleClass(p)}" data-date="${esc(p.eventDate)}"><div class="count-item"><b data-d${sizeAttr(p.countdownNumbersSize,'countNumber')}>00</b><span>Días</span></div><div class="count-item"><b data-h${sizeAttr(p.countdownNumbersSize,'countNumber')}>00</b><span>Horas</span></div><div class="count-item"><b data-m${sizeAttr(p.countdownNumbersSize,'countNumber')}>00</b><span>Min</span></div><div class="count-item"><b data-s${sizeAttr(p.countdownNumbersSize,'countNumber')}>00</b><span>Seg</span></div></div></section>`:'',
     gallery:a.gallery.length?`<section id="galeria" class="section reveal gallery-section${(!p.galleryLabel&&!p.galleryTitle)?' gallery-only':''}">${p.galleryLabel?`<div class="section-label" data-edit="galleryLabel"${sizeAttr(p.galleryLabelSize,'sectionLabel')}>${esc(p.galleryLabel)}</div>`:''}${p.galleryTitle?`<h2 data-edit="galleryTitle"${sizeAttr(p.galleryTitleSize,'sectionTitle')}>${esc(p.galleryTitle)}</h2>`:''}<div class="gallery ${esc(p.galleryStyle)}">${a.gallery.map((src,i)=>galleryFigure52(p,src,i,offsets)).join('')}</div>${galleryFooter(p,a.gallery.length)}</section>`:'',
+    music:p.musicPlacement==='section'&&a.music&&Number(p.orderMusic)>0?`<section id="musica" class="section aura-music-section reveal">${auraMusicSection5631(p)}</section>`:'',
     extra:a.extra?bannerHtml557(a.extra,p.bannerExtraMode,'','Banner extra'):'',
     extra2:a.extra2?bannerHtml557(a.extra2,p.bannerExtra2Mode,'','Banner extra 2'):'',
     message:p.mainMessage||p.closingSignature?`<section class="section reveal"><div class="section-label center">Con cariño</div>${p.mainMessage?`<div class="final-message" data-edit="mainMessage"${sizeAttr(p.mainMessageSize,'finalMessage')}>${esc(p.mainMessage).replace(/\n/g,'<br>')}</div>`:''}${p.showClosingSignature&&p.closingSignature?`<div class="closing-signature" data-edit="closingSignature"><span style="font-family:${signatureFont}">${esc(p.closingSignature).replace(/\n/g,'<br>')}</span></div>`:''}</section>`:'',
     video:p.videoUrl?`<section id="video" class="section reveal legacy-video-section">${auraVideo54(p,a)}</section>`:'',
     transfer:auraTransfer54(p,a)?`<section id="transferencia" class="section center reveal transfer-section">${auraTransfer54(p,a)}</section>`:''
   };
-  const order=[['locations',p.orderLocations],['family',p.orderFamily],['confirm',p.orderConfirm],['countdown',p.orderCountdown],['gallery',p.orderGallery],['extra',p.orderBannerExtra],['extra2',p.orderBannerExtra2],['message',p.orderMessage],['video',p.orderVideo],['transfer',p.orderTransfer||10]].filter(x=>+x[1]>0&&parts[x[0]]).sort((a,b)=>+a[1]-+b[1]);
+  const order=[['locations',p.orderLocations],['family',p.orderFamily],['confirm',p.orderConfirm],['countdown',p.orderCountdown],['gallery',p.orderGallery],['music',p.orderMusic],['extra',p.orderBannerExtra],['extra2',p.orderBannerExtra2],['message',p.orderMessage],['video',p.orderVideo],['transfer',p.orderTransfer||10]].filter(x=>+x[1]>0&&parts[x[0]]).sort((a,b)=>+a[1]-+b[1]);
   return order.map(x=>parts[x[0]]).join('');
 };
 
