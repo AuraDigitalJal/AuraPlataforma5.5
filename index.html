@@ -254,13 +254,24 @@
               <label>Estilo de galería<select id="galleryStyle"><option value="square">Grid</option><option value="rectangular">Rectangular</option><option value="masonry">Masonry</option><option value="collage">Collage</option><option value="carousel">Carrusel clásico</option><option value="filmstrip">Secuencia · deslizable</option><option value="story">Álbum · foto completa</option><option value="narrative">Álbum narrativo · editorial</option><option value="editorial" selected>Editorial · portada y dípticos</option><option value="polaroid_pro">Polaroid</option></select></label><p class="helper">El estilo de galería es independiente del diseño: Grid, Masonry, Carrusel, Álbum, Editorial y Polaroid conservan su propio acomodo aunque cambies de plantilla.</p>
               <label class="check-row"><input type="checkbox" id="galleryEditMode"> Ajustar encuadres en la vista previa</label><p class="helper">Activa para arrastrar cada foto en horizontal y vertical. El encuadre se guarda por fotografía y también se usa cuando esa foto aparece en Fecha, Familia, Ubicación o Cierre.</p><label>Posición vertical predeterminada<input type="range" id="galleryFocusY" min="0" max="100" value="50"></label>
               <label>Música en loop<input type="file" id="musicFile" accept="audio/*"></label>
+              <label>Ubicación del reproductor<select id="musicPlacement">
+                <option value="classic" selected>Clásico · botón flotante como siempre</option>
+                <option value="cover">Portada · integrado al diseño</option>
+                <option value="section">Sección independiente · orden configurable</option>
+              </select></label>
+              <div class="field-grid">
+                <label>Título de la canción <small>opcional en el reproductor integrado</small><input type="text" id="musicTitle" value="Nuestra canción" placeholder="Ej. Gypsy Woman"></label>
+                <label>Artista <small>opcional</small><input type="text" id="musicArtist" value="" placeholder="Ej. Crystal Waters"></label>
+              </div>
+              <label>Título de sección musical <small>opcional · solo en modo Sección</small><input type="text" id="musicSectionLabel" value="" placeholder="Ej. Nuestra canción especial"></label>
+              <p class="helper">El reproductor integrado tiene reproducir/pausar, progreso y tiempos. La música es una sola: no se duplica al cambiar la ubicación.</p>
             </div>
           </details>
 
           <details class="form-section" id="sec-orden">
             <summary><span><b>12</b> Orden de secciones</span><i>+</i></summary>
             <div class="section-body"><p class="helper">0 oculta la sección y del 1 al 10 define su posición. Transferencia es independiente de Confirmación y solo aparece cuando la activas.</p>
-              <div class="order-grid"><label>Ubicación<input type="number" id="orderLocations" min="0" max="10" value="1"></label><label>Familia<input type="number" id="orderFamily" min="0" max="10" value="2"></label><label>Confirmación<input type="number" id="orderConfirm" min="0" max="10" value="3"></label><label>Cuenta regresiva<input type="number" id="orderCountdown" min="0" max="10" value="4"></label><label>Galería<input type="number" id="orderGallery" min="0" max="10" value="5"></label><label>Banner extra<input type="number" id="orderBannerExtra" min="0" max="10" value="6"></label><label>Banner extra 2<input type="number" id="orderBannerExtra2" min="0" max="10" value="7"></label><label>Mensaje final<input type="number" id="orderMessage" min="0" max="10" value="8"></label><label>Video<input type="number" id="orderVideo" min="0" max="10" value="9"></label><label>Transferencia<input type="number" id="orderTransfer" min="0" max="10" value="10"></label></div>
+              <div class="order-grid"><label>Ubicación<input type="number" id="orderLocations" min="0" max="10" value="1"></label><label>Familia<input type="number" id="orderFamily" min="0" max="10" value="2"></label><label>Confirmación<input type="number" id="orderConfirm" min="0" max="10" value="3"></label><label>Cuenta regresiva<input type="number" id="orderCountdown" min="0" max="10" value="4"></label><label>Galería<input type="number" id="orderGallery" min="0" max="10" value="5"></label><label>Reproductor musical (modo Sección)<input type="number" id="orderMusic" min="1" max="10" step="1" value="6"></label><label>Banner extra<input type="number" id="orderBannerExtra" min="0" max="10" value="6"></label><label>Banner extra 2<input type="number" id="orderBannerExtra2" min="0" max="10" value="7"></label><label>Mensaje final<input type="number" id="orderMessage" min="0" max="10" value="8"></label><label>Video<input type="number" id="orderVideo" min="0" max="10" value="9"></label><label>Transferencia<input type="number" id="orderTransfer" min="0" max="10" value="10"></label></div>
             </div>
           </details>
 
@@ -385,6 +396,6 @@
   </dialog>
 
   <script src="js/font-data.js?v=5.6.17"></script>
-  <script src="js/script.js?v=5.6.21-navfix1-gallery1-media1-text1-navsize1-repocopy1"></script>
+  <script src="js/script.js?v=5.6.21-navfix1-gallery1-media1-text1-navsize1-repocopy1-mapmusic1"></script>
 </body>
 </html>
