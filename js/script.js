@@ -3969,3 +3969,26 @@ auraGithubBuildFiles=async function(onProgress){
 const _generateZip5625=generateZip;
 // El ZIP mantiene su flujo; validaremos también su salida en una fase separada,
 // sin alterar el diálogo de calidad ni introducir dobles confirmaciones.
+
+/* Auditoría: al añadir fotos a un proyecto recuperado, conservar las anteriores.
+   Interceptar en el formulario ANTES de los listeners del input que limpian la
+   lista recuperada; eliminar fotos deliberadamente sigue funcionando. */
+function auraPreserveRecoveredGallery5627(){
+  const input=$('galleryFiles');
+  if(!input||input.dataset.auraAppendRecovery5627)return;
+  input.dataset.auraAppendRecovery5627='1';
+  const parent=input.parentElement;
+  if(!parent)return;
+  parent.addEventListener('change',event=>{
+    if(event.target!==input)return;
+    const recovered=auraRecoveredAssets5617.galleryFiles||[];
+    const incoming=Array.from(input.files||[]);
+    if(!recovered.length||!incoming.length)return;
+    const dt=new DataTransfer();
+    [...recovered,...incoming].forEach(file=>dt.items.add(file));
+    input.files=dt.files;
+  },true);
+}
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded',auraPreserveRecoveredGallery5627);
+}else auraPreserveRecoveredGallery5627();
