@@ -4140,11 +4140,12 @@ buildInvitation=function(p,a){
   }
   return html;
 };
-function auraMusicCss5631(p){
+function auraMusicCss5631(p,t){
   const accent=p.primaryColor||'#a88a58',body=p.textColor||'#4b4240',heading=p.headingColor||'#2c2826',
-    heroInk=p.heroTextColor||'#fffaf6',card=p.bgContentColor||'#faf6f1';
+    heroInk=p.heroTextColor||'#fffaf6',card=p.bgContentColor||'#faf6f1',
+    shape=p.heroButtonShape||'auto',radius=shape==='pill'?'28px':shape==='rounded'?'14px':shape==='square'?'2px':(t?.radius||'16px');
   return [
-    '.aura-music-player{--music-accent:'+accent+';--music-ink:'+heading+';--music-bg:'+rgba(card,.9)+';--music-secondary:'+rgba(body,.72)+';--music-line:'+rgba(heading,.14)+';display:grid;grid-template-columns:44px minmax(0,1fr);align-items:center;gap:15px;width:min(100%,510px);max-width:100%;padding:17px 18px;border:1px solid '+rgba(accent,.28)+';border-radius:17px;background:var(--music-bg);color:var(--music-ink);box-sizing:border-box;box-shadow:0 16px 36px '+rgba(heading,.07)+';margin:0 auto}',
+    '.aura-music-player{--music-accent:'+accent+';--music-ink:'+heading+';--music-bg:'+rgba(card,.9)+';--music-secondary:'+rgba(body,.72)+';--music-line:'+rgba(heading,.14)+';--music-radius:'+radius+';display:grid;grid-template-columns:44px minmax(0,1fr);align-items:center;gap:15px;width:min(100%,510px);max-width:100%;padding:17px 18px;border:1px solid '+rgba(accent,.28)+';border-radius:var(--music-radius);background:var(--music-bg);color:var(--music-ink);box-sizing:border-box;box-shadow:0 16px 36px '+rgba(heading,.07)+';margin:0 auto}',
     '.aura-music-player .aura-music-play{width:44px;height:44px;min-width:44px;border:1px solid '+rgba(accent,.4)+';background:'+accent+';color:#fff;border-radius:50%;display:grid;place-items:center;padding:0;cursor:pointer;appearance:none;box-shadow:0 5px 16px '+rgba(accent,.21)+'}',
     '.aura-music-player .aura-music-play-glyph{width:15px;height:18px;display:block;position:relative}',
     '.aura-music-player .aura-music-play-glyph:before{content:"";display:block;position:absolute;top:2px;left:4px;border-top:7px solid transparent;border-bottom:7px solid transparent;border-left:11px solid currentColor}',
@@ -4163,11 +4164,11 @@ function auraMusicCss5631(p){
     '.aura-screen-music .aura-music-section-heading{color:var(--heading)}',
     '.hero .aura-music-player{--music-ink:'+heroInk+';--music-bg:'+rgba(card,.18)+';--music-secondary:'+rgba(heroInk,.78)+';--music-line:'+rgba(heroInk,.35)+';margin:18px auto 0;background:var(--music-bg);border-color:'+rgba(heroInk,.32)+';box-shadow:0 12px 30px rgba(0,0,0,.10);-webkit-backdrop-filter:blur(16px) saturate(110%);backdrop-filter:blur(16px) saturate(110%)}',
     '.hero .aura-music-player .aura-music-play{background:'+rgba(heroInk,.93)+';color:'+heading+';border-color:'+rgba(heroInk,.35)+'}',
-    '@media(max-width:480px){.aura-music-player{grid-template-columns:40px minmax(0,1fr);gap:11px;padding:14px 13px;border-radius:14px}.aura-music-player .aura-music-play{width:40px;height:40px;min-width:40px}.hero .aura-music-player{width:100%}}'
+    '@media(max-width:480px){.aura-music-player{grid-template-columns:40px minmax(0,1fr);gap:11px;padding:14px 13px;border-radius:var(--music-radius)}.aura-music-player .aura-music-play{width:40px;height:40px;min-width:40px}.hero .aura-music-player{width:100%}}'
   ].join('\n');
 }
 const _invitationCss5631=invitationCss;
-invitationCss=function(p,t,a){return _invitationCss5631(p,t,a)+auraMusicCss5631(p)};
+invitationCss=function(p,t,a){return _invitationCss5631(p,t,a)+auraMusicCss5631(p,t)};
 function auraMusicRuntime5631(){
   const start=()=>{
     const audio=document.querySelector('audio'),players=Array.from(document.querySelectorAll('.aura-music-player'));
