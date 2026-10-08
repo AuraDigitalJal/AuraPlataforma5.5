@@ -3931,3 +3931,59 @@ configObject=function(p){
   c.studioVersion='5.6.21';
   return c;
 };
+
+
+/* Aura: quitar archivos opcionales de carga local o recuperada.
+   Portada intencionalmente excluida. */
+const auraOptionalFields5628={
+ bannerFile:'banner principal',bannerExtraFile:'banner extra',bannerExtra2File:'segundo banner extra',
+ bgFile:'fondo de invitación',videoPosterFile:'imagen del video',
+ transferPhotoFile:'fotografía de transferencia',musicFile:'música',
+ sharePreviewFile:'miniatura personalizada de WhatsApp'
+};
+const auraOptionalControls5628=new Map();
+function auraOptionalFile5628(id){
+ const local=$(id)?.files?.[0]||null;
+ const recovered=auraRecoveredAssets5617[id]||null;
+ return {file:local||recovered,source:local?'local':recovered?'recuperado':''};
+}
+function auraOptionalRefresh5628(){
+ for(const [id,row] of auraOptionalControls5628){
+  const {file,source}=auraOptionalFile5628(id);
+  row.hidden=!file;
+  row.querySelector('span').textContent=file?(source==='recuperado'?'Recuperado: ':'Actual: ')+(file.name||'archivo'):'';
+ }
+}
+function auraOptionalRemove5628(id){
+ const input=$(id),{file}=auraOptionalFile5628(id);
+ if(!input||!file)return;
+ if(!confirm('¿Quitar '+auraOptionalFields5628[id]+' de esta invitación? El cambio se publicará en GitHub solo cuando vuelvas a actualizarla.'))return;
+ try{input.value='';if(input.files?.length)throw Error('No se pudo limpiar la selección')}
+ catch(e){alert('No se pudo quitar el archivo. No se aplicaron cambios.');return}
+ auraRecoveredAssets5617[id]=null;
+ auraOptionalRefresh5628();
+ if(typeof auraShareUpdateUi5618==='function')auraShareUpdateUi5618();
+ updatePreview();
+}
+function auraOptionalInit5628(){
+ for(const [id,label] of Object.entries(auraOptionalFields5628)){
+  const input=$(id);if(!input||auraOptionalControls5628.has(id))continue;
+  const parent=input.closest('label')||input.parentElement;if(!parent)continue;
+  const row=document.createElement('span');row.className='aura-optional-remove-row';row.hidden=true;
+  const status=document.createElement('span');
+  const button=document.createElement('button');button.type='button';button.textContent='Quitar archivo';
+  button.setAttribute('aria-label','Quitar '+label);
+  button.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();auraOptionalRemove5628(id)});
+  row.append(status,button);parent.appendChild(row);
+  auraOptionalControls5628.set(id,row);
+  input.addEventListener('change',auraOptionalRefresh5628);
+ }
+ auraOptionalRefresh5628();
+}
+const _auraRecoverPublishedAssets5628=auraRecoverPublishedAssets5617;
+auraRecoverPublishedAssets5617=async function(...args){
+ try{return await _auraRecoverPublishedAssets5628(...args)}
+ finally{auraOptionalRefresh5628()}
+};
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',auraOptionalInit5628);
+else auraOptionalInit5628();
