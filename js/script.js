@@ -4200,3 +4200,111 @@ function auraMusicRuntime5631(){
 }
 const _invitationJs5631=invitationJs;
 invitationJs=function(){return _invitationJs5631()+'('+auraMusicRuntime5631.toString()+')();'};
+
+
+/* Leer metadatos ID3 reales del MP3 (título TIT2, artista TPE1).
+   El audio recuperado funciona igual que uno seleccionado en el equipo.
+   Nunca se sustituye un nombre que el usuario haya escrito manualmente. */
+function auraId3String5632(data){
+  if(!data?.length)return'';
+  const code=data[0];
+  let bytes=data.subarray(1),encoding=code===3?'utf-8':code===1?'utf-16le':code===2?'utf-16be':'iso-8859-1';
+  if(code===1||code===2){
+    if(bytes[0]===0xfe&&bytes[1]===0xff){encoding='utf-16be';bytes=bytes.subarray(2)}
+    else if(bytes[0]===0xff&&bytes[1]===0xfe){encoding='utf-16le';bytes=bytes.subarray(2)}
+  }
+  try{return new TextDecoder(encoding).decode(bytes).split('\u0000')[0].replace(/[\u0000-\u001f]/g,' ').trim()}
+  catch(e){return''}
+}
+function auraId3Synch5632(bytes,pos){
+  return (bytes[pos]<<21)|(bytes[pos+1]<<14)|(bytes[pos+2]<<7)|bytes[pos+3];
+}
+async function auraReadMp3Metadata5632(file){
+  const info={title:'',artist:''};
+  if(!file||!(/\.mp3$/i.test(file.name||'')||/audio\/(?:mpeg|mp3)/i.test(file.type||'')))return info;
+  const data=new Uint8Array(await file.slice(0,Math.min(file.size,512*1024)).arrayBuffer());
+  if(data.length>=10&&String.fromCharCode(...data.subarray(0,3))==='ID3'){
+    const version=data[3],flags=data[5],size=auraId3Synch5632(data,6);
+    let i=10,limit=Math.min(data.length,size+10);
+    if((flags&0x40)&&i+4<=limit){
+      const ext=version===4?auraId3Synch5632(data,i):((data[i]<<24)|(data[i+1]<<16)|(data[i+2]<<8)|data[i+3])>>>0;
+      i+=version===3?ext+4:ext;
+    }
+    const header=version===2?6:10;
+    if([2,3,4].includes(version)){
+      while(i+header<=limit){
+        const id=String.fromCharCode(...data.subarray(i,i+(version===2?3:4)));
+        if(!/^[A-Z0-9]{3,4}$/.test(id))break;
+        const n=version===2?((data[i+3]<<16)|(data[i+4]<<8)|data[i+5]):
+          version===4?auraId3Synch5632(data,i+4):
+          ((data[i+4]<<24)|(data[i+5]<<16)|(data[i+6]<<8)|data[i+7])>>>0;
+        if(!n||i+header+n>limit)break;
+        if(['TIT2','TT2'].includes(id))info.title=auraId3String5632(data.subarray(i+header,i+header+n))||info.title;
+        if(['TPE1','TP1'].includes(id))info.artist=auraId3String5632(data.subarray(i+header,i+header+n))||info.artist;
+        if(info.title&&info.artist)break;
+        i+=header+n;
+      }
+    }
+  }
+  if((!info.title||!info.artist)&&file.size>=128){
+    try{
+      const tail=new Uint8Array(await file.slice(file.size-128).arrayBuffer());
+      if(String.fromCharCode(...tail.subarray(0,3))==='TAG'){
+        const latin=bytes=>{try{return new TextDecoder('iso-8859-1').decode(bytes).replace(/\u0000/g,'').trim()}catch(e){return''}};
+        info.title=info.title||latin(tail.subarray(3,33));
+        info.artist=info.artist||latin(tail.subarray(33,63));
+      }
+    }catch(e){}
+  }
+  return info;
+}
+let auraMusicMetadataRequest5632=0;
+async function auraMusicAutofill5632(file){
+  if(!file)return;
+  const request=++auraMusicMetadataRequest5632;
+  const label=$('musicMetadataStatus');
+  if(label)label.textContent='Leyendo información del MP3…';
+  try{
+    const info=await auraReadMp3Metadata5632(file);
+    if(request!==auraMusicMetadataRequest5632)return;
+    const active=$('musicFile')?.files?.[0]||auraRecoveredAssets5617.musicFile;
+    if(active!==file)return;
+    let changed=false;
+    for(const [id,next] of [['musicTitle',info.title],['musicArtist',info.artist]]){
+      const field=$(id);if(!field)continue;
+      const current=String(field.value||'').trim();
+      const lastAuto=field.dataset.auraMusicAutoValue;
+      if(!current||current==='Nuestra canción'||(lastAuto!==undefined&&lastAuto===field.value)){
+        if(next){
+          if(field.value!==next){field.value=next;changed=true}
+          field.dataset.auraMusicAutoValue=next;
+        }else if(lastAuto!==undefined&&lastAuto===field.value){
+          field.value='';delete field.dataset.auraMusicAutoValue;changed=true;
+        }
+      }
+    }
+    if(label)label.textContent=info.title||info.artist?
+      'Información del MP3 detectada. Puedes modificar título y artista.':
+      'El archivo no contiene título o artista ID3 reconocibles; puedes escribirlos manualmente.';
+    if(changed)updatePreview();
+  }catch(e){
+    if(request===auraMusicMetadataRequest5632&&label)label.textContent='No se pudieron leer los metadatos; puedes escribir título y artista.';
+  }
+}
+function auraMusicMetadataInit5632(){
+  $('musicFile')?.addEventListener('change',()=>{
+    ++auraMusicMetadataRequest5632;
+    const file=$('musicFile')?.files?.[0]||null;
+    const label=$('musicMetadataStatus');
+    if(!file){if(label)label.textContent='';return}
+    auraMusicAutofill5632(file);
+  });
+}
+const _auraRecoverPublishedAssets5632=auraRecoverPublishedAssets5617;
+auraRecoverPublishedAssets5617=async function(...args){
+  const result=await _auraRecoverPublishedAssets5632(...args);
+  if(auraRecoveredAssets5617.musicFile)await auraMusicAutofill5632(auraRecoveredAssets5617.musicFile);
+  return result;
+};
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',auraMusicMetadataInit5632);
+else auraMusicMetadataInit5632();
