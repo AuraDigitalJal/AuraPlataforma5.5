@@ -4095,13 +4095,19 @@ coverHtml=function(params){
 function auraMusicPlayerMarkup5631(p){
   const title=String(p.musicTitle||'').trim(),artist=String(p.musicArtist||'').trim();
   return '<div class="aura-music-player" role="group" aria-label="Reproductor de música">'+
-    '<button type="button" class="aura-music-play" aria-label="Reproducir música" aria-pressed="false"><span class="aura-music-play-glyph" aria-hidden="true"></span></button>'+
+    '<div class="aura-music-art" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>'+
     '<div class="aura-music-copy">'+
-    (title?'<strong data-edit="musicTitle">'+esc(title)+'</strong>':'')+
-    (artist?'<span class="aura-music-artist" data-edit="musicArtist">'+esc(artist)+'</span>':'')+
-    '<input class="aura-music-seek" type="range" min="0" max="1000" step="1" value="0" aria-label="Avanzar o retroceder canción">'+
-    '<div class="aura-music-times"><span class="aura-music-current">0:00</span><span class="aura-music-duration">0:00</span></div>'+
-    '</div></div>';
+      '<span class="aura-music-kicker">Ahora suena</span>'+
+      (title?'<strong class="aura-music-title" data-edit="musicTitle">'+esc(title)+'</strong>':'')+
+      (artist?'<span class="aura-music-artist" data-edit="musicArtist">'+esc(artist)+'</span>':'')+
+      '<div class="aura-music-progress-row">'+
+        '<span class="aura-music-time aura-music-current">0:00</span>'+
+        '<input class="aura-music-range" type="range" min="0" max="100" step="0.1" value="0" aria-label="Progreso de la canción">'+
+        '<span class="aura-music-time aura-music-duration">0:00</span>'+
+      '</div>'+
+    '</div>'+
+    '<button type="button" class="aura-music-play" aria-label="Reproducir música" aria-pressed="false"><span class="aura-music-play-icon" aria-hidden="true"></span></button>'+
+  '</div>';
 }
 function auraMusicSection5631(p){
   const label=String(p.musicSectionLabel||'').trim();
@@ -4141,31 +4147,7 @@ buildInvitation=function(p,a){
   return html;
 };
 function auraMusicCss5631(p,t){
-  const accent=p.primaryColor||'#a88a58',body=p.textColor||'#4b4240',heading=p.headingColor||'#2c2826',
-    heroInk=p.heroTextColor||'#fffaf6',card=p.bgContentColor||'#faf6f1',
-    shape=p.heroButtonShape||'auto',radius=shape==='pill'?'28px':shape==='rounded'?'14px':shape==='square'?'2px':(t?.radius||'16px');
-  return [
-    '.aura-music-player{--music-accent:'+accent+';--music-ink:'+heading+';--music-bg:'+rgba(card,.9)+';--music-secondary:'+rgba(body,.72)+';--music-line:'+rgba(heading,.14)+';--music-radius:'+radius+';display:grid;grid-template-columns:44px minmax(0,1fr);align-items:center;gap:15px;width:min(100%,510px);max-width:100%;padding:17px 18px;border:1px solid '+rgba(accent,.28)+';border-radius:var(--music-radius);background:var(--music-bg);color:var(--music-ink);box-sizing:border-box;box-shadow:0 16px 36px '+rgba(heading,.07)+';margin:0 auto}',
-    '.aura-music-player .aura-music-play{width:44px;height:44px;min-width:44px;border:1px solid '+rgba(accent,.4)+';background:'+accent+';color:#fff;border-radius:50%;display:grid;place-items:center;padding:0;cursor:pointer;appearance:none;box-shadow:0 5px 16px '+rgba(accent,.21)+'}',
-    '.aura-music-player .aura-music-play-glyph{width:15px;height:18px;display:block;position:relative}',
-    '.aura-music-player .aura-music-play-glyph:before{content:"";display:block;position:absolute;top:2px;left:4px;border-top:7px solid transparent;border-bottom:7px solid transparent;border-left:11px solid currentColor}',
-    '.aura-music-player.is-playing .aura-music-play-glyph:before,.aura-music-player.is-playing .aura-music-play-glyph:after{content:"";display:block;position:absolute;top:2px;left:2px;width:4px;height:14px;border:0;background:currentColor;border-radius:1px}',
-    '.aura-music-player.is-playing .aura-music-play-glyph:after{left:9px}',
-    '.aura-music-player .aura-music-copy{min-width:0;display:flex;flex-direction:column;gap:0}',
-    '.aura-music-player .aura-music-copy strong{display:block;font:600 13px/1.35 var(--body,system-ui);color:var(--music-ink);white-space:normal;overflow-wrap:anywhere;letter-spacing:0}',
-    '.aura-music-player .aura-music-artist{display:block;margin-top:2px;font:400 11px/1.35 var(--body,system-ui);color:var(--music-secondary);overflow-wrap:anywhere}',
-    '.aura-music-player .aura-music-seek{display:block;width:100%;height:4px;margin:14px 0 7px;appearance:none;-webkit-appearance:none;cursor:pointer;border:0;border-radius:999px;outline-offset:6px;background:linear-gradient(to right,var(--music-accent) var(--music-progress,0%),var(--music-line) var(--music-progress,0%))}',
-    '.aura-music-player .aura-music-seek::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:11px;height:11px;border:2px solid var(--music-bg);border-radius:50%;background:var(--music-accent);box-shadow:0 1px 4px '+rgba(heading,.22)+'}',
-    '.aura-music-player .aura-music-seek::-moz-range-thumb{width:10px;height:10px;border:2px solid var(--music-bg);border-radius:50%;background:var(--music-accent)}',
-    '.aura-music-player .aura-music-times{display:flex;justify-content:space-between;gap:12px;font:500 10px/1.15 var(--body,system-ui);font-variant-numeric:tabular-nums;color:var(--music-secondary)}',
-    '.aura-music-section{padding-top:clamp(24px,5vw,45px)!important;padding-bottom:clamp(24px,5vw,45px)!important}',
-    '.aura-screen-music{min-height:auto!important;padding-top:clamp(30px,6vw,65px)!important;padding-bottom:clamp(30px,6vw,65px)!important}',
-    '.aura-music-section-heading{font:500 clamp(23px,6vw,38px)/1.2 var(--display,serif);color:var(--heading);text-align:center;margin:0 auto 22px}',
-    '.aura-screen-music .aura-music-section-heading{color:var(--heading)}',
-    '.hero .aura-music-player{--music-ink:'+heroInk+';--music-bg:'+rgba(card,.18)+';--music-secondary:'+rgba(heroInk,.78)+';--music-line:'+rgba(heroInk,.35)+';margin:18px auto 0;background:var(--music-bg);border-color:'+rgba(heroInk,.32)+';box-shadow:0 12px 30px rgba(0,0,0,.10);-webkit-backdrop-filter:blur(16px) saturate(110%);backdrop-filter:blur(16px) saturate(110%)}',
-    '.hero .aura-music-player .aura-music-play{background:'+rgba(heroInk,.93)+';color:'+heading+';border-color:'+rgba(heroInk,.35)+'}',
-    '@media(max-width:480px){.aura-music-player{grid-template-columns:40px minmax(0,1fr);gap:11px;padding:14px 13px;border-radius:var(--music-radius)}.aura-music-player .aura-music-play{width:40px;height:40px;min-width:40px}.hero .aura-music-player{width:100%}}'
-  ].join('\n');
+  return "/* Reproductor de música · integrado a la paleta y opacidad de Aura */\n.aura-music-player{width:min(100%,530px);max-width:100%;margin:0 auto 26px;padding:15px 16px;display:grid;grid-template-columns:64px minmax(0,1fr) 48px;gap:14px;align-items:center;background:var(--music-surface);border:1px solid var(--music-outline);border-radius:calc(var(--music-radius) * 1.15);box-shadow:0 18px 46px var(--music-shadow);-webkit-backdrop-filter:blur(14px) saturate(118%);backdrop-filter:blur(14px) saturate(118%);overflow:hidden}\n.aura-music-art{width:64px;aspect-ratio:1;border-radius:calc(var(--music-radius) * .8);display:flex;align-items:center;justify-content:center;gap:3px;background:var(--music-accent);background:linear-gradient(145deg,color-mix(in srgb,var(--music-accent) 78%,var(--music-ground)),color-mix(in srgb,var(--music-heading) 48%,var(--music-ground)));box-shadow:inset 0 1px 0 rgba(255,255,255,.20)}\n.aura-music-art i{display:block;width:3px;border-radius:999px;background:color-mix(in srgb,var(--music-ground) 88%,white);opacity:.94}\n.aura-music-art i:nth-child(1){height:14px}.aura-music-art i:nth-child(2){height:27px}.aura-music-art i:nth-child(3){height:20px}.aura-music-art i:nth-child(4){height:34px}.aura-music-art i:nth-child(5){height:18px}\n.aura-music-copy{min-width:0}\n.aura-music-kicker{display:block;margin-bottom:3px;color:var(--music-muted);font:600 7px/1.25 var(--body);letter-spacing:.18em;text-transform:uppercase}\n.aura-music-title{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--music-heading);font:500 20px/1.1 var(--display)}\n.aura-music-artist{display:block;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--music-muted);font:500 9px/1.3 var(--body);letter-spacing:.06em}\n.aura-music-progress-row{display:grid;grid-template-columns:31px minmax(0,1fr) 31px;gap:7px;align-items:center;margin-top:10px}\n.aura-music-time{color:var(--music-muted);font:500 7px/1 var(--body);font-variant-numeric:tabular-nums;text-align:center}\n.aura-music-range{--player-progress:0%;width:100%;height:3px;margin:0;appearance:none;-webkit-appearance:none;border:0;border-radius:999px;outline:0;cursor:pointer;background:linear-gradient(90deg,var(--music-accent) 0 var(--player-progress),color-mix(in srgb,var(--music-heading) 13%,transparent) var(--player-progress) 100%)}\n.aura-music-range::-webkit-slider-thumb{-webkit-appearance:none;width:9px;height:9px;border-radius:50%;background:var(--music-heading);border:0;box-shadow:0 0 0 2px color-mix(in srgb,var(--music-ground) 72%,transparent)}\n.aura-music-range::-moz-range-thumb{width:9px;height:9px;border-radius:50%;background:var(--music-heading);border:0}\n.aura-music-play{appearance:none;width:46px;height:46px;border:0;border-radius:50%;display:grid;place-items:center;cursor:pointer;background:var(--music-heading);color:var(--music-ground);box-shadow:0 10px 24px color-mix(in srgb,var(--music-heading) 18%,transparent);transition:transform .2s ease,box-shadow .2s ease}\n.aura-music-play:hover{transform:scale(1.04);box-shadow:0 13px 28px color-mix(in srgb,var(--music-heading) 23%,transparent)}\n.aura-music-play-icon{position:relative;display:block;width:16px;height:18px}\n.aura-music-play-icon::before{content:'';position:absolute;left:4px;top:2px;width:0;height:0;border-top:7px solid transparent;border-bottom:7px solid transparent;border-left:11px solid var(--music-ground);transition:opacity .18s ease,transform .18s ease;transform-origin:center}\n.aura-music-play-icon::after{content:'';position:absolute;left:3px;top:2px;width:10px;height:14px;opacity:0;background:linear-gradient(90deg,var(--music-ground) 0 3px,transparent 3px 7px,var(--music-ground) 7px 10px);transition:opacity .18s ease}\n.aura-music-play.is-playing .aura-music-play-icon::before{opacity:0;transform:scale(.7)}\n.aura-music-play.is-playing .aura-music-play-icon::after{opacity:1}\n@media(max-width:430px){.aura-music-player{grid-template-columns:56px minmax(0,1fr) 44px;gap:12px;padding:13px 14px}.aura-music-art{width:56px}.aura-music-title{font-size:18px}.aura-music-play{width:42px;height:42px}.aura-music-progress-row{grid-template-columns:27px minmax(0,1fr) 27px;gap:5px}}\n.aura-music-player{--music-surface:var(--card);--music-radius:var(--radius,16px);--music-accent:var(--accent);--music-heading:var(--heading);--music-muted:var(--muted);--music-ground:var(--bg);--music-outline:color-mix(in srgb,var(--heading) 10%,transparent);--music-shadow:color-mix(in srgb,var(--heading) 7%,transparent)}\n.aura-music-section .aura-music-player,.aura-screen-music .aura-music-player{margin-bottom:0}\n.aura-music-section{padding-block:clamp(24px,5vw,45px)!important}\n.aura-screen-music{min-height:auto!important;padding-block:clamp(30px,6vw,65px)!important}\n.aura-music-section-heading{font:500 clamp(23px,6vw,38px)/1.2 var(--display,serif);color:var(--heading);text-align:center;margin:0 auto 22px}\n.hero .aura-music-player{--music-surface:color-mix(in srgb,var(--bg) 18%,transparent);--music-heading:var(--cover-ink,var(--music-heading));--music-muted:color-mix(in srgb,var(--cover-ink,#fff) 79%,transparent);--music-outline:color-mix(in srgb,var(--cover-ink,#fff) 30%,transparent);--music-shadow:rgba(0,0,0,.13);width:min(100%,530px);margin:18px auto 0;border-color:var(--music-outline);-webkit-backdrop-filter:blur(16px) saturate(114%);backdrop-filter:blur(16px) saturate(114%);background:var(--music-surface)}\n.hero .aura-music-player .aura-music-play{background:var(--music-heading);color:var(--music-ground)}\n@media(max-width:430px){.hero .aura-music-player{margin-top:14px}}\n";
 }
 const _invitationCss5631=invitationCss;
 invitationCss=function(p,t,a){return _invitationCss5631(p,t,a)+auraMusicCss5631(p,t)};
@@ -4182,11 +4164,18 @@ function auraMusicRuntime5631(){
       const current=Number.isFinite(audio.currentTime)?audio.currentTime:0;
       const percent=duration>0?Math.min(100,Math.max(0,current/duration*100)):0;
       players.forEach(player=>{
-        player.classList.toggle('is-playing',!audio.paused);
         const button=player.querySelector('.aura-music-play');
-        if(button){button.setAttribute('aria-label',audio.paused?'Reproducir música':'Pausar música');button.setAttribute('aria-pressed',String(!audio.paused))}
-        const range=player.querySelector('.aura-music-seek');
-        if(range){range.value=String(Math.round(percent*10));range.style.setProperty('--music-progress',percent+'%');range.disabled=duration<=0}
+        if(button){
+          button.classList.toggle('is-playing',!audio.paused);
+          button.setAttribute('aria-label',audio.paused?'Reproducir música':'Pausar música');
+          button.setAttribute('aria-pressed',String(!audio.paused));
+        }
+        const range=player.querySelector('.aura-music-range');
+        if(range){
+          range.value=String(percent);
+          range.style.setProperty('--player-progress',percent+'%');
+          range.disabled=duration<=0;
+        }
         const now=player.querySelector('.aura-music-current'),end=player.querySelector('.aura-music-duration');
         if(now)now.textContent=format(current);
         if(end)end.textContent=format(duration);
@@ -4194,12 +4183,12 @@ function auraMusicRuntime5631(){
     };
     players.forEach(player=>{
       player.querySelector('.aura-music-play')?.addEventListener('click',()=>{
-        if(audio.paused)audio.play().catch(()=>{render()});
+        if(audio.paused)audio.play().catch(()=>render());
         else audio.pause();
       });
-      player.querySelector('.aura-music-seek')?.addEventListener('input',e=>{
+      player.querySelector('.aura-music-range')?.addEventListener('input',e=>{
         if(Number.isFinite(audio.duration)&&audio.duration>0){
-          audio.currentTime=Number(e.target.value)/1000*audio.duration;
+          audio.currentTime=Number(e.target.value)/100*audio.duration;
           render();
         }
       });
@@ -4211,3 +4200,111 @@ function auraMusicRuntime5631(){
 }
 const _invitationJs5631=invitationJs;
 invitationJs=function(){return _invitationJs5631()+'('+auraMusicRuntime5631.toString()+')();'};
+
+
+/* Leer metadatos ID3 reales del MP3 (título TIT2, artista TPE1).
+   El audio recuperado funciona igual que uno seleccionado en el equipo.
+   Nunca se sustituye un nombre que el usuario haya escrito manualmente. */
+function auraId3String5632(data){
+  if(!data?.length)return'';
+  const code=data[0];
+  let bytes=data.subarray(1),encoding=code===3?'utf-8':code===1?'utf-16le':code===2?'utf-16be':'iso-8859-1';
+  if(code===1||code===2){
+    if(bytes[0]===0xfe&&bytes[1]===0xff){encoding='utf-16be';bytes=bytes.subarray(2)}
+    else if(bytes[0]===0xff&&bytes[1]===0xfe){encoding='utf-16le';bytes=bytes.subarray(2)}
+  }
+  try{return new TextDecoder(encoding).decode(bytes).split('\u0000')[0].replace(/[\u0000-\u001f]/g,' ').trim()}
+  catch(e){return''}
+}
+function auraId3Synch5632(bytes,pos){
+  return (bytes[pos]<<21)|(bytes[pos+1]<<14)|(bytes[pos+2]<<7)|bytes[pos+3];
+}
+async function auraReadMp3Metadata5632(file){
+  const info={title:'',artist:''};
+  if(!file||!(/\.mp3$/i.test(file.name||'')||/audio\/(?:mpeg|mp3)/i.test(file.type||'')))return info;
+  const data=new Uint8Array(await file.slice(0,Math.min(file.size,512*1024)).arrayBuffer());
+  if(data.length>=10&&String.fromCharCode(...data.subarray(0,3))==='ID3'){
+    const version=data[3],flags=data[5],size=auraId3Synch5632(data,6);
+    let i=10,limit=Math.min(data.length,size+10);
+    if((flags&0x40)&&i+4<=limit){
+      const ext=version===4?auraId3Synch5632(data,i):((data[i]<<24)|(data[i+1]<<16)|(data[i+2]<<8)|data[i+3])>>>0;
+      i+=version===3?ext+4:ext;
+    }
+    const header=version===2?6:10;
+    if([2,3,4].includes(version)){
+      while(i+header<=limit){
+        const id=String.fromCharCode(...data.subarray(i,i+(version===2?3:4)));
+        if(!/^[A-Z0-9]{3,4}$/.test(id))break;
+        const n=version===2?((data[i+3]<<16)|(data[i+4]<<8)|data[i+5]):
+          version===4?auraId3Synch5632(data,i+4):
+          ((data[i+4]<<24)|(data[i+5]<<16)|(data[i+6]<<8)|data[i+7])>>>0;
+        if(!n||i+header+n>limit)break;
+        if(['TIT2','TT2'].includes(id))info.title=auraId3String5632(data.subarray(i+header,i+header+n))||info.title;
+        if(['TPE1','TP1'].includes(id))info.artist=auraId3String5632(data.subarray(i+header,i+header+n))||info.artist;
+        if(info.title&&info.artist)break;
+        i+=header+n;
+      }
+    }
+  }
+  if((!info.title||!info.artist)&&file.size>=128){
+    try{
+      const tail=new Uint8Array(await file.slice(file.size-128).arrayBuffer());
+      if(String.fromCharCode(...tail.subarray(0,3))==='TAG'){
+        const latin=bytes=>{try{return new TextDecoder('iso-8859-1').decode(bytes).replace(/\u0000/g,'').trim()}catch(e){return''}};
+        info.title=info.title||latin(tail.subarray(3,33));
+        info.artist=info.artist||latin(tail.subarray(33,63));
+      }
+    }catch(e){}
+  }
+  return info;
+}
+let auraMusicMetadataRequest5632=0;
+async function auraMusicAutofill5632(file){
+  if(!file)return;
+  const request=++auraMusicMetadataRequest5632;
+  const label=$('musicMetadataStatus');
+  if(label)label.textContent='Leyendo información del MP3…';
+  try{
+    const info=await auraReadMp3Metadata5632(file);
+    if(request!==auraMusicMetadataRequest5632)return;
+    const active=$('musicFile')?.files?.[0]||auraRecoveredAssets5617.musicFile;
+    if(active!==file)return;
+    let changed=false;
+    for(const [id,next] of [['musicTitle',info.title],['musicArtist',info.artist]]){
+      const field=$(id);if(!field)continue;
+      const current=String(field.value||'').trim();
+      const lastAuto=field.dataset.auraMusicAutoValue;
+      if(!current||current==='Nuestra canción'||(lastAuto!==undefined&&lastAuto===field.value)){
+        if(next){
+          if(field.value!==next){field.value=next;changed=true}
+          field.dataset.auraMusicAutoValue=next;
+        }else if(lastAuto!==undefined&&lastAuto===field.value){
+          field.value='';delete field.dataset.auraMusicAutoValue;changed=true;
+        }
+      }
+    }
+    if(label)label.textContent=info.title||info.artist?
+      'Información del MP3 detectada. Puedes modificar título y artista.':
+      'El archivo no contiene título o artista ID3 reconocibles; puedes escribirlos manualmente.';
+    if(changed)updatePreview();
+  }catch(e){
+    if(request===auraMusicMetadataRequest5632&&label)label.textContent='No se pudieron leer los metadatos; puedes escribir título y artista.';
+  }
+}
+function auraMusicMetadataInit5632(){
+  $('musicFile')?.addEventListener('change',()=>{
+    ++auraMusicMetadataRequest5632;
+    const file=$('musicFile')?.files?.[0]||null;
+    const label=$('musicMetadataStatus');
+    if(!file){if(label)label.textContent='';return}
+    auraMusicAutofill5632(file);
+  });
+}
+const _auraRecoverPublishedAssets5632=auraRecoverPublishedAssets5617;
+auraRecoverPublishedAssets5617=async function(...args){
+  const result=await _auraRecoverPublishedAssets5632(...args);
+  if(auraRecoveredAssets5617.musicFile)await auraMusicAutofill5632(auraRecoveredAssets5617.musicFile);
+  return result;
+};
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',auraMusicMetadataInit5632);
+else auraMusicMetadataInit5632();
