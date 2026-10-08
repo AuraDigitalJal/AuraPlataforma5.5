@@ -1447,6 +1447,61 @@ function photoFrame554(p,i){
 function syncLegacyOffsets554(frames){
   const el=$('galleryOffsets');if(el)el.value=JSON.stringify(frames.map(f=>Math.round(bounded(f.y,50,0,100)*10)/10));
 }
+/* Aura · Eliminar fotografías sin tocar los diseños ni la navegación.
+   Las fotografías recuperadas se administran en memoria y GitHub solo cambia
+   al volver a publicar. */
+const auraGallerySelection5622=new Set();
+function auraGallerySelectionUi5622(root,files){
+  for(const file of auraGallerySelection5622)if(!files.includes(file))auraGallerySelection5622.delete(file);
+  if(!files.length)return;
+  const row=document.createElement('div');row.className='aura-gallery-select-toolbar';
+  const count=document.createElement('span');count.className='aura-gallery-select-count';
+  const all=document.createElement('button');all.type='button';all.textContent='Seleccionar todas';
+  const none=document.createElement('button');none.type='button';none.textContent='Deseleccionar';
+  const remove=document.createElement('button');remove.type='button';remove.className='aura-gallery-delete';remove.textContent='Eliminar seleccionadas';
+  const update=()=>{
+    const n=auraGallerySelection5622.size;
+    count.textContent=n+' seleccionada'+(n===1?'':'s')+' de '+files.length;
+    remove.disabled=n===0;
+    remove.textContent=n?'Eliminar seleccionadas ('+n+')':'Eliminar seleccionadas';
+  };
+  all.addEventListener('click',()=>{files.forEach(f=>auraGallerySelection5622.add(f));renderPhotoFraming554()});
+  none.addEventListener('click',()=>{auraGallerySelection5622.clear();renderPhotoFraming554()});
+  remove.addEventListener('click',auraDeleteGallerySelection5622);
+  row.append(count,all,none,remove);root.appendChild(row);update();
+}
+function auraDeleteGallerySelection5622(){
+  const files=Array.from(getFormParams().galleryFiles||[]);
+  const removed=new Set(files.filter(file=>auraGallerySelection5622.has(file)));
+  if(!removed.size)return;
+  if(!confirm('¿Eliminar '+removed.size+' fotografía'+(removed.size===1?'':'s')+' de esta invitación?'))return;
+  const localInput=$('galleryFiles'),localFiles=Array.from(localInput?.files||[]);
+  // Preparar la nueva selección antes de cambiar ningún dato.
+  let dt=null;
+  if(localFiles.some(file=>removed.has(file))){
+    try{
+      dt=new DataTransfer();
+      for(const file of localFiles)if(!removed.has(file))dt.items.add(file);
+    }catch(error){
+      alert('Este navegador no permite modificar la selección de archivos. No se eliminó ninguna fotografía.');
+      return;
+    }
+  }
+  const existing=readFramesEditor554();
+  const offsets=(()=>{try{const a=JSON.parse($('galleryOffsets')?.value||'[]');return Array.isArray(a)?a:[]}catch(e){return[]}})();
+  const nextFrames=files.flatMap((file,i)=>removed.has(file)?[]:[existing[i]||{x:50,y:offsets[i]??50,fit:'cover'}]);
+  if(dt&&localInput){
+    try{localInput.files=dt.files}catch(error){
+      alert('No se pudo actualizar la selección de fotografías. No se eliminó ninguna.');
+      return;
+    }
+  }
+  auraRecoveredAssets5617.galleryFiles=(auraRecoveredAssets5617.galleryFiles||[]).filter(file=>!removed.has(file));
+  auraGallerySelection5622.clear();
+  writeFramesEditor554(nextFrames,{preview:false});
+  renderPhotoFraming554();
+  updatePreview();
+}
 function readFramesEditor554(){
   try{const v=JSON.parse($('galleryFrames')?.value||'[]');return Array.isArray(v)?v:[]}catch(e){return[]}
 }
@@ -1457,18 +1512,19 @@ function writeFramesEditor554(frames,{preview=true}={}){
   if(preview)queuePreview();
 }
 function ensureFramesEditor554(){
-  const n=$('galleryFiles')?.files?.length||0,old=readFramesEditor554(),legacy=(()=>{try{return JSON.parse($('galleryOffsets')?.value||'[]')}catch(e){return[]}})();
+  const n=(getFormParams().galleryFiles||[]).length,old=readFramesEditor554(),legacy=(()=>{try{return JSON.parse($('galleryOffsets')?.value||'[]')}catch(e){return[]}})();
   const out=[];
   for(let i=0;i<n;i++){
     const f=old[i]||{};
     out.push({x:bounded(f.x,50,0,100),y:bounded(f.y,Number.isFinite(+legacy[i])?+legacy[i]:bounded($('galleryFocusY')?.value,50,0,100),0,100),fit:f.fit==='contain'?'contain':'cover'});
   }
-  writeFramesEditor554(out,{preview:false});return out;
+  if(n)writeFramesEditor554(out,{preview:false});return n?out:old;
 }
 function renderPhotoFraming554(){
   const root=$('photo-framing-list');if(!root)return;
-  const files=Array.from($('galleryFiles')?.files||[]),frames=ensureFramesEditor554();root.replaceChildren();
+  const files=Array.from(getFormParams().galleryFiles||[]),frames=ensureFramesEditor554();root.replaceChildren();
   if(!files.length){const q=document.createElement('p');q.className='helper';q.textContent='Carga fotografías para ajustar cada encuadre por separado.';root.appendChild(q);return}
+  auraGallerySelectionUi5622(root,files);
   files.forEach((file,i)=>{
     const f=frames[i]||{x:50,y:50,fit:'cover'},card=document.createElement('div');card.className='photo-frame-card';card.dataset.index=String(i);
     const thumb=document.createElement('img');thumb.className='photo-frame-thumb';thumb.src=fileUrl(file);thumb.alt='Vista previa fotografía '+(i+1);thumb.style.objectPosition=`${f.x}% ${f.y}%`;thumb.style.objectFit=f.fit;
@@ -1476,6 +1532,17 @@ function renderPhotoFraming554(){
     body.innerHTML=`<div class="photo-frame-title"><strong>${esc(file.name||('Fotografía '+(i+1)))}</strong><button type="button" data-frame-reset>Restablecer</button></div>
       <div class="photo-frame-mode"><label>Modo</label><select data-frame-fit><option value="cover">Llenar espacio</option><option value="contain">Foto completa</option></select></div>
       <div class="photo-frame-axis"><label>Horizontal <span class="photo-frame-value" data-x-value>${Math.round(f.x)}%</span><input data-frame-x type="range" min="0" max="100" value="${f.x}"></label><label>Vertical <span class="photo-frame-value" data-y-value>${Math.round(f.y)}%</span><input data-frame-y type="range" min="0" max="100" value="${f.y}"></label></div>`;
+    const pickLabel=document.createElement('label');pickLabel.className='aura-gallery-photo-pick';
+    const pick=document.createElement('input');pick.type='checkbox';pick.checked=auraGallerySelection5622.has(file);
+    pick.addEventListener('change',()=>{
+      if(pick.checked)auraGallerySelection5622.add(file);else auraGallerySelection5622.delete(file);
+      const bar=root.querySelector('.aura-gallery-select-toolbar');
+      const count=bar?.querySelector('.aura-gallery-select-count'),del=bar?.querySelector('.aura-gallery-delete');
+      if(count)count.textContent=auraGallerySelection5622.size+' seleccionada'+(auraGallerySelection5622.size===1?'':'s')+' de '+files.length;
+      if(del){del.disabled=!auraGallerySelection5622.size;del.textContent=auraGallerySelection5622.size?'Eliminar seleccionadas ('+auraGallerySelection5622.size+')':'Eliminar seleccionadas'}
+    });
+    pickLabel.append(pick,document.createTextNode('Seleccionar fotografía '+(i+1)));
+    body.prepend(pickLabel);
     body.querySelector('[data-frame-fit]').value=f.fit;
     const commit=()=>{const all=ensureFramesEditor554(),x=+body.querySelector('[data-frame-x]').value,y=+body.querySelector('[data-frame-y]').value,fit=body.querySelector('[data-frame-fit]').value;all[i]={x,y,fit};thumb.style.objectPosition=`${x}% ${y}%`;thumb.style.objectFit=fit;body.querySelector('[data-x-value]').textContent=Math.round(x)+'%';body.querySelector('[data-y-value]').textContent=Math.round(y)+'%';writeFramesEditor554(all)};
     body.querySelector('[data-frame-x]').addEventListener('input',commit);body.querySelector('[data-frame-y]').addEventListener('input',commit);body.querySelector('[data-frame-fit]').addEventListener('change',commit);
