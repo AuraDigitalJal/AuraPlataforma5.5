@@ -2,6 +2,17 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
+  <script id="aura-default-version-redirect">
+    // Open the current published editor even when visitors use the clean platform URL.
+    (function () {
+      if (window.location.protocol === 'file:') return;
+      var target = new URL(window.location.href);
+      if (!target.searchParams.has('v')) {
+        target.searchParams.set('v', 'hatzi-slim1');
+        window.location.replace(target.pathname + target.search + target.hash);
+      }
+    })();
+  </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#f2eee8" />
   <title>Aura Digital · Studio de Invitaciones</title>
