@@ -169,3 +169,13 @@ body.github-preview-open{overflow:hidden}
 .aura-system-package small{width:100%;color:var(--muted,#6f6863);line-height:1.4}
 .aura-system-install,.aura-system-reload{width:100%;justify-content:center}
 .aura-system-install:disabled{opacity:.48;cursor:not-allowed}
+
+/* Copiar enlace público desde el lector de repositorios de GitHub. */
+.github-repo-actions{flex-wrap:wrap;justify-content:flex-end}
+.github-copy-repo-btn{border-color:rgba(55,110,87,.25);color:#306b50;background:rgba(55,110,87,.045)}
+.github-copy-repo-btn:hover{background:rgba(55,110,87,.095)}
+.github-copy-repo-btn:disabled{opacity:.42;cursor:not-allowed}
+@media(max-width:640px){
+  .github-repo-actions{grid-template-columns:repeat(2,minmax(0,1fr));justify-content:stretch}
+  .github-repo-actions .github-copy-repo-btn{grid-column:1/-1;grid-row:1}
+}
