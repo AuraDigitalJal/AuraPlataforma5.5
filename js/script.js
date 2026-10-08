@@ -4164,11 +4164,18 @@ function auraMusicRuntime5631(){
       const current=Number.isFinite(audio.currentTime)?audio.currentTime:0;
       const percent=duration>0?Math.min(100,Math.max(0,current/duration*100)):0;
       players.forEach(player=>{
-        player.classList.toggle('is-playing',!audio.paused);
         const button=player.querySelector('.aura-music-play');
-        if(button){button.setAttribute('aria-label',audio.paused?'Reproducir música':'Pausar música');button.setAttribute('aria-pressed',String(!audio.paused))}
-        const range=player.querySelector('.aura-music-seek');
-        if(range){range.value=String(Math.round(percent*10));range.style.setProperty('--music-progress',percent+'%');range.disabled=duration<=0}
+        if(button){
+          button.classList.toggle('is-playing',!audio.paused);
+          button.setAttribute('aria-label',audio.paused?'Reproducir música':'Pausar música');
+          button.setAttribute('aria-pressed',String(!audio.paused));
+        }
+        const range=player.querySelector('.aura-music-range');
+        if(range){
+          range.value=String(percent);
+          range.style.setProperty('--player-progress',percent+'%');
+          range.disabled=duration<=0;
+        }
         const now=player.querySelector('.aura-music-current'),end=player.querySelector('.aura-music-duration');
         if(now)now.textContent=format(current);
         if(end)end.textContent=format(duration);
@@ -4176,12 +4183,12 @@ function auraMusicRuntime5631(){
     };
     players.forEach(player=>{
       player.querySelector('.aura-music-play')?.addEventListener('click',()=>{
-        if(audio.paused)audio.play().catch(()=>{render()});
+        if(audio.paused)audio.play().catch(()=>render());
         else audio.pause();
       });
-      player.querySelector('.aura-music-seek')?.addEventListener('input',e=>{
+      player.querySelector('.aura-music-range')?.addEventListener('input',e=>{
         if(Number.isFinite(audio.duration)&&audio.duration>0){
-          audio.currentTime=Number(e.target.value)/1000*audio.duration;
+          audio.currentTime=Number(e.target.value)/100*audio.duration;
           render();
         }
       });
