@@ -3451,7 +3451,9 @@ optimizeImageForZip=async function(file){
   }
   return _optimizeImageForZip5617(file);
 };
+let auraRecoveredIncomplete5626=false;
 async function importConfig5617(){
+  auraRecoveredIncomplete5626=false;
   const s=$('configStatus'),source=String($('configUrl')?.value||'').trim(),urls=auraProjectUrls5617(source);
   if(!urls){if(s)s.textContent='Pega un enlace válido.';return}
   auraClearRecoveredAssets5617();
@@ -3464,7 +3466,8 @@ async function importConfig5617(){
       if(s)s.textContent='Leyendo archivos publicados…';
       const htmlRes=await fetch(urls.index,{cache:'no-store'});if(!htmlRes.ok)throw new Error(`index ${htmlRes.status}`);
       result=await auraRecoverPublishedAssets5617(urls.base,await htmlRes.text(),s);
-    }catch(assetErr){console.warn('Aura: configuración recuperada sin assets',assetErr)}
+    }catch(assetErr){console.warn('Aura: configuración recuperada sin assets',assetErr);auraRecoveredIncomplete5626=true}
+    if(result.failed>0)auraRecoveredIncomplete5626=true;
     if(typeof renderPhotoFraming554==='function')try{renderPhotoFraming554()}catch(e){}
     updatePreview();
     const galleryCount=auraRecoveredAssets5617.galleryFiles.length;
@@ -3934,20 +3937,65 @@ buildInvitation=function(p,a){
   }
   return html;
 };
-// Cambiar una plantilla editorial debe preservar los ajustes realizados por el usuario.
-const _chooseTheme5624=chooseTheme;
-chooseTheme=function(k){
-  const current=$('themeVisual')?.value||'';
-  if(k===current)return; // Una selección repetida nunca debe reescribir el formulario.
-  const ids=AURA_EDITORIAL_FORCED_FIELDS_531;
-  const preserve=isAuraEditorial53(current)&&isAuraEditorial53(k);
-  const prior=preserve?Object.fromEntries(ids.map(id=>{const el=$(id);return [id,el?.type==='checkbox'?el.checked:el?.value]})) :null;
-  _chooseTheme5624(k);
-  if(prior){
-    for(const [id,v] of Object.entries(prior)){
-      const el=$(id);if(!el||v===undefined)continue;
-      if(el.type==='checkbox')el.checked=!!v;else el.value=v;
-    }
-    syncCoverUi();updatePreview();
+/* Audit 5.6.25: validación de integridad antes de generar ZIP o publicar.
+   Sin cambios sobre plantillas ni configuración del usuario. */
+function auraAuditInvitation5625(html,files=[]){
+  const doc=new DOMParser().parseFromString(html,'text/html'),errors=[];
+  const ids=new Set([...doc.querySelectorAll('[id]')].map(x=>x.id));
+  doc.querySelectorAll('.aura-global-nav a[href^="#"],.aura-quick-actions a[href^="#"]').forEach(a=>{
+    const id=a.getAttribute('href').slice(1);
+    if(!id||!ids.has(id))errors.push('Navegación sin destino: '+(id||'(vacío)'));
+  });
+  const paths=new Set(files.map(f=>f.path));
+  if(paths.size){
+    doc.querySelectorAll('img[src],audio[src],video[src]').forEach(el=>{
+      const src=el.getAttribute('src')||'';
+      if(!src.startsWith('assets/'))return;
+      const path=src.split('?')[0].split('#')[0];
+      if(!paths.has(path))errors.push('Archivo no incluido: '+path);
+    });
   }
+  return [...new Set(errors)];
+}
+const _auraGithubBuildFiles5625=auraGithubBuildFiles;
+auraGithubBuildFiles=async function(onProgress){
+  if(auraRecoveredIncomplete5626)throw new Error('Actualización detenida: faltaron archivos al recuperar el proyecto. Vuelve a recuperarlo antes de publicar.');
+  const result=await _auraGithubBuildFiles5625(onProgress);
+  const html=result.files.find(f=>f.path==='index.html')?.content||'';
+  const errors=auraAuditInvitation5625(html,result.files);
+  if(errors.length)throw new Error('Publicación detenida por integridad:\\n'+errors.join('\\n'));
+  return result;
 };
+const _generateZip5625=generateZip;
+// El ZIP mantiene su flujo; validaremos también su salida en una fase separada,
+// sin alterar el diálogo de calidad ni introducir dobles confirmaciones.
+
+/* Auditoría: al añadir fotos a un proyecto recuperado, conservar las anteriores.
+   Interceptar en el formulario ANTES de los listeners del input que limpian la
+   lista recuperada; eliminar fotos deliberadamente sigue funcionando. */
+function auraPreserveRecoveredGallery5627(){
+  const input=$('galleryFiles');
+  if(!input||input.dataset.auraAppendRecovery5627)return;
+  input.dataset.auraAppendRecovery5627='1';
+  const parent=input.parentElement;
+  if(!parent)return;
+  parent.addEventListener('change',event=>{
+    if(event.target!==input)return;
+    const recovered=auraRecoveredAssets5617.galleryFiles||[];
+    const incoming=Array.from(input.files||[]);
+    if(!recovered.length||!incoming.length)return;
+    const previousFrames=readFramesEditor554();
+    const dt=new DataTransfer();
+    [...recovered,...incoming].forEach(file=>dt.items.add(file));
+    input.files=dt.files;
+    queueMicrotask(()=>{
+      const frames=recovered.map((_,i)=>previousFrames[i]||{x:50,y:50,fit:'cover'});
+      incoming.forEach(()=>frames.push({x:50,y:50,fit:'cover'}));
+      writeFramesEditor554(frames,{preview:false});
+      renderPhotoFraming554();
+    });
+  },true);
+}
+if(document.readyState==='loading'){
+  document.addEventListener('DOMContentLoaded',auraPreserveRecoveredGallery5627);
+}else auraPreserveRecoveredGallery5627();
