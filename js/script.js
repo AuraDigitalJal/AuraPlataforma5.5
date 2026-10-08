@@ -1447,6 +1447,52 @@ function photoFrame554(p,i){
 function syncLegacyOffsets554(frames){
   const el=$('galleryOffsets');if(el)el.value=JSON.stringify(frames.map(f=>Math.round(bounded(f.y,50,0,100)*10)/10));
 }
+/* Aura Digital 5.6.22 · selección y eliminación de fotografías.
+   Se modifican únicamente los archivos de la galería en memoria; una invitación
+   ya publicada cambia en GitHub solo cuando se pulsa Actualizar publicación. */
+const auraGallerySelected5622=new Set();
+function auraUpdateGalleryToolbar5622(){
+  const n=auraGallerySelected5622.size,button=$('auraGalleryDelete5622'),count=$('auraGalleryCount5622');
+  if(button){button.disabled=!n;button.textContent=n?'Eliminar seleccionadas ('+n+')':'Eliminar seleccionadas'}
+  if(count)count.textContent=n+' seleccionada'+(n===1?'':'s');
+}
+function auraDeleteSelectedGallery5622(){
+  const current=getFormParams().galleryFiles;
+  const selected=current.filter(f=>auraGallerySelected5622.has(f));
+  if(!selected.length)return;
+  if(!confirm('¿Eliminar '+selected.length+' fotografía'+(selected.length===1?'':'s')+' de esta invitación?'))return;
+  const removed=new Set(selected),keep=current.filter(f=>!removed.has(f));
+  const frames=readFramesEditor554(),offsets=(()=>{try{return JSON.parse($('galleryOffsets')?.value||'[]')}catch(e){return[]}})();
+  const nextFrames=current.flatMap((f,i)=>removed.has(f)?[]:[frames[i]||{x:50,y:50,fit:'cover'}]);
+  const nextOffsets=current.flatMap((f,i)=>removed.has(f)?[]:[offsets[i]??50]);
+  const input=$('galleryFiles');
+  if(input){
+    const dt=new DataTransfer();
+    for(const f of Array.from(input.files||[]))if(!removed.has(f))dt.items.add(f);
+    input.files=dt.files;
+  }
+  auraRecoveredAssets5617.galleryFiles=(auraRecoveredAssets5617.galleryFiles||[]).filter(f=>!removed.has(f));
+  auraGallerySelected5622.clear();
+  if($('galleryOffsets'))$('galleryOffsets').value=JSON.stringify(nextOffsets);
+  writeFramesEditor554(nextFrames,{preview:false});
+  renderPhotoFraming554();
+  updatePreview();
+}
+function auraGalleryToolbar5622(root,files){
+  for(const file of Array.from(auraGallerySelected5622))if(!files.includes(file))auraGallerySelected5622.delete(file);
+  if(!files.length)return;
+  const bar=document.createElement('div');
+  bar.className='aura-gallery-toolbar-5622';
+  const all=document.createElement('button');all.type='button';all.textContent='Seleccionar todas';
+  all.addEventListener('click',()=>{files.forEach(f=>auraGallerySelected5622.add(f));renderPhotoFraming554()});
+  const none=document.createElement('button');none.type='button';none.textContent='Deseleccionar';
+  none.addEventListener('click',()=>{auraGallerySelected5622.clear();renderPhotoFraming554()});
+  const count=document.createElement('span');count.id='auraGalleryCount5622';
+  const del=document.createElement('button');del.type='button';del.id='auraGalleryDelete5622';del.addEventListener('click',auraDeleteSelectedGallery5622);
+  bar.append(all,none,count,del);root.appendChild(bar);
+  auraUpdateGalleryToolbar5622();
+}
+
 function readFramesEditor554(){
   try{const v=JSON.parse($('galleryFrames')?.value||'[]');return Array.isArray(v)?v:[]}catch(e){return[]}
 }
@@ -1457,7 +1503,7 @@ function writeFramesEditor554(frames,{preview=true}={}){
   if(preview)queuePreview();
 }
 function ensureFramesEditor554(){
-  const n=$('galleryFiles')?.files?.length||0,old=readFramesEditor554(),legacy=(()=>{try{return JSON.parse($('galleryOffsets')?.value||'[]')}catch(e){return[]}})();
+  const n=getFormParams().galleryFiles.length,old=readFramesEditor554(),legacy=(()=>{try{return JSON.parse($('galleryOffsets')?.value||'[]')}catch(e){return[]}})();
   const out=[];
   for(let i=0;i<n;i++){
     const f=old[i]||{};
@@ -1467,10 +1513,12 @@ function ensureFramesEditor554(){
 }
 function renderPhotoFraming554(){
   const root=$('photo-framing-list');if(!root)return;
-  const files=Array.from($('galleryFiles')?.files||[]),frames=ensureFramesEditor554();root.replaceChildren();
+  const files=getFormParams().galleryFiles,frames=ensureFramesEditor554();root.replaceChildren();
+  auraGalleryToolbar5622(root,files);
   if(!files.length){const q=document.createElement('p');q.className='helper';q.textContent='Carga fotografías para ajustar cada encuadre por separado.';root.appendChild(q);return}
   files.forEach((file,i)=>{
     const f=frames[i]||{x:50,y:50,fit:'cover'},card=document.createElement('div');card.className='photo-frame-card';card.dataset.index=String(i);
+    const check=document.createElement('input');check.type='checkbox';check.className='aura-gallery-check-5622';check.checked=auraGallerySelected5622.has(file);check.setAttribute('aria-label','Seleccionar fotografía '+(i+1));check.addEventListener('change',()=>{if(check.checked)auraGallerySelected5622.add(file);else auraGallerySelected5622.delete(file);auraUpdateGalleryToolbar5622()});
     const thumb=document.createElement('img');thumb.className='photo-frame-thumb';thumb.src=fileUrl(file);thumb.alt='Vista previa fotografía '+(i+1);thumb.style.objectPosition=`${f.x}% ${f.y}%`;thumb.style.objectFit=f.fit;
     const body=document.createElement('div');body.className='photo-frame-body';
     body.innerHTML=`<div class="photo-frame-title"><strong>${esc(file.name||('Fotografía '+(i+1)))}</strong><button type="button" data-frame-reset>Restablecer</button></div>
@@ -1480,7 +1528,7 @@ function renderPhotoFraming554(){
     const commit=()=>{const all=ensureFramesEditor554(),x=+body.querySelector('[data-frame-x]').value,y=+body.querySelector('[data-frame-y]').value,fit=body.querySelector('[data-frame-fit]').value;all[i]={x,y,fit};thumb.style.objectPosition=`${x}% ${y}%`;thumb.style.objectFit=fit;body.querySelector('[data-x-value]').textContent=Math.round(x)+'%';body.querySelector('[data-y-value]').textContent=Math.round(y)+'%';writeFramesEditor554(all)};
     body.querySelector('[data-frame-x]').addEventListener('input',commit);body.querySelector('[data-frame-y]').addEventListener('input',commit);body.querySelector('[data-frame-fit]').addEventListener('change',commit);
     body.querySelector('[data-frame-reset]').addEventListener('click',()=>{body.querySelector('[data-frame-x]').value=50;body.querySelector('[data-frame-y]').value=50;body.querySelector('[data-frame-fit]').value='cover';commit()});
-    card.append(thumb,body);root.appendChild(card);
+    card.append(check,thumb,body);root.appendChild(card);
   });
 }
 const _getFormParams554=getFormParams;
