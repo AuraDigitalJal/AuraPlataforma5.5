@@ -260,10 +260,11 @@
                 <option value="section">Sección independiente · orden configurable</option>
               </select></label>
               <div class="field-grid">
-                <label>Título de la canción <small>opcional en el reproductor integrado</small><input type="text" id="musicTitle" value="Nuestra canción" placeholder="Ej. Gypsy Woman"></label>
-                <label>Artista <small>opcional</small><input type="text" id="musicArtist" value="" placeholder="Ej. Crystal Waters"></label>
+                <label>Título de la canción <small>se detecta del MP3 cuando tenga metadatos · editable</small><input type="text" id="musicTitle" value="" placeholder="Ej. Gypsy Woman"></label>
+                <label>Artista <small>se detecta del MP3 cuando tenga metadatos · editable</small><input type="text" id="musicArtist" value="" placeholder="Ej. Crystal Waters"></label>
               </div>
               <label>Título de sección musical <small>opcional · solo en modo Sección</small><input type="text" id="musicSectionLabel" value="" placeholder="Ej. Nuestra canción especial"></label>
+              <p id="musicMetadataStatus" class="helper" aria-live="polite"></p>
               <p class="helper">El reproductor integrado tiene reproducir/pausar, progreso y tiempos. La música es una sola: no se duplica al cambiar la ubicación.</p>
             </div>
           </details>
@@ -396,6 +397,6 @@
   </dialog>
 
   <script src="js/font-data.js?v=5.6.17"></script>
-  <script src="js/script.js?v=5.6.21-navfix1-gallery1-media1-text1-navsize1-repocopy1-mapmusic1"></script>
+  <script src="js/script.js?v=5.6.21-navfix1-gallery1-media1-text1-navsize1-repocopy1-mapmusic1-hatzi1"></script>
 </body>
 </html>
