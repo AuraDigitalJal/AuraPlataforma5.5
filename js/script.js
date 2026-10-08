@@ -3917,21 +3917,20 @@ configObject=function(p){
 const _buildInvitation5624=_buildInvitation5623;
 buildInvitation=function(p,a){
   let html=_buildInvitation5624(p,a);
-  const doc=new DOMParser().parseFromString(html,'text/html');
-  const destinations=[
-    ['confirmar','section.rsvp,section.aura-screen-confirm'],
-    ['ubicacion','section.aura-screen-location,section:has(> .locations),section:has(.location-card),section:has(.aura-locations)'],
-    ['galeria','section.gallery-section']
+  const sections=[...html.matchAll(/<section\b[^>]*>/g)];
+  const rules=[
+    ['confirmar',/\brsvp\b|\baura-screen-confirm\b/],
+    ['ubicacion',/\baura-screen-location\b/],
+    ['galeria',/\bgallery-section\b/]
   ];
-  // Reemplazar solamente la etiqueta de apertura exacta de la sección, nunca una sección genérica.
-  for(const [id,selector] of destinations){
-    if(doc.getElementById(id))continue;
-    const section=doc.querySelector(selector);
-    if(!section)continue;
-    const start=section.outerHTML.match(/^<section\\b[^>]*>/)?.[0];
-    if(!start||!html.includes(start))continue;
-    const withId=start.replace(/^<section\\b/,'<section id="'+id+'"');
-    html=html.replace(start,withId);
+  for(const [id,pattern] of rules){
+    if(html.includes('id="'+id+'"'))continue;
+    const found=sections.find(m=>pattern.test(m[0]));
+    if(found)html=html.replace(found[0],found[0].replace('<section','<section id="'+id+'"'));
+  }
+  if(!html.includes('id="ubicacion"')){
+    const pos=html.indexOf('<div class="locations">');
+    if(pos!==-1){const from=html.lastIndexOf('<section ',pos);if(from!==-1)html=html.slice(0,from)+html.slice(from).replace('<section ','<section id="ubicacion" ')}
   }
   return html;
 };
