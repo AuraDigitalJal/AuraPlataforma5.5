@@ -3937,24 +3937,6 @@ buildInvitation=function(p,a){
   }
   return html;
 };
-// Cambiar una plantilla editorial debe preservar los ajustes realizados por el usuario.
-const _chooseTheme5624=chooseTheme;
-chooseTheme=function(k){
-  const current=$('themeVisual')?.value||'';
-  if(k===current)return; // Una selección repetida nunca debe reescribir el formulario.
-  const ids=AURA_EDITORIAL_FORCED_FIELDS_531;
-  const preserve=isAuraEditorial53(current)&&isAuraEditorial53(k);
-  const prior=preserve?Object.fromEntries(ids.map(id=>{const el=$(id);return [id,el?.type==='checkbox'?el.checked:el?.value]})) :null;
-  _chooseTheme5624(k);
-  if(prior){
-    for(const [id,v] of Object.entries(prior)){
-      const el=$(id);if(!el||v===undefined)continue;
-      if(el.type==='checkbox')el.checked=!!v;else el.value=v;
-    }
-    syncCoverUi();updatePreview();
-  }
-};
-
 /* Audit 5.6.25: validación de integridad antes de generar ZIP o publicar.
    Sin cambios sobre plantillas ni configuración del usuario. */
 function auraAuditInvitation5625(html,files=[]){
