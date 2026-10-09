@@ -202,7 +202,7 @@
       'Puedes cambiar el diseño después: los textos personalizados permanecen guardados por elemento.';
     const link=at('auraTxDataSource');
     if(link){link.hidden=!selectedDynamicSource;link.textContent=selectedDynamicSource==='galleryFiles'?'Modificar fotografías':'Modificar fecha del evento';}
-    const vals={auraTxContent:saved.text??originalText,auraTxFont:saved.font||'',auraTxSize:saved.size||'',auraTxColor:saved.color||'#333333',auraTxAlign:saved.align||'',auraTxWeight:saved.weight||'',auraTxTransform:saved.transform||'',auraTxSpacing:saved.spacing||'',auraTxLineHeight:saved.lineHeight||'',auraTxShape:saved.shape||'none',auraTxBg:saved.bg||'#ffffff',auraTxPadding:saved.padding||''};
+    const vals={auraTxContent:selectedDynamic?originalText:(saved.text??originalText),auraTxFont:saved.font||'',auraTxSize:saved.size||'',auraTxColor:saved.color||'#333333',auraTxAlign:saved.align||'',auraTxWeight:saved.weight||'',auraTxTransform:saved.transform||'',auraTxSpacing:saved.spacing||'',auraTxLineHeight:saved.lineHeight||'',auraTxShape:saved.shape||'none',auraTxBg:saved.bg||'#ffffff',auraTxPadding:saved.padding||''};
     for(const [id,value] of Object.entries(vals))if(at(id))at(id).value=value;
     at('auraTxItalic').checked=!!saved.italic;
     at('auraTxUnderline').checked=!!saved.underline;
