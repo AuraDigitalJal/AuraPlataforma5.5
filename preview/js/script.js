@@ -2643,6 +2643,9 @@ async function auraGithubBuildFiles(onProgress){
 
 async function auraGithubEnsureRepo(name){
   const owner=auraGithubState.user?.login;if(!owner)throw new AuraGithubError('Conecta GitHub primero.',401);
+  if(auraGithubPreviewMode()&&!auraGithubPreviewRepoAllowed(name)){
+    throw new AuraGithubError('Por seguridad, la vista de pruebas solo publica en repositorios aura-prueba-*.',403);
+  }
   // Segunda comprobación antes de crear o reutilizar un repositorio.
   if(auraGithubRepoProtected5620({full_name:`${owner}/${name}`})){
     throw new AuraGithubError('Repositorio esencial protegido. Usa un repositorio exclusivo para la invitación.',403);
@@ -2651,10 +2654,13 @@ async function auraGithubEnsureRepo(name){
   try{
     const repo=await auraGithubRequest(path);
     if(repo.private)throw new AuraGithubError('Este repositorio es privado. Para una invitación pública usa un repositorio público.',409,repo);
+    if(auraGithubPreviewMode()&&String(repo.description||'')!==AURA_GITHUB_PREVIEW_DESCRIPTION){
+      throw new AuraGithubError('Este repositorio ya existe, pero no es una prueba creada por esta versión. Elige otro nombre aura-prueba-* para no sobrescribirlo.',409);
+    }
     return {repo,created:false};
   }catch(err){
     if(err.status!==404)throw err;
-    const repo=await auraGithubRequest('/user/repos',{method:'POST',body:{name,description:'Invitación publicada desde Aura Digital',private:false,auto_init:true,has_issues:false,has_projects:false,has_wiki:false}});
+    const repo=await auraGithubRequest('/user/repos',{method:'POST',body:{name,description:auraGithubPreviewMode()?AURA_GITHUB_PREVIEW_DESCRIPTION:'Invitación publicada desde Aura Digital',private:false,auto_init:true,has_issues:false,has_projects:false,has_wiki:false}});
     return {repo,created:true};
   }
 }
@@ -2685,6 +2691,9 @@ async function auraGithubFileBase64(file){
 }
 
 async function auraGithubPublishTree(owner,repo,branch,files,onProgress){
+  if(auraGithubPreviewMode()&&!auraGithubPreviewRepoAllowed(repo)){
+    throw new AuraGithubError('Protección activa: una prueba solo puede publicarse en aura-prueba-*.',403);
+  }
   const ref=await auraGithubWaitForRef(owner,repo,branch);
   const parentSha=ref?.object?.sha;if(!parentSha)throw new AuraGithubError('No pude leer la rama principal del repositorio.');
   let done=0;
@@ -2728,15 +2737,16 @@ function auraGithubFriendlyError(err){
 }
 
 async function auraGithubPublish(){
-  if(location.pathname.includes('/preview/')){
-    auraGithubSetPublishStatus('Vista de pruebas: utiliza la plataforma oficial para publicar invitaciones.','error');
-    return;
-  }
   if(auraGithubState.busy)return;
   if(!auraGithubState.user||!auraGithubState.token){await auraGithubConnect();if(!auraGithubState.user)return}
   const repoInput=$('githubRepo'),button=$('githubPublish');
   const repoName=auraGithubSlug(repoInput?.value||auraGithubDefaultRepo());
   if(!repoName){auraGithubSetPublishStatus('Escribe un nombre válido para el repositorio.','error');return}
+  // La vista de pruebas solo publica en repositorios nuevos y dedicados, nunca en invitaciones existentes.
+  if(auraGithubPreviewMode()&&!auraGithubPreviewRepoAllowed(repoName)){
+    auraGithubSetPublishStatus('En pruebas, el repositorio debe comenzar con aura-prueba- (ejemplo: aura-prueba-frases-fijas). No se puede sobrescribir otra invitación.','error');
+    return;
+  }
   // Evita que una invitación reemplace accidentalmente el sitio o herramientas de Aura.
   if(auraGithubRepoProtected5620({full_name:`${auraGithubState.user.login}/${repoName}`})){
     auraGithubSetPublishStatus('Repositorio esencial protegido. Usa un repositorio exclusivo para esta invitación.','error');
@@ -2832,6 +2842,12 @@ async function auraGithubListAllRepos(){
     if(button){button.disabled=!auraGithubState.user;button.textContent='Actualizar lista'}
   }
 }
+// Solo la copia /preview/ admite publicaciones de prueba, aisladas de las invitaciones reales.
+const AURA_GITHUB_PREVIEW_DESCRIPTION='Prueba exclusiva desde Aura Digital Studio - frases fijas';
+function auraGithubPreviewMode(){return location.pathname.includes('/preview/')}
+function auraGithubPreviewRepoAllowed(name){
+  return /^aura-prueba-[a-z0-9][a-z0-9._-]*$/.test(String(name||'').toLowerCase());
+}
 const AURA_PROTECTED_REPOS_5620=new Set([
   'auradigitaljal/auradigitaljal.github.io',
   'auradigitaljal/auraplataforma5.5',
@@ -2863,7 +2879,8 @@ function auraGithubRenderRepos(){
     if(repo.has_pages){preview.textContent='Vista previa';preview.addEventListener('click',()=>auraGithubOpenRepoPreview(repo,preview))}
     else{preview.textContent='Sin Pages';preview.disabled=true;preview.title='Este repositorio no tiene GitHub Pages activo.'}
     const del=document.createElement('button');del.type='button';del.className='btn github-delete-btn';del.textContent='Eliminar';
-    if(auraGithubRepoProtected5620(repo)){del.disabled=true;del.textContent='Protegido';del.title='Repositorio esencial de Aura. La app no permite eliminarlo.'}
+    if(auraGithubPreviewMode()){del.disabled=true;del.textContent='Solo editor oficial';del.title='La vista de pruebas no permite eliminar repositorios.'}
+    else if(auraGithubRepoProtected5620(repo)){del.disabled=true;del.textContent='Protegido';del.title='Repositorio esencial de Aura. La app no permite eliminarlo.'}
     else if(repo.permissions&&repo.permissions.admin===false){del.disabled=true;del.textContent='Sin permiso';del.title='GitHub no reporta permiso de administración para este repositorio.'}
     else del.addEventListener('click',()=>auraGithubDeleteRepo(repo,del));
     const copy=document.createElement('button');copy.type='button';copy.className='btn github-copy-repo-btn';copy.textContent='Copiar URL';
@@ -2921,6 +2938,9 @@ async function auraGithubCopyRepoUrl5630(repo,button){
 }
 async function auraGithubDeleteRepo(repo,button){
   if(!repo?.full_name)return;
+  if(auraGithubPreviewMode()){
+    auraGithubSetRepoStatus('No se pueden eliminar repositorios desde la vista de pruebas.','error');return;
+  }
   if(auraGithubRepoProtected5620(repo)){
     auraGithubSetRepoStatus('Este repositorio está protegido por Aura y no se puede eliminar desde la app.','error');
     return;
@@ -2954,7 +2974,15 @@ function initAuraGithubPublisher(){
   repoSearch?.addEventListener('input',()=>auraGithubRenderRepos());
   token?.addEventListener('input',()=>{if(auraGithubState.token&&token.value.trim()!==auraGithubState.token){auraGithubState.token='';auraGithubState.user=null;auraGithubState.repos=[];auraGithubSetStatus('Vuelve a conectar después de cambiar el token.');if(publish)publish.disabled=true;if(loadRepos)loadRepos.disabled=true;if(repoSearch)repoSearch.disabled=true;const list=$('githubRepoList');if(list){list.hidden=true;list.textContent=''}}});
   repo?.addEventListener('blur',()=>{if(repo.value)repo.value=auraGithubSlug(repo.value)});
-  if(repo&&!repo.value)repo.value=auraGithubDefaultRepo();
+  if(auraGithubPreviewMode()){
+    if(repo)repo.value='aura-prueba-frases-fijas';
+    const msg=document.createElement('p');
+    msg.className='helper';
+    msg.id='auraPreviewPublishNotice';
+    msg.textContent='MODO PRUEBAS: solo repositorios aura-prueba-*. No se alterarán invitaciones normales y no puedes eliminar repositorios desde aquí. Puedes volver a publicar sobre una prueba creada en este modo.';
+    (repo?.closest('label')||repo)?.insertAdjacentElement('afterend',msg);
+    if(publish)publish.textContent='Publicar prueba';
+  }else if(repo&&!repo.value)repo.value=auraGithubDefaultRepo();
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initAuraGithubPublisher);else initAuraGithubPublisher();
 
