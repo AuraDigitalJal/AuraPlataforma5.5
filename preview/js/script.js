@@ -733,7 +733,7 @@ function bindPreviewEditing52(doc){
  doc.documentElement.dataset.auraEditBound='1';
  const style=doc.createElement('style');style.textContent=`[data-edit]{transition:outline-color .16s,background-color .16s}[data-edit].aura-edit-hit{outline:1px dashed rgba(255,255,255,.82);outline-offset:5px;background:rgba(255,255,255,.05)}@media(hover:hover){[data-edit]:hover{outline:1px dashed rgba(255,255,255,.65);outline-offset:5px;cursor:pointer}}`;
  doc.head.appendChild(style);
- doc.addEventListener('click',e=>{if(!$('previewEditMode')?.checked)return;const target=e.target.closest?.('[data-edit]');if(!target||e.target.closest?.('[data-aura-text-key]'))return;e.preventDefault();e.stopPropagation();doc.querySelectorAll('.aura-edit-hit').forEach(x=>x.classList.remove('aura-edit-hit'));target.classList.add('aura-edit-hit');focusEditorField52(target.dataset.edit)},true);
+ doc.addEventListener('click',e=>{if(!$('previewEditMode')?.checked)return;const target=e.target.closest?.('[data-edit]');if(!target||e.target.closest?.('[data-aura-text-key]')||e.target.closest?.('[data-aura-fixed-key]'))return;e.preventDefault();e.stopPropagation();doc.querySelectorAll('.aura-edit-hit').forEach(x=>x.classList.remove('aura-edit-hit'));target.classList.add('aura-edit-hit');focusEditorField52(target.dataset.edit)},true);
 }
 
 renderDetachedPreview=function(html){
