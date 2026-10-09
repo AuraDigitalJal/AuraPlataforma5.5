@@ -78,6 +78,17 @@
   };
   const _auraTxParams=getFormParams;
   getFormParams=function(){const p=_auraTxParams();p.auraTextEdits=at('auraTextEdits')?.value||'{}';return p};
+  // Incorporar al ZIP y a la vista previa las fuentes elegidas en cada texto.
+  const _auraTxFonts=fontRecords;
+  fontRecords=function(p,t){
+    const original=_auraTxFonts(p,t);
+    if(typeof AURA_FONTS==='undefined')return original;
+    let edits={};try{edits=JSON.parse(p.auraTextEdits||'{}')}catch(_){}
+    const names={cormorant:'Cormorant Garamond',playfair:'Playfair Display',italiana:'Italiana',baskerville:'Libre Baskerville',manrope:'Manrope',montserrat:'Montserrat',inter:'Inter',dm:'DM Sans',greatvibes:'Great Vibes'};
+    const selected=new Set(Object.values(edits||{}).map(e=>names[e?.font]).filter(Boolean));
+    const known=new Set(original.map(x=>x.name));
+    return original.concat(AURA_FONTS.filter(x=>selected.has(x.family)&&!known.has(x.name)));
+  };
   function panel(){
     const form=at('config-form');if(!form||at('auraTextEdits'))return;
     const hidden=document.createElement('input');hidden.type='hidden';hidden.id='auraTextEdits';hidden.value='{}';form.appendChild(hidden);
@@ -112,7 +123,8 @@
     AURA_TX_FIELDS.forEach(id=>{const field=at(id);if(!field)return;field.addEventListener('input',saveSelected);field.addEventListener('change',saveSelected)});
     at('auraTxReset')?.addEventListener('click',()=>{if(!selectedKey)return;const obj=loadEdits();delete obj[selectedKey];saveEdits(obj);selectedKey='';at('auraTxSelection').textContent='Texto restablecido. Tócalo para editarlo otra vez.';queuePreview()});
   }
-  function saveSelected(){
+  function saveSelected(event){
+    if(event?.target?.id==='auraTxColor')event.target.dataset.touched='yes';
     if(!selectedKey)return;
     const obj=loadEdits();
     const val=at('auraTxContent')?.value??originalText;
