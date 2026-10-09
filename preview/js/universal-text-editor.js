@@ -15,7 +15,7 @@
       document.querySelectorAll('.gallery-footer > span').forEach(host=>{
         if(host.querySelector('.aura-gallery-count'))return;
         const full=(host.textContent||'').trim();
-        const match=full.match(/^(\\d+)\\s+(fotografías|fotografias|fotos)\\s*[·•-]\\s*(.+)$/i);
+        const match=full.match(/^(\d+)\s+(fotografías|fotografias|fotos)\s*[·•-]\s*(.+)$/i);
         if(!match)return;
         const count=document.createElement('span');
         count.className='aura-gallery-count';
