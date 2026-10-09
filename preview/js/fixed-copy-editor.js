@@ -153,7 +153,7 @@
       <label>Seleccionar texto
         <select id="auraFixedChoose"></select>
       </label>
-      <div id="auraFixedControls" hidden style="display:grid;gap:10px">
+      <div id="auraFixedControls" hidden>
         <label>Frase personalizada
           <textarea id="auraFixedText" rows="2" placeholder="Vacío = conservar frase original del diseño"></textarea>
         </label>
