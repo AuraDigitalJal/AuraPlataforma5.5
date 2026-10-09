@@ -745,7 +745,7 @@ renderDetachedPreview=function(html){
   setTimeout(()=>{if(detachedPreviewWindow&&!detachedPreviewWindow.closed){try{detachedPreviewWindow.scrollTo(0,scrollY);bindGalleryDrag(doc);bindPreviewEditing52(doc)}catch(e){}}},40);
  }catch(e){console.warn('No se pudo actualizar la ventana de preview',e)}
 };
-updatePreview=async function(){syncCoverUi();const p=getFormParams(),frame=$('preview-frame');releaseUnusedFiles(p);const html=buildInvitation(p,previewAssets(p));if(frame){/* Never display the previous invitation while the replacement document navigates. */frame.style.visibility='hidden';frame.onload=()=>{try{setupGalleryDrag();bindPreviewEditing52(frame.contentDocument)}finally{frame.style.visibility='visible'}};frame.srcdoc=html;}renderDetachedPreview(html)};
+updatePreview=async function(){syncCoverUi();const p=getFormParams(),frame=$('preview-frame');releaseUnusedFiles(p);const html=buildInvitation(p,previewAssets(p));frame.onload=()=>{setupGalleryDrag();bindPreviewEditing52(frame.contentDocument)};frame.srcdoc=html;renderDetachedPreview(html)};
 
 bindGalleryDrag=function(doc){
  if(!doc)return;const enabled=$('galleryEditMode')?.checked,imgs=Array.from(doc.querySelectorAll('.gallery-image'));
