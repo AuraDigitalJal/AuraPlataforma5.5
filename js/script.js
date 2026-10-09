@@ -2643,6 +2643,10 @@ async function auraGithubBuildFiles(onProgress){
 
 async function auraGithubEnsureRepo(name){
   const owner=auraGithubState.user?.login;if(!owner)throw new AuraGithubError('Conecta GitHub primero.',401);
+  // Segunda comprobación antes de crear o reutilizar un repositorio.
+  if(auraGithubRepoProtected5620({full_name:`${owner}/${name}`})){
+    throw new AuraGithubError('Repositorio esencial protegido. Usa un repositorio exclusivo para la invitación.',403);
+  }
   const path=`/repos/${encodeURIComponent(owner)}/${encodeURIComponent(name)}`;
   try{
     const repo=await auraGithubRequest(path);
@@ -2729,6 +2733,11 @@ async function auraGithubPublish(){
   const repoInput=$('githubRepo'),button=$('githubPublish');
   const repoName=auraGithubSlug(repoInput?.value||auraGithubDefaultRepo());
   if(!repoName){auraGithubSetPublishStatus('Escribe un nombre válido para el repositorio.','error');return}
+  // Evita que una invitación reemplace accidentalmente el sitio o herramientas de Aura.
+  if(auraGithubRepoProtected5620({full_name:`${auraGithubState.user.login}/${repoName}`})){
+    auraGithubSetPublishStatus('Repositorio esencial protegido. Usa un repositorio exclusivo para esta invitación.','error');
+    return;
+  }
   if(repoInput)repoInput.value=repoName;
   auraGithubState.busy=true;auraGithubResetLink();if(button){button.disabled=true;button.textContent='Publicando…'}
   try{
@@ -2821,7 +2830,8 @@ async function auraGithubListAllRepos(){
 }
 const AURA_PROTECTED_REPOS_5620=new Set([
   'auradigitaljal/auradigitaljal.github.io',
-  'auradigitaljal/auraplataforma5.5'
+  'auradigitaljal/auraplataforma5.5',
+  'auradigitaljal/aurawebstudio'
 ]);
 function auraGithubRepoProtected5620(repo){
   const full=String(repo?.full_name||'').trim().toLowerCase();
