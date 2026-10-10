@@ -804,12 +804,153 @@ ${C} .aura-screen-gallery .aura-gallery-grid.gallery.polaroid_pro > figure.aura-
     default:return standard+foundation;
    }
   }
+
+  /* Moderna de Lujo (solo PRUEBAS): Fecha y Ubicación muestran exclusivamente
+     la imagen general de fondo bajo su cristal. Ninguna foto de galería en esas
+     secciones; ninguna capa de velo o pintura encima del fondo. */
+  const _auraStagePhotoLuxuryBg=auraStagePhoto54;
+  auraStagePhoto54=function(src,extraClass='',p={},index=-1){
+    if(p?.themeVisual==='wedding_luxury'&&
+       (extraClass==='aura-date-photo'||extraClass==='aura-location-photo'))return '';
+    return _auraStagePhotoLuxuryBg(src,extraClass,p,index);
+  };
+  function luxuryGlassBackgroundCss(p,a){
+    if(p?.themeVisual!=='wedding_luxury'||!a?.bg)return '';
+    const src=JSON.stringify(String(a.bg)).replace(/</g,'\\3c ');
+    const fit=p.bgFit==='contain'?'contain':'cover';
+    const x=bounded(p.bgFocusX,50,0,100),y=bounded(p.bgFocusY,50,0,100);
+    return `
+.theme-wedding_luxury .page .content section.aura-screen.aura-screen-date::before,
+.theme-wedding_luxury .page .content section.aura-screen.aura-screen-location::before{
+ background-image:url(${src})!important;
+ background-size:${fit}!important;
+ background-position:${x}% ${y}%!important;
+ background-repeat:no-repeat!important;
+}
+`;
+  }
+  function luxuryGlassNoVeilCss(p){
+    if(p?.themeVisual!=='wedding_luxury')return '';
+    const C='.theme-wedding_luxury';
+    const ink='#fffaf5';
+    const secondary='rgba(255,250,245,.88)';
+    const trim=rgba(p.primaryColor||'#bca18c',.42);
+    return `
+/* La sección no tiene velo ni fondo coloreado: la imagen general de fondo
+   reaparece aquí sobre la capa global de opacidad de las demás secciones. */
+${C} .page .content section.aura-screen.aura-screen-date,
+${C} .page .content section.aura-screen.aura-screen-location{
+ isolation:isolate!important;position:relative!important;
+ background:transparent!important;background-image:none!important;
+ -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+ min-height:100svh!important;height:auto!important;
+ padding:clamp(16px,4.5vw,28px) 12px!important;
+ display:flex!important;flex-direction:column!important;
+ justify-content:center!important;align-items:center!important;
+ overflow:hidden!important;
+}
+${C} .page .content section.aura-screen.aura-screen-date::before,
+${C} .page .content section.aura-screen.aura-screen-location::before{
+ content:''!important;display:block!important;
+ position:absolute!important;inset:-4px!important;
+ width:auto!important;height:auto!important;
+ max-width:none!important;min-width:0!important;
+ border:0!important;border-radius:0!important;
+ box-shadow:none!important;
+ opacity:1!important;filter:none!important;
+ transform:none!important;z-index:0!important;
+ pointer-events:none!important;
+}
+${C} .page .content section.aura-screen.aura-screen-date::after,
+${C} .page .content section.aura-screen.aura-screen-location::after{
+ content:none!important;display:none!important;
+}
+/* Eliminar por completo las fotos individuales, incluidas las vacías. */
+${C} .page .content .aura-screen-date .aura-date-photo,
+${C} .page .content .aura-screen-location .aura-location-photo{
+ display:none!important;
+}
+${C} .page .content section.aura-screen.aura-screen-date .aura-screen-shell,
+${C} .page .content section.aura-screen.aura-screen-location .aura-screen-shell{
+ position:relative!important;z-index:1!important;inset:auto!important;
+ box-sizing:border-box!important;
+ display:flex!important;flex-direction:column!important;
+ align-items:stretch!important;justify-content:center!important;
+ grid-template-columns:none!important;gap:0!important;
+ width:min(100%,660px)!important;max-width:100%!important;
+ min-height:0!important;height:auto!important;
+ padding:0!important;margin:0 auto!important;
+ background:transparent!important;box-shadow:none!important;
+ -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+ overflow:visible!important;
+}
+/* Solo este panel lleva blur real del fondo, sin capa oscura ni tintes. */
+${C} .page .content section.aura-screen.aura-screen-date .aura-date-panel,
+${C} .page .content section.aura-screen.aura-screen-location .aura-location-panel{
+ box-sizing:border-box!important;position:relative!important;z-index:2!important;
+ display:block!important;inset:auto!important;
+ width:100%!important;max-width:100%!important;
+ min-width:0!important;height:auto!important;
+ margin:0 auto!important;
+ padding:clamp(32px,6vw,52px) clamp(20px,5vw,36px)!important;
+ border:1px solid ${trim}!important;border-radius:4px!important;
+ background:rgba(255,255,255,.008)!important;
+ background-image:none!important;
+ -webkit-backdrop-filter:blur(24px) saturate(1.12)!important;
+ backdrop-filter:blur(24px) saturate(1.12)!important;
+ box-shadow:0 16px 44px rgba(0,0,0,.10)!important;
+ text-align:center!important;transform:none!important;
+ color:${ink}!important;
+}
+/* Legibilidad estable al cambiar la paleta, sin alterar las fuentes. */
+${C} .page .content .aura-screen-date .aura-date-panel h2,
+${C} .page .content .aura-screen-location .aura-location-panel h2,
+${C} .page .content .aura-screen-date .aura-date-lockup,
+${C} .page .content .aura-screen-date .aura-date-lockup strong,
+${C} .page .content .aura-screen-date .aura-countdown .count-item b,
+${C} .page .content .aura-screen-location .aura-location-copy strong{
+ color:${ink}!important;opacity:1!important;
+ text-shadow:0 2px 11px rgba(0,0,0,.64)!important;
+}
+${C} .page .content .aura-screen-date .section-label,
+${C} .page .content .aura-screen-location .section-label,
+${C} .page .content .aura-screen-date .aura-date-note,
+${C} .page .content .aura-screen-date .aura-date-lockup>span,
+${C} .page .content .aura-screen-date .aura-date-lockup em,
+${C} .page .content .aura-screen-date .aura-countdown .count-item span,
+${C} .page .content .aura-screen-location .aura-location-copy small,
+${C} .page .content .aura-screen-location .aura-location-note,
+${C} .page .content .aura-screen-location .map-toggle,
+${C} .page .content .aura-screen-location .map-external,
+${C} .page .content .aura-screen-location .aura-map-button{
+ color:${secondary}!important;opacity:1!important;
+ text-shadow:0 1px 8px rgba(0,0,0,.62)!important;
+}
+${C} .page .content .aura-screen-location .aura-location-panel>h2{
+ font-size:clamp(34px,8.6vw,49px)!important;line-height:1.09!important;
+ max-width:16ch!important;margin:0 auto 22px!important;text-wrap:balance!important;
+}
+${C} .page .content .aura-screen-date .aura-date-panel h2{
+ max-width:16ch!important;text-wrap:balance!important;
+}
+@media(max-width:430px){
+ ${C} .page .content section.aura-screen.aura-screen-date,
+ ${C} .page .content section.aura-screen.aura-screen-location{
+   padding:15px 9px!important;
+ }
+ ${C} .page .content section.aura-screen.aura-screen-date .aura-date-panel,
+ ${C} .page .content section.aura-screen.aura-screen-location .aura-location-panel{
+   padding:36px 20px!important;
+ }
+}
+`;
+  }
   const _coverCss=coverCss;
-  coverCss=function(p){return _coverCss(p)+decorationCss(p)+mediterraneanCoverFramingCss(p)+mediterraneanTextFlowCss(p)+mediterraneanGalleryRespectCss(p)+editorialBannerCss(p)+editorialGalleryLayoutRepairCss(p)};
+  coverCss=function(p){return _coverCss(p)+decorationCss(p)+mediterraneanCoverFramingCss(p)+mediterraneanTextFlowCss(p)+mediterraneanGalleryRespectCss(p)+editorialBannerCss(p)+editorialGalleryLayoutRepairCss(p)+luxuryGlassNoVeilCss(p)};
   const _editionCss=editionCss;
   editionCss=function(p,t,a){return _editionCss(p,t,a)};
   const _fullCss=invitationCss;
-  invitationCss=function(p,t,a){return _fullCss(p,t,a)};
+  invitationCss=function(p,t,a){return _fullCss(p,t,a)+luxuryGlassBackgroundCss(p,a)};
   function bindEditorialPortraitBanners(){
  const mappings=[['bannerFile','bannerMode'],['bannerExtraFile','bannerExtraMode'],['bannerExtra2File','bannerExtra2Mode']];
  for(const [fileId,modeId] of mappings){
