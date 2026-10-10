@@ -178,6 +178,7 @@ ${shells}{display:block!important;grid-template-columns:none!important;perspecti
 ${C} .page .content .aura-family-portrait{
  position:relative!important;inset:auto!important;width:min(100%,560px)!important;
  margin:0 auto!important;padding:0!important;z-index:1!important;display:block!important}
+${C} .page .content .aura-screen-family:not(:has(.aura-family-photo:not(.aura-stage-photo-empty))) .aura-family-portrait{display:none!important}
 ${photos}{
  display:block!important;position:relative!important;inset:auto!important;
  box-sizing:border-box!important;width:min(100%,560px)!important;
