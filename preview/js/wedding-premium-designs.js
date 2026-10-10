@@ -707,7 +707,7 @@ ${C} .page figure.banner-media.banner-auto::after{
    img.onload=()=>{
     const portrait=img.naturalHeight>img.naturalWidth;
     finish();
-    if(portrait&&select.value==='horizontal'){
+    if(portrait&&select.value==='horizontal'&&select.dataset.medBannerUserChanged!=='true'&&document.getElementById('themeVisual')?.value==='wedding_mediterranean'){
      select.value='auto';
      select.dispatchEvent(new Event('change',{bubbles:true}));
      // Es una selección automática, el usuario aún puede cambiarla a Horizontal.
