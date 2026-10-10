@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="540" viewBox="0 0 360 540">
+<defs>
+<linearGradient id="p" x2=".8" y2="1"><stop stop-color="#f6eee5"/><stop offset="1" stop-color="#dfc9be"/></linearGradient>
+<linearGradient id="photo" x2=".7" y2="1"><stop stop-color="#ebbe9c"/><stop offset=".47" stop-color="#bb977c"/><stop offset="1" stop-color="#68524b"/></linearGradient>
+<linearGradient id="veil" x2=".6" y2="1"><stop stop-color="#faf6ee" stop-opacity=".93"/><stop offset="1" stop-color="#faf1e9" stop-opacity=".96"/></linearGradient>
+<pattern id="noise" width="6" height="7" patternUnits="userSpaceOnUse"><circle cx="2" cy="4" r=".36" fill="#67483f" opacity=".14"/></pattern>
+<filter id="shadow"><feGaussianBlur stdDeviation="7"/></filter>
+</defs>
+<rect width="360" height="540" fill="url(#p)"/><rect width="360" height="540" fill="url(#noise)"/>
+<path d="M-11 26L318-8l36 302L12 321Z" fill="#9c7969" opacity=".26"/>
+<path d="M5 25L342 13L348 351L14 338Z" fill="#fff8ef"/>
+<rect x="24" y="39" width="312" height="308" fill="url(#photo)"/>
+<path d="M24 251q68-111 129-30t183-42v170H24z" fill="#6c5c55" opacity=".52"/>
+<path d="M24 305q142-42 312-19v70H24z" fill="#987b70"/>
+<g transform="translate(60,58)">
+<path d="M80 36q-17-16-34 2t-6 37q8 17 24 19l-14 40-20 55q55 66 115-5l-31-68-15-34q20-9 19-31t-20-31Z" fill="#dfb5a1"/>
+<path d="M69 39q-28-5-25 26t26 38q18 5 25-13t-3-34Z" fill="#e8c6af"/>
+<path d="M40 57q-3-50 35-51 31-1 35 37-17-27-35-21-10 17-35 35Z" fill="#5d453e"/>
+<path d="M51 127q-57 65-58 131h202q-14-107-83-137-19 26-61 6Z" fill="#f8e6d7" opacity=".84"/>
+<path d="M82 129q-29 71-23 129M98 143q22 57 21 115M37 161q24 46 17 97" fill="none" stroke="#fff6ec" stroke-width="1.6" opacity=".7"/>
+<path d="M139 43q37-10 44 35 7 42-28 59l31 122H116l-6-111q17-36 29-105" fill="#c1a38f"/>
+<path d="M153 45q-11-39-34-19l-3 33 11 30q22 7 30-16Z" fill="#c79982"/>
+<path d="M112 40q8-39 39-19l15 25q-28-9-54-6Z" fill="#55433e"/>
+<path d="M137 136q-11 38-24 83" fill="none" stroke="#e5cebd" stroke-width="3"/>
+</g>
+<path d="M-12 322L380 269 380 543 -13 543Z" fill="#c8a89a" opacity=".17" filter="url(#shadow)"/>
+<path d="M-10 344L360 278V540H-10Z" fill="url(#veil)" stroke="#fff7ef" stroke-width="3"/>
+<path d="M0 355L360 288" stroke="#ba9b8c" stroke-width="1.2" opacity=".8"/>
+<g stroke="#8e7061" fill="none" stroke-width="1.4" opacity=".47"><path d="M22 420Q60 388 97 368"/><path d="M38 413q-2-34 9-48"/><path d="M62 396q21 0 29-17"/></g>
+<g fill="#a98d7d" opacity=".43"><ellipse cx="37" cy="378" rx="6" ry="18" transform="rotate(-30 37 378)"/><ellipse cx="79" cy="382" rx="6" ry="16" transform="rotate(50 79 382)"/></g>
+<g font-family="Georgia,serif" text-anchor="middle">
+<text x="180" y="376" fill="#7c5d51" font-size="9" letter-spacing="3.4">NUESTRA BODA</text>
+<text x="180" y="433" fill="#4d3e36" font-size="46" font-style="italic">Sofía</text>
+<text x="180" y="454" fill="#93786a" font-size="21" font-style="italic">y</text>
+<text x="180" y="499" fill="#4d3e36" font-size="47" font-style="italic">Mateo</text>
+<path d="M112 509h136" stroke="#a38a7c" stroke-width=".65"/>
+<text x="180" y="528" fill="#705f58" font-family="sans-serif" letter-spacing="3.4" font-size="8">25 · MAYO · 2027</text>
+</g></svg>
