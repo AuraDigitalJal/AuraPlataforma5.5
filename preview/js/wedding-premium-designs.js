@@ -489,9 +489,10 @@ ${C} .page .content .aura-screen-family .aura-family-portrait{width:100%!importa
  const C='.theme-wedding_mediterranean';
  const photoX=bounded(p.auraHeroPhotoX,50,0,100);
  const photoY=bounded(p.auraHeroPhotoY,50,0,100);
- const curve=bounded(p.auraHeroCurveY,56,46,65);
- const waveDepth=12;
- const photoBottom=curve+waveDepth;
+ const curve=bounded(p.auraHeroCurveY,56,45,62);
+ // El control representa el nivel real de la transición; no se añade un segundo bloque de foto.
+ const waveDepth=10;
+ const photoBottom=curve+3;
  const textOffset=bounded(p.heroOffset,0,-200,200);
  return `
 /* El marco fotográfico contiene el SVG de la curva y el velo, sin medidas divergentes. */
@@ -500,7 +501,8 @@ ${C} .hero.aura-story-cover{
  --med-wave-depth:${waveDepth}svh;
  min-height:100svh!important;
  height:auto!important;
- padding-top:calc(var(--med-photo-bottom) + 1svh)!important;
+ justify-content:flex-start!important;
+ padding-top:calc(var(--med-photo-bottom) + .5svh)!important;
  padding-bottom:clamp(12px,2svh,20px)!important;
 }
 ${C} .hero.aura-story-cover .ap-cover-photo-frame{
