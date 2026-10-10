@@ -1,4 +1,4 @@
-/* Aura Studio: tres diseños editoriales funcionales EXCLUSIVOS de /preview/ */
+
 (function auraWeddingTrials(){
  'use strict';
  const variants={
@@ -15,7 +15,7 @@
  if(COLLECTIONS.boda)COLLECTIONS.boda.note='Bodas · propuestas aprobadas y tres variantes adicionales en pruebas.';
  /* Dejar las previsualizaciones en el catálogo como componentes CSS, no mockups externos. */
  function visualCss(){/* 
-/* == BASE: no modificar galerías, banners, fotos ni secciones oficiales == */
+
 :is(.theme-wedding_lino_editorial,.theme-wedding_velo_sobrio,.theme-wedding_papel_artesanal) .hero.aura-story-cover{
   display:flex!important;flex-direction:column!important;justify-content:flex-end!important;
   align-items:stretch!important;position:relative!important;isolation:isolate!important;
@@ -94,7 +94,7 @@
   font-weight:400!important;font-size:clamp(30px,8vw,56px)!important;line-height:1.13!important
 }
 :is(.theme-wedding_lino_editorial,.theme-wedding_velo_sobrio,.theme-wedding_papel_artesanal) .page .content .aura-stage-photo{filter:none!important;transform:none!important}
-/* A · Lino: portada fotográfica arriba y tipografía editorial suelta */
+
 .theme-wedding_lino_editorial .hero.aura-story-cover{
   padding:clamp(378px,57svh,610px) 16px 26px!important;background:var(--bg)!important
 }
@@ -126,7 +126,7 @@
   border:0!important;border-top:1px solid color-mix(in srgb,var(--accent) 42%,transparent)!important;
   border-radius:0!important;box-shadow:none!important;background:var(--card)!important
 }
-/* B · Velo: fotografía inmersiva con sábana translúcida inferior */
+
 .theme-wedding_velo_sobrio .hero.aura-story-cover{
   padding:clamp(270px,42svh,450px) 15px 22px!important;background:var(--bg)!important
 }
@@ -157,7 +157,7 @@
   border:1px solid color-mix(in srgb,var(--accent) 26%,transparent)!important;
   box-shadow:0 14px 34px color-mix(in srgb,var(--heading) 6%,transparent)!important
 }
-/* C · Papel: textura finísima, fotografía en soporte tipo impresión */
+
 .theme-wedding_papel_artesanal .hero.aura-story-cover{
   padding:clamp(360px,56svh,590px) 19px 28px!important;background-color:var(--bg)!important;
   background-image:repeating-linear-gradient(104deg,transparent 0 4px,color-mix(in srgb,var(--heading) 1.3%,transparent) 5px 6px,transparent 7px 12px)!important
