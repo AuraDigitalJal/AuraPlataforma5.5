@@ -461,7 +461,7 @@ ${shellStages}{
   background:${rgba(base,v*.58)}!important;
   border:1px solid ${outline}!important;
   border-radius:8px!important;
-  box-shadow:0 18px 40px ${rgba(ink,v*.07)}!important;
+  box-shadow:9px 11px 0 ${rgba(accent,v*.085)},0 22px 42px ${rgba(ink,v*.075)}!important;
 }
 ${stageImages}{
   width:100%!important;max-width:none!important;
@@ -537,13 +537,18 @@ ${C} .page .content .aura-screen-family .aura-family-portrait{
   display:block!important;width:100%!important;max-width:none!important;
   margin:0!important;padding:0!important;min-height:0!important;height:auto!important;
 }
+${stageImages}{
+  clip-path:polygon(0 0,100% 0,100% 97%,90% 96%,80% 95%,70% 93%,
+    60% 91%,50% 90%,40% 91%,30% 93%,20% 95%,10% 96%,0 97%)!important;
+}
 ${stagePanels}{
   display:block!important;position:relative!important;inset:auto!important;
   width:100%!important;max-width:none!important;
   height:auto!important;min-height:0!important;
-  margin:0!important;padding:clamp(34px,9vw,56px) clamp(19px,6vw,44px) clamp(35px,8vw,54px)!important;
+  margin:-38px auto 0!important;
+  padding:clamp(72px,14vw,94px) clamp(19px,6vw,44px) clamp(35px,8vw,54px)!important;
   background:${paper}!important;background-image:none!important;
-  border:0!important;border-radius:0!important;outline:0!important;
+  border:0!important;border-radius:48% 52% 0 0 / 47px 45px 0 0!important;outline:0!important;
   box-shadow:none!important;transform:none!important;
   text-align:center!important;
 }
