@@ -805,60 +805,96 @@ ${C} .aura-screen-gallery .aura-gallery-grid.gallery.polaroid_pro > figure.aura-
    }
   }
 
-  /* Moderna de Lujo · prueba B: conservar composición original, sin separar
-     la fotografía y la tarjeta. Se ajustan medidas y contraste, no la estructura. */
-  function luxuryBalancedOverlayCss(p){
-   if(p?.themeVisual!=='wedding_luxury')return '';
-   const C='.theme-wedding_luxury';
-   const color=String(p.bgContentColor||'#271c22');
-   const dark=typeof lum55==='function' && lum55(color)>.30
-       ? (typeof mixHex55==='function'?mixHex55(color,'#181117',.73):'#251b20')
-       : color;
-   const primary=p.primaryColor||'#bf9e83';
-   const tint=rgba(primary,.36),base=rgba(dark,.84),deep=rgba(dark,.94);
-   const white='#fffaf4',muted='rgba(255,250,244,.82)';
-   return `
-/* Las imágenes y las tarjetas continúan superpuestas, como en el diseño original. */
-${C} .page .content .aura-screen-date .aura-date-photo:not(.aura-stage-photo-empty),
-${C} .page .content .aura-screen-family .aura-family-photo:not(.aura-stage-photo-empty),
-${C} .page .content .aura-screen-location .aura-location-photo:not(.aura-stage-photo-empty),
-${C} .page .content .aura-screen-close .aura-close-photo:not(.aura-stage-photo-empty){
- position:relative!important;inset:auto!important;
- height:clamp(490px,72svh,780px)!important;min-height:0!important;max-height:none!important;
- background-size:contain!important;background-repeat:no-repeat!important;
- background-color:${dark}!important;
- filter:none!important;transform:none!important;
+
+  /* Moderna de Lujo · composición integrada. Solo pruebas.
+     La fotografía conserva el tamaño natural, la tarjeta la solapa ligeramente.
+     Se anula expresamente el flex horizontal de weddingDistinctCss555. */
+  const _luxuryStagePhoto=auraStagePhoto54;
+  auraStagePhoto54=function(src,extraClass='',p={},index=-1){
+    const original=_luxuryStagePhoto(src,extraClass,p,index);
+    if(p?.themeVisual!=='wedding_luxury'||!src)return original;
+    // Mantener los data-photo-* para el editor, además del recurso original.
+    const image='<img class="aura-luxury-subject" src="'+esc(src)+'" alt="" loading="lazy" aria-hidden="true">';
+    return original.replace('</div>',image+'</div>');
+  };
+  function luxuryComposedCss(p){
+    if(p?.themeVisual!=='wedding_luxury')return '';
+    const C='.theme-wedding_luxury';
+    const original=String(p.bgContentColor||'#201820');
+    const dark=typeof lum55==='function'&&lum55(original)>.28
+      ?(typeof mixHex55==='function'?mixHex55(original,'#160f18',.78):'#251820')
+      :original;
+    const white='#fffaf5',secondary='rgba(255,250,245,.87)';
+    const border=rgba(p.primaryColor||'#ae947a',.40);
+    return `
+/* Restaurar la estructura vertical. El tema original la obliga a flex horizontal
+   cuando una fotografía deja de ser absoluta: eso causó las dos columnas. */
+${C} .page .content .aura-screen-date .aura-screen-shell,
+${C} .page .content .aura-screen-family .aura-screen-shell,
+${C} .page .content .aura-screen-location .aura-screen-shell,
+${C} .page .content .aura-screen-close .aura-close-shell{
+ position:relative!important;display:flex!important;flex-direction:column!important;
+ flex-wrap:nowrap!important;align-items:stretch!important;justify-content:flex-start!important;
+ grid-template-columns:none!important;grid-template-rows:none!important;
+ width:min(100%,650px)!important;max-width:100%!important;
+ height:auto!important;min-height:0!important;gap:0!important;
+ margin:0 auto!important;padding:0!important;overflow:visible!important;
 }
-/* La foto queda visible durante buena parte de la pantalla; el vidrio invade
-   solo una franja de transición y no la mitad de la persona. */
-${C} .page .content .aura-screen-date:has(.aura-date-photo:not(.aura-stage-photo-empty)) .aura-date-panel,
-${C} .page .content .aura-screen-location:has(.aura-location-photo:not(.aura-stage-photo-empty)) .aura-location-panel,
-${C} .page .content .aura-screen-close:has(.aura-close-photo:not(.aura-stage-photo-empty)) .aura-close-panel{
- position:relative!important;z-index:3!important;margin-top:-86px!important;
+${C} .page .content .aura-screen-family .aura-family-portrait{
+ position:relative!important;display:block!important;inset:auto!important;
+ width:100%!important;max-width:none!important;height:auto!important;
+ margin:0 auto!important;padding:0!important;z-index:auto!important;
 }
-${C} .page .content .aura-screen-family:has(.aura-family-photo:not(.aura-stage-photo-empty)) .aura-family-portrait{
- margin-bottom:-86px!important;z-index:2!important;
+/* El div conserva su índice/encuadre para el editor, y el img muestra TODA la foto
+   sin bandas vacías ni fondos de tamaño fijo. */
+${C} .page .content .aura-screen-date .aura-stage-photo:has(>.aura-luxury-subject),
+${C} .page .content .aura-screen-family .aura-stage-photo:has(>.aura-luxury-subject),
+${C} .page .content .aura-screen-location .aura-stage-photo:has(>.aura-luxury-subject),
+${C} .page .content .aura-screen-close .aura-stage-photo:has(>.aura-luxury-subject){
+ position:relative!important;inset:auto!important;display:block!important;
+ flex:none!important;width:100%!important;max-width:100%!important;min-width:0!important;
+ height:auto!important;min-height:0!important;max-height:none!important;
+ padding:0!important;margin:0!important;aspect-ratio:auto!important;
+ background-image:none!important;background-color:transparent!important;
+ border:0!important;border-radius:0!important;outline:0!important;
+ filter:none!important;box-shadow:none!important;overflow:hidden!important;
+ transform:none!important;
 }
-${C} .page .content .aura-screen-family:has(.aura-family-photo:not(.aura-stage-photo-empty)) .aura-family-panel{
- position:relative!important;z-index:3!important;padding-top:105px!important;
+${C} .page .content .aura-stage-photo>.aura-luxury-subject{
+ position:relative!important;inset:auto!important;display:block!important;
+ width:100%!important;height:auto!important;max-width:100%!important;
+ max-height:none!important;min-height:0!important;aspect-ratio:auto!important;
+ object-fit:contain!important;object-position:center!important;
+ border:0!important;border-radius:0!important;filter:none!important;
+ transform:none!important;
 }
-${C} .page .content .aura-screen-date:has(.aura-date-photo:not(.aura-stage-photo-empty)) .aura-date-panel,
-${C} .page .content .aura-screen-family:has(.aura-family-photo:not(.aura-stage-photo-empty)) .aura-family-panel,
-${C} .page .content .aura-screen-location:has(.aura-location-photo:not(.aura-stage-photo-empty)) .aura-location-panel,
-${C} .page .content .aura-screen-close:has(.aura-close-photo:not(.aura-stage-photo-empty)) .aura-close-panel{
- background:linear-gradient(145deg,${base},${deep})!important;
- border-color:${tint}!important;
+${C} .page .content .aura-stage-photo:has(>.aura-luxury-subject)::after{
+ position:absolute!important;inset:55% 0 0!important;
+ content:''!important;display:block!important;pointer-events:none!important;
+ background:linear-gradient(to bottom,transparent 0%,${rgba(dark,.24)} 75%,${rgba(dark,.48)} 100%)!important;
+}
+/* Vidrio flotante conectado a la parte baja, sin ocupar media fotografía. */
+${C} .page .content .aura-screen-date:has(.aura-luxury-subject) .aura-date-panel,
+${C} .page .content .aura-screen-family:has(.aura-luxury-subject) .aura-family-panel,
+${C} .page .content .aura-screen-location:has(.aura-luxury-subject) .aura-location-panel,
+${C} .page .content .aura-screen-close:has(.aura-luxury-subject) .aura-close-panel{
+ position:relative!important;inset:auto!important;display:block!important;
+ flex:none!important;z-index:3!important;box-sizing:border-box!important;
+ width:calc(100% - 24px)!important;max-width:600px!important;
+ min-width:0!important;height:auto!important;min-height:0!important;
+ margin:-98px auto 0!important;
+ padding:clamp(28px,6vw,42px) clamp(20px,6vw,36px)!important;
+ border:1px solid ${border}!important;border-radius:18px!important;
+ background:linear-gradient(145deg,${rgba(dark,.82)},${rgba(dark,.92)})!important;
+ box-shadow:0 24px 58px rgba(0,0,0,.24)!important;
+ color:${white}!important;filter:none!important;transform:none!important;
  -webkit-backdrop-filter:blur(20px)!important;backdrop-filter:blur(20px)!important;
- color:${white}!important;
- box-shadow:0 22px 58px rgba(0,0,0,.20)!important;
 }
-/* Contraste de texto coherente incluso con las paletas claras, sin eliminar
-   tamaños, animaciones ni tipografías del diseño. */
-${C} .page .content .aura-date-panel h2,
-${C} .page .content .aura-family-panel h2,
-${C} .page .content .aura-location-panel h2,
-${C} .page .content .aura-close-panel .final-message,
-${C} .page .content .aura-close-panel .closing-signature,
+${C} .page .content .aura-screen-date .aura-date-panel h2,
+${C} .page .content .aura-screen-family .aura-family-panel h2,
+${C} .page .content .aura-screen-location .aura-location-panel h2,
+${C} .page .content .aura-screen-close .aura-close-panel .final-message,
+${C} .page .content .aura-screen-close .aura-close-panel .closing-signature,
 ${C} .page .content .aura-date-lockup,
 ${C} .page .content .aura-date-lockup strong,
 ${C} .page .content .aura-countdown .count-item b,
@@ -880,22 +916,21 @@ ${C} .page .content .aura-location-copy small,
 ${C} .page .content .aura-location-panel .map-toggle,
 ${C} .page .content .aura-location-panel .map-external,
 ${C} .page .content .aura-location-panel .aura-map-button{
- color:${muted}!important;opacity:1!important;
+ color:${secondary}!important;opacity:1!important;
 }
 @media(max-width:480px){
- ${C} .page .content .aura-screen-date:has(.aura-date-photo:not(.aura-stage-photo-empty)) .aura-date-panel,
- ${C} .page .content .aura-screen-location:has(.aura-location-photo:not(.aura-stage-photo-empty)) .aura-location-panel,
- ${C} .page .content .aura-screen-close:has(.aura-close-photo:not(.aura-stage-photo-empty)) .aura-close-panel{
-   margin-top:-72px!important;
- }
- ${C} .page .content .aura-screen-family:has(.aura-family-photo:not(.aura-stage-photo-empty)) .aura-family-portrait{
-   margin-bottom:-72px!important;
+ ${C} .page .content .aura-screen-date:has(.aura-luxury-subject) .aura-date-panel,
+ ${C} .page .content .aura-screen-family:has(.aura-luxury-subject) .aura-family-panel,
+ ${C} .page .content .aura-screen-location:has(.aura-luxury-subject) .aura-location-panel,
+ ${C} .page .content .aura-screen-close:has(.aura-luxury-subject) .aura-close-panel{
+  width:calc(100% - 14px)!important;margin-top:-76px!important;
+  padding:30px 19px!important;
  }
 }
 `;
   }
   const _coverCss=coverCss;
-  coverCss=function(p){return _coverCss(p)+decorationCss(p)+mediterraneanCoverFramingCss(p)+mediterraneanTextFlowCss(p)+mediterraneanGalleryRespectCss(p)+editorialBannerCss(p)+editorialGalleryLayoutRepairCss(p)+luxuryBalancedOverlayCss(p)};
+  coverCss=function(p){return _coverCss(p)+decorationCss(p)+mediterraneanCoverFramingCss(p)+mediterraneanTextFlowCss(p)+mediterraneanGalleryRespectCss(p)+editorialBannerCss(p)+editorialGalleryLayoutRepairCss(p)+luxuryComposedCss(p)};
   const _editionCss=editionCss;
   editionCss=function(p,t,a){return _editionCss(p,t,a)};
   const _fullCss=invitationCss;
