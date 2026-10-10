@@ -111,6 +111,21 @@
               <label>Diseño de portada<select id="heroLayout"><option value="theme">Original del tema</option><option value="silence">Silencio · editorial limpio</option><option value="atelier">Atelier · lateral</option><option value="double_frame">Doble marco · clásico</option><option value="arch">Arco · romántico</option><option value="signature">Firma · caligráfico</option><option value="veil">Velo · cristal suave</option><option value="masthead">Masthead · revista</option><option value="split">Split · composición asimétrica</option><option value="cinema">Cinema · fotograma</option><option value="monogram">Monograma · quiet luxury</option></select></label>
               <div id="cover-strip" class="cover-strip" aria-label="Diseños de portada"></div>
               <p class="helper" id="cover-description">Conserva la portada original del tema.</p>
+              <div id="medCoverAdjustments" class="background-controls" hidden>
+                <p class="helper"><strong>Encuadre de portada · Mediterránea</strong> — mueve la fotografía sin alterar los textos.</p>
+                <div class="field-grid">
+                  <label>Foto · posición horizontal
+                    <input type="range" id="auraHeroPhotoX" min="0" max="100" step="1" value="50">
+                  </label>
+                  <label>Foto · posición vertical
+                    <input type="range" id="auraHeroPhotoY" min="0" max="100" step="1" value="50">
+                  </label>
+                </div>
+                <label>Altura de la curva
+                  <input type="range" id="auraHeroCurveY" min="46" max="65" step="1" value="56">
+                </label>
+                <p class="helper">Bajar la curva deja ver más fotografía. El ajuste vertical del texto está en «Ajustar texto y acomodo».</p>
+              </div>
               <div class="cover-label-settings"><label class="cover-check"><input type="checkbox" id="showHeroLabel" checked> Mostrar etiqueta del evento <small>(opcional)</small></label><label>Texto de la etiqueta<input type="text" id="heroLabelText" placeholder="Automático según el evento"><small id="hero-label-hint" class="field-hint"></small></label><label>Tamaño de etiqueta<select id="heroLabelSize"><option value="auto">Del diseño</option><option value="xs">XS</option><option value="s">S</option><option value="m">M</option><option value="l">L</option><option value="xl">XL</option></select></label></div>
               <label>Título principal<textarea id="title" rows="2">Ana &amp; Carlos</textarea><small class="field-hint">Enter permite elegir dónde separar los nombres en líneas.</small><span class="text-size-control"><span>Tamaño</span><select class="text-size-select" id="titleSize"><option value="auto" selected>Automático</option><option value="xs">XS</option><option value="s">S</option><option value="m">M</option><option value="l">L</option><option value="xl">XL</option></select></span></label>
               <label>Subtítulo / frase<textarea id="subtitle" rows="2">Nos llena de alegría compartir este día contigo.</textarea><span class="text-size-control"><span>Tamaño</span><select class="text-size-select" id="subtitleSize"><option value="auto" selected>Automático</option><option value="xs">XS</option><option value="s">S</option><option value="m">M</option><option value="l">L</option><option value="xl">XL</option></select></span></label>
