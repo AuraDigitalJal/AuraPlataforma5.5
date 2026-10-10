@@ -805,91 +805,103 @@ ${C} .aura-screen-gallery .aura-gallery-grid.gallery.polaroid_pro > figure.aura-
    }
   }
 
-  /* Moderna de Lujo · solo refinamiento de tarjeta y superficie compartida.
-     No se cambian fotografías, paletas, contenido ni controles del editor. */
-  /* Moderna de Lujo: fondo uniforme + una sola transición EN LA FOTO,
-     desde el 36% de su altura. No se dibujan capas de blur en las tarjetas:
-     Fecha/Familia/Ubicación conservan su cristal normal, y Cierre conserva
-     el degradado que tenía, sin un blur inventado. */
-  /* Moderna de Lujo · un solo gradiente CONTINUO entre foto y tarjeta.
-     Comienza al 34% de la foto, sin doble velo ni elementos nuevos en el editor.
-     Solo conserva los desenfoques que originalmente tenía cada panel. */
-  /* Moderna de Lujo: una única película de degradado en el ESCENARIO,
-     encima de la foto y por debajo del texto. No usar gradientes separados
-     en fotografía/tarjeta: producían un corte o cambios imperceptibles. */
-  function luxuryUnifiedSurfaceFadeCss(p){
+  /* MODERNA DE LUJO — recuperación sobre la versión estable.
+     No se borran fotos, no se agregan imágenes, ni controles especiales.
+     Foto completa por sección + MISMA tarjeta de vidrio café blur(12px)
+     que ya existía en el diseño; se extiende ese tratamiento a Cierre.
+     Ninguna otra colección se modifica. */
+  function luxuryFullBleedGlassCss(p){
     if(p?.themeVisual!=='wedding_luxury')return '';
     const C='body.theme-wedding_luxury';
     const dark=paletteDark55(p);
-    const accent=mixHex55(dark,p.primaryColor||'#a98a6c',.20);
-    const alpha=bounded(p.contentBgOpacity,.82,0,1);
-    const stageNames=['date','family','location','close'];
-    const stageSelector=stageNames.map(k=>C+' .page .content .aura-screen-'+k+':has(.aura-'+k+'-photo:not(.aura-stage-photo-empty))').join(',\n');
-    const shellSelector=stageNames.map(k=>C+' .page .content .aura-screen-'+k+':has(.aura-'+k+'-photo:not(.aura-stage-photo-empty))>.aura-screen-shell').join(',\n');
-    const shellOverlaySelector=stageNames.map(k=>C+' .page .content .aura-screen-'+k+':has(.aura-'+k+'-photo:not(.aura-stage-photo-empty))>.aura-screen-shell::after').join(',\n');
-    const imageSelector=stageNames.map(k=>C+' .page .content .aura-screen-'+k+' .aura-'+k+'-photo:not(.aura-stage-photo-empty)').join(',\n');
-    const panelSelector=stageNames.map(k=>C+' .page .content .aura-screen-'+k+':has(.aura-'+k+'-photo:not(.aura-stage-photo-empty)) .aura-'+k+'-panel').join(',\n');
-    const surface='linear-gradient(90deg,'+rgba(dark,alpha)+','+rgba(accent,alpha)+')';
-    const ink=(part)=>rgba(dark,Math.min(1,Math.max(0,part*alpha)));
+    const light=paletteLight55(p);
+    const sections=['date','family','location','close'];
+    const screen=k=>C+' .page .content > section.aura-screen-'+k+
+      ':has(.aura-'+k+'-photo:not(.aura-stage-photo-empty))';
+    const sel=sections.map(screen);
+    const shells=sel.map(q=>q+' > .aura-screen-shell');
+    const photos=sections.map(k=>screen(k)+' .aura-'+k+'-photo:not(.aura-stage-photo-empty)');
+    const panels=sections.map(k=>screen(k)+' .aura-'+k+'-panel');
+    const frame=screen('family')+' .aura-family-portrait';
+    const photoOverlay=screen('close')+' .aura-close-photo:not(.aura-stage-photo-empty)::after';
     return `
-/* Color uniforme detrás de todas las secciones, sin doble capa o bandas pares. */
-${C} .page{background:${surface}!important}
-${C} .page .content{background:transparent!important;background-image:none!important}
-${C} .page .content>section.aura-screen,
-${C} .page .content>section.aura-screen:nth-child(odd),
-${C} .page .content>section.aura-screen:nth-child(even){
- background:transparent!important;background-image:none!important;background-color:transparent!important;
-}
-${C} .page .content>section.aura-screen>.aura-screen-shell{
+/* Sección con fotografía: la foto llena la pantalla, sin crear otra capa. */
+${sel.join(',\n')}{
+ position:relative!important;
+ min-height:100svh!important;
+ height:auto!important;
+ margin:0!important;padding:0!important;
+ display:flex!important;align-items:stretch!important;justify-content:stretch!important;
  background:transparent!important;background-image:none!important;
+ overflow:hidden!important;
 }
-/* Un degradado CONTINUO desde el 34% de la foto al fondo de la tarjeta.
-   El after del escenario no compite con los textos ni intercepta los botones. */
-${shellSelector}{
- position:relative!important;isolation:isolate!important;
+${sel.map(q=>q+'::before,'+q+'::after').join(',\n')}{
+ content:none!important;display:none!important;
 }
-${shellOverlaySelector}{
- content:''!important;display:block!important;position:absolute!important;
- inset:0!important;width:100%!important;height:100%!important;
- z-index:1!important;pointer-events:none!important;border:0!important;
- border-radius:0!important;opacity:1!important;
- background:linear-gradient(to bottom,
-  transparent 0%,
-  transparent 34%,
-  ${ink(.10)} 44%,
-  ${ink(.32)} 55%,
-  ${ink(.64)} 69%,
-  ${ink(.88)} 83%,
-  ${ink(1)} 100%)!important;
- -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+${shells.join(',\n')}{
+ position:relative!important;
+ width:100%!important;max-width:none!important;
+ min-height:100svh!important;height:auto!important;
+ margin:0!important;padding:0!important;
+ box-sizing:border-box!important;
+ display:flex!important;flex-direction:column!important;
+ align-items:center!important;justify-content:flex-end!important;
+ isolation:isolate!important;
+ overflow:visible!important;
+ background:transparent!important;
 }
-/* Fotos reales abajo; familia usa un contenedor fotográfico propio. */
-${imageSelector}{
- z-index:0!important;
+${photos.join(',\n')}{
+ position:absolute!important;inset:0!important;
+ display:block!important;
+ width:100%!important;height:100%!important;
+ min-height:100%!important;max-height:none!important;
+ margin:0!important;padding:0!important;
+ border:0!important;border-radius:0!important;
+ background-size:cover!important;background-position:center!important;
+ z-index:0!important;box-shadow:none!important;
 }
-${C} .page .content .aura-screen-family:has(.aura-family-photo:not(.aura-stage-photo-empty)) .aura-family-portrait{
- z-index:0!important;
+${frame}{
+ position:absolute!important;inset:0!important;
+ display:block!important;width:100%!important;height:100%!important;
+ min-height:100%!important;max-height:none!important;
+ margin:0!important;padding:0!important;z-index:0!important;
 }
-/* Eliminar el segundo velo anterior de Cierre (antes de esta corrección)
-   y cualquier degradado preexistente dentro de la propia fotografía. */
-${stageNames.map(k=>C+' .page .content .aura-screen-'+k+' .aura-'+k+'-photo:not(.aura-stage-photo-empty)::after').join(',\n')}{
- content:none!important;display:none!important;background:none!important;
+/* Antes Cierre tenía un velo adicional distinto; ahora el vidrio
+   queda consistente con las otras tres escenas. */
+${photoOverlay}{content:none!important;display:none!important}
+/* Reutilizar los valores originales de wedding_luxury:
+   café 34%-82%, borde dorado y backdrop-filter blur(12px). */
+${panels.join(',\n')}{
+ position:relative!important;inset:auto!important;
+ z-index:2!important;
+ display:block!important;box-sizing:border-box!important;
+ flex:none!important;align-self:center!important;
+ width:min(calc(100% - 32px),650px)!important;max-width:650px!important;
+ height:auto!important;min-height:0!important;
+ margin:clamp(28px,6svh,58px) auto!important;
+ padding:clamp(30px,6vw,44px) clamp(22px,5vw,38px)!important;
+ border:1px solid ${rgba(p.primaryColor,.34)}!important;
+ border-radius:3px!important;
+ background:linear-gradient(180deg,${rgba(dark,.34)},${rgba(dark,.82)})!important;
+ background-color:transparent!important;
+ -webkit-backdrop-filter:blur(12px)!important;
+ backdrop-filter:blur(12px)!important;
+ color:${light}!important;
+ box-shadow:0 24px 65px ${rgba(dark,.22)}!important;
+ transform:none!important;
 }
-/* El texto está por encima de un único degradado, sin el rectángulo opaco
-   de la tarjeta que ocultaba el efecto. No se altera posición/tamaño. */
-${panelSelector}{
- position:relative!important;z-index:3!important;
- background:transparent!important;background-image:none!important;
- border-top-color:transparent!important;
- box-shadow:none!important;
-}
-${C} .page .content .aura-screen-close:has(.aura-close-photo:not(.aura-stage-photo-empty)) .aura-close-panel{
- -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+/* No modificar el color y tamaño de los textos ni el mapa. */
+@media(max-width:430px){
+ ${panels.join(',\n')}{
+   width:calc(100% - 28px)!important;
+   margin:22px auto!important;
+   padding:28px 22px!important;
+ }
 }
 `;
   }
   const _coverCss=coverCss;
-  coverCss=function(p){return _coverCss(p)+decorationCss(p)+mediterraneanCoverFramingCss(p)+mediterraneanTextFlowCss(p)+mediterraneanGalleryRespectCss(p)+editorialBannerCss(p)+editorialGalleryLayoutRepairCss(p)+luxuryUnifiedSurfaceFadeCss(p)};
+  coverCss=function(p){return _coverCss(p)+decorationCss(p)+mediterraneanCoverFramingCss(p)+mediterraneanTextFlowCss(p)+mediterraneanGalleryRespectCss(p)+editorialBannerCss(p)+editorialGalleryLayoutRepairCss(p)+luxuryFullBleedGlassCss(p)};
   const _editionCss=editionCss;
   editionCss=function(p,t,a){return _editionCss(p,t,a)};
   const _fullCss=invitationCss;
