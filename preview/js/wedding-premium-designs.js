@@ -822,10 +822,8 @@ ${C} .aura-screen-gallery .aura-gallery-grid.gallery.polaroid_pro > figure.aura-
     const contrast='#fffaf5',soft='rgba(255,250,245,.84)';
     const trim=rgba(p.primaryColor||'#c8ae94',.46);
     return `
-/* No añadir otra imagen ni otra capa: desenfocar la foto original del fondo. */
-${C} .invitation-background .background-veil{
- display:none!important;opacity:0!important;background:none!important;
-}
+/* El velo global sigue intacto fuera de Fecha y Ubicación.
+   El recorte transparente del velo se actualiza al desplazarse por la página. */
 ${C} .page,
 ${C} .page>.content{background:transparent!important;background-image:none!important}
 /* La sección entera es transparente. Sólo su panel es cristal. */
@@ -935,6 +933,51 @@ ${C} .page .content .aura-screen-location .aura-locations{
 }
 `;
   }
+
+  /* Recortes dinámicos del velo EXISTENTE: no se clona ni se vuelve a cargar
+     el fondo. Un agujero en el velo se crea justo encima de Fecha y Ubicación.
+     Funciona al desplazarse y al modificar el tamaño de la ventana. */
+  function luxuryGlobalCutoutRuntime(){
+    if(!document.body?.classList.contains('theme-wedding_luxury'))return;
+    const veil=document.querySelector('.invitation-background .background-veil');
+    if(!veil)return;
+    const sections=[...document.querySelectorAll('.aura-screen-date,.aura-screen-location')];
+    if(!sections.length)return;
+    const supports=typeof CSS!=='undefined' && CSS.supports('clip-path','polygon(evenodd,0px 0px,4px 0px,4px 4px,0px 4px,0px 0px,1px 1px,1px 2px,2px 2px,2px 1px,1px 1px)');
+    if(!supports){veil.style.display='none';return}
+    const apply=()=>{
+      const w=Math.ceil(window.innerWidth),h=Math.ceil(window.innerHeight);
+      // Outer screen loop + reversed interior loops: evenodd punches holes.
+      const points=['0px 0px',w+'px 0px',w+'px '+h+'px','0px '+h+'px','0px 0px'];
+      let count=0;
+      for(const section of sections){
+        const r=section.getBoundingClientRect();
+        if(r.bottom<=0||r.top>=h||r.right<=0||r.left>=w)continue;
+        const x1=Math.max(0,Math.floor(r.left)),y1=Math.max(0,Math.floor(r.top));
+        const x2=Math.min(w,Math.ceil(r.right)),y2=Math.min(h,Math.ceil(r.bottom));
+        if(x2<=x1||y2<=y1)continue;
+        points.push(x1+'px '+y1+'px',x1+'px '+y2+'px',x2+'px '+y2+'px',x2+'px '+y1+'px',x1+'px '+y1+'px');
+        count++;
+      }
+      veil.style.clipPath=count?'polygon(evenodd,'+points.join(',')+')':'none';
+    };
+    let scheduled=false;
+    const update=()=>{
+      if(scheduled)return;scheduled=true;
+      window.requestAnimationFrame(()=>{scheduled=false;apply()});
+    };
+    window.addEventListener('scroll',update,{passive:true});
+    window.addEventListener('resize',update,{passive:true});
+    if(typeof ResizeObserver!=='undefined'){
+      const watcher=new ResizeObserver(update);
+      for(const section of sections)watcher.observe(section);
+    }
+    apply();
+  }
+  const _invitationJsLuxuryGlobal=invitationJs;
+  invitationJs=function(){
+    return _invitationJsLuxuryGlobal()+';('+luxuryGlobalCutoutRuntime.toString()+')();';
+  };
   const _coverCss=coverCss;
   coverCss=function(p){return _coverCss(p)+decorationCss(p)+mediterraneanCoverFramingCss(p)+mediterraneanTextFlowCss(p)+mediterraneanGalleryRespectCss(p)+editorialBannerCss(p)+editorialGalleryLayoutRepairCss(p)+luxuryGlobalFullGlassCss(p)};
   const _editionCss=editionCss;
