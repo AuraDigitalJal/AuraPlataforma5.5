@@ -9,7 +9,7 @@
     // Las pruebas siempre abren la revisión más reciente, incluso desde un enlace viejo.
     (function () {
       if (window.location.protocol === 'file:') return;
-      var build = 'mediterranea-solo-foto-arriba-10-v7';
+      var build = 'editoriales-lino-velo-papel-v1';
       var target = new URL(window.location.href);
       if (target.searchParams.get('v') === build) return;
       target.searchParams.set('v', build);
@@ -18,8 +18,8 @@
   </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#f2eee8" />
-  <title>Aura Digital · Pruebas · Mediterránea foto arriba v7</title>
-  <link rel="stylesheet" href="css/style.css?v=mediterranea-solo-foto-arriba-10-v7" />
+  <title>Aura Digital · Pruebas · Lino, Velo y Papel</title>
+  <link rel="stylesheet" href="css/style.css?v=editoriales-lino-velo-papel-v1" />
   <script src="js/vendor/jszip.min.js"></script>
   
 <style id="aura-gallery-delete-style">
@@ -48,7 +48,7 @@
 <body>
   <div id="app">
     <header class="topbar">
-      <div class="topbar-brand"><span class="brand-mark small">A</span><div><strong>AURA DIGITAL</strong><small>Invitation Studio · PRUEBAS · Mediterránea foto +10% v7</small></div></div>
+      <div class="topbar-brand"><span class="brand-mark small">A</span><div><strong>AURA DIGITAL</strong><small>Invitation Studio · PRUEBAS · Editoriales A/B/C</small></div></div>
       <div class="topbar-actions">
         <span class="save-indicator"><i></i> Vista en vivo</span>
         <button type="button" id="open-preview-window" class="btn secondary">Abrir preview ↗</button>
@@ -436,9 +436,10 @@
   </dialog>
 
   <script src="js/font-data.js?v=5.6.17"></script>
-  <script src="preview/js/script.js?v=mediterranea-solo-foto-arriba-10-v7"></script>
-  <script src="preview/js/fixed-copy-editor.js?v=mediterranea-solo-foto-arriba-10-v7"></script>
-  <script src="preview/js/wedding-premium-designs.js?v=mediterranea-solo-foto-arriba-10-v7"></script>
+  <script src="preview/js/script.js?v=editoriales-lino-velo-papel-v1"></script>
+  <script src="preview/js/fixed-copy-editor.js?v=editoriales-lino-velo-papel-v1"></script>
+  <script src="preview/js/wedding-premium-designs.js?v=editoriales-lino-velo-papel-v1"></script>
   <script src="preview/js/palette-inverter.js?v=inversor-paleta-pruebas-20261010-v1"></script>
+  <script src="preview/js/wedding-trial-editorials.js?v=editoriales-lino-velo-papel-v1"></script>
 </body>
 </html>
