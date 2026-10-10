@@ -130,73 +130,126 @@ ${C} .page .content .aura-gallery-tile:first-child{grid-column:1/-1!important;as
     return css+parameterResponsiveCss(p);
   }
   function parameterResponsiveCss(p){
-  const k=p.themeVisual,C='.theme-'+k;
-  const opacity=bounded(p.contentBgOpacity,.94,0,1);
-  const buttonOpacity=bounded(p.buttonOpacity,.92,0,1);
-  const veil=bounded(p.overlayOpacity,.42,0,1);
-  const backgroundVeil=bounded(p.bgOverlayOpacity,.82,0,1);
-  const base=p.bgContentColor||'#faf6f0',accent=p.primaryColor||'#ab897a',ink=p.headingColor||'#483932';
-  const heroVeil=p.overlayColor||'#16130f';
-  const buttonStyle=String(p.buttonStyle||'rounded');
-  const buttonBg=buttonStyle==='text_only'||buttonStyle==='outline_thin'?'transparent':
-    buttonStyle==='glass_soft'?rgba(base,buttonOpacity):rgba(accent,buttonOpacity);
-  const radius=buttonStyle==='pill'||buttonStyle==='glass_soft'?'999px':
-    buttonStyle==='rounded'?'14px':buttonStyle==='square'?'0px':'4px';
-  const blur={none:'none',light:'blur(6px)',strong:'blur(14px)'}[p.contentBlur]||'none';
-  const surfaceTop=rgba(base,opacity*.44);
-  const surfaceBottom=rgba(base,opacity);
-  const border=rgba(accent,opacity*.26);
-  const sectionGlow=rgba(accent,opacity*.045);
-  const screenBg=rgba(p.bgBodyColor||'#f3eee8',opacity*.5);
-  const curve=k==='wedding_mediterranean'?'28px':
-    k==='wedding_layers'?'22px 38px 25px 38px':'60px 26px 58px 24px';
-  const closeCurve=k==='wedding_mediterranean'?'38px 38px 24px 24px':
-    k==='wedding_layers'?'28px 42px 25px 36px':'70px 28px 60px 28px';
-  const photoSections=['.aura-screen-date','.aura-screen-family','.aura-screen-location','.aura-screen-close'];
-  const photos=photoSections.map(q=>C+' .page .content '+q+' .aura-stage-photo:not(.aura-stage-photo-empty)').join(',');
-  const photoAfter=photoSections.map(q=>C+' .page .content '+q+' .aura-stage-photo:not(.aura-stage-photo-empty)::after').join(',');
-  const panels=['.aura-date-panel','.aura-family-panel','.aura-location-panel',
-    '.aura-close-panel','.aura-confirm-panel','.aura-video-panel','.aura-transfer-panel']
-    .map(q=>C+' .page .content '+q).join(',');
-  const touching=['.aura-screen-date .aura-date-panel','.aura-screen-family .aura-family-panel',
-    '.aura-screen-location .aura-location-panel','.aura-screen-close .aura-close-panel']
-    .map(q=>C+' .page .content '+q.split(' ')[0]+':has(.aura-stage-photo:not(.aura-stage-photo-empty)) '+q.split(' ')[1]).join(',');
-  return `
-/* Aura boutique v2 - respetar parámetros de diseño, sin modificar datos. */
+ const k=p.themeVisual,C='.theme-'+k, opacity=bounded(p.contentBgOpacity,.94,0,1),
+ buttonOpacity=bounded(p.buttonOpacity,.92,0,1),
+ veil=bounded(p.overlayOpacity,.42,0,1),backgroundVeil=bounded(p.bgOverlayOpacity,.82,0,1);
+ const base=p.bgContentColor||'#faf6f0',accent=p.primaryColor||'#ab897a',ink=p.headingColor||'#483932';
+ const buttonStyle=String(p.buttonStyle||'rounded');
+ const buttonBg=buttonStyle==='text_only'||buttonStyle==='outline_thin'?'transparent':
+   buttonStyle==='glass_soft'?rgba(base,buttonOpacity):rgba(accent,buttonOpacity);
+ const buttonRadius=buttonStyle==='pill'||buttonStyle==='glass_soft'?'999px':
+   buttonStyle==='rounded'?'14px':buttonStyle==='square'?'0px':'4px';
+ const blur={none:'none',light:'blur(6px)',strong:'blur(14px)'}[p.contentBlur]||'none';
+ const photoRadius=k==='wedding_mediterranean'?'48% 48% 22px 22px / 17% 17% 22px 22px':
+   k==='wedding_layers'?'32px 32px 12px 12px':'52% 48% 54px 34px / 14% 14% 12% 9%';
+ const panelRadius=k==='wedding_mediterranean'?'32px 32px 18px 18px':
+   k==='wedding_layers'?'18px 42px 24px 34px':'62px 29px 58px 24px';
+ const frame=k==='wedding_layers'?'8px':'0px';
+ const photoShadow=k==='wedding_layers'?`0 16px 34px ${rgba(ink,.105)}`:`0 12px 25px ${rgba(ink,.065)}`;
+ const photoFrame=k==='wedding_layers'?rgba(base,Math.max(.62,opacity)): 'transparent';
+ const photoLayout=['.aura-screen-date','.aura-screen-family','.aura-screen-location'];
+ const shells=photoLayout.map(q=>C+' .page .content '+q+' .aura-screen-shell').join(',');
+ const photos=['.aura-date-photo','.aura-family-photo','.aura-location-photo'].map(q=>C+' .page .content '+q).join(',');
+ const photoBefore=['.aura-date-photo','.aura-family-photo','.aura-location-photo','.aura-close-photo'].map(q=>C+' .page .content '+q+'::after').join(',');
+ const stagePanels=['.aura-date-panel','.aura-family-panel','.aura-location-panel'].map(q=>C+' .page .content '+q).join(',');
+ const withPhoto=['.aura-screen-date .aura-date-panel','.aura-screen-family .aura-family-panel','.aura-screen-location .aura-location-panel'].map(q=>{
+   const [stage,panel]=q.split(' ');
+   return C+' .page .content '+stage+':has(.aura-stage-photo:not(.aura-stage-photo-empty)) '+panel;
+ }).join(',');
+ const otherPanels=['.aura-confirm-panel','.aura-transfer-panel','.aura-video-panel'].map(q=>C+' .page .content '+q).join(',');
+ const paper=rgba(base,opacity),outline=rgba(accent,opacity*.27);
+ return `
+/* V3: tarjetas estructurales sin degradados ni pseudo-capas en fotos. */
 ${C} .background-veil{background:${rgba(p.bgBodyColor||'#f3eee8',backgroundVeil)}!important}
-${C} .hero.aura-story-cover .hero-overlay{background:${rgba(heroVeil,veil)}!important;opacity:1!important}
+${C} .hero.aura-story-cover .hero-overlay{background:${rgba(p.overlayColor||'#16130f',veil)}!important;opacity:1!important}
 ${C} .hero.aura-story-cover .aura-quick-actions .aura-quick-action{
- background:${buttonBg}!important;
- border-color:${rgba(ink,buttonOpacity*.28)}!important;border-radius:${radius}!important}
+ background:${buttonBg}!important;border-color:${rgba(ink,buttonOpacity*.25)}!important;
+ border-radius:${buttonRadius}!important}
 ${C} .hero.aura-story-cover .enter-btn,${C} .hero.aura-story-cover .aura-enter,${C} .hero.aura-story-cover button[data-enter]{
- background:${buttonBg}!important;border-radius:${radius}!important;
- border-color:${rgba(ink,buttonOpacity*.3)}!important}
+ background:${buttonBg}!important;border-color:${rgba(ink,buttonOpacity*.3)}!important;
+ border-radius:${buttonRadius}!important}
 ${C} .page,${C} .page .content{background:transparent!important}
 ${C} .page .content .aura-screen{
- background:${screenBg}!important;
- background-image:linear-gradient(160deg,${sectionGlow},transparent 60%)!important;
- backdrop-filter:${blur}!important;-webkit-backdrop-filter:${blur}!important}
-${panels}{
- background:linear-gradient(to bottom,${surfaceTop},${surfaceBottom} 40%,${surfaceBottom})!important;
- background-color:transparent!important;
- backdrop-filter:${blur}!important;-webkit-backdrop-filter:${blur}!important;
- border-color:${border}!important;border-radius:${curve}!important;
- box-shadow:0 10px 28px ${rgba(ink,.07*opacity)}!important}
-${touching}{
- margin-top:-42px!important;z-index:3!important;width:96%!important;
- border-top-color:transparent!important}
-${C} .page .content .aura-screen-close .aura-close-panel{border-radius:${closeCurve}!important}
-${photos}{position:relative!important;overflow:hidden!important}
-${photoAfter}{
- content:''!important;display:block!important;position:absolute!important;inset:0!important;
- background:linear-gradient(to bottom,transparent 44%,${rgba(base,opacity*.23)} 68%,${rgba(base,opacity*.96)} 100%)!important;
- pointer-events:none!important;z-index:1!important}
-${C} .page .content .aura-screen-confirm .aura-confirm-panel,
-${C} .page .content .aura-screen-video .aura-video-panel,
-${C} .page .content .aura-screen-transfer .aura-transfer-panel{
- margin:0 auto!important;width:96%!important}
-${C} .page .content .aura-screen .aura-map-preview{
- border-radius:clamp(14px,4vw,24px)!important;overflow:hidden!important}
+ background-color:${rgba(p.bgBodyColor||'#f3eee8',opacity*.46)}!important;
+ background-image:none!important;
+ -webkit-backdrop-filter:${blur}!important;backdrop-filter:${blur}!important}
+${shells}{display:block!important;grid-template-columns:none!important;perspective:none!important;
+ min-height:0!important;height:auto!important}
+${C} .page .content .aura-family-portrait{
+ position:relative!important;inset:auto!important;width:min(100%,560px)!important;
+ margin:0 auto!important;padding:0!important;z-index:1!important;display:block!important}
+${photos}{
+ display:block!important;position:relative!important;inset:auto!important;
+ box-sizing:border-box!important;width:min(100%,560px)!important;
+ height:clamp(330px,55svh,565px)!important;min-height:0!important;max-height:none!important;
+ margin:0 auto!important;transform:none!important;
+ border:${frame} solid ${photoFrame}!important;
+ border-radius:${photoRadius}!important;
+ background-size:cover!important;overflow:hidden!important;
+ box-shadow:${photoShadow}!important}
+${photoBefore}{content:none!important;display:none!important;background:none!important}
+${stagePanels}{
+ position:relative!important;inset:auto!important;z-index:3!important;
+ width:min(96%,540px)!important;max-width:100%!important;min-height:0!important;
+ margin:0 auto!important;padding:clamp(30px,7vw,45px) clamp(18px,5vw,32px)!important;
+ border:1px solid ${outline}!important;border-radius:${panelRadius}!important;
+ background:${paper}!important;background-image:none!important;
+ box-shadow:0 13px 30px ${rgba(ink,opacity*.075)}!important;
+ -webkit-backdrop-filter:${blur}!important;backdrop-filter:${blur}!important;
+ text-align:center!important;transform:none!important}
+${withPhoto}{margin-top:-36px!important}
+${C} .page .content .aura-screen-family:has(.aura-family-photo:not(.aura-stage-photo-empty)) .aura-family-panel{
+ padding-top:clamp(34px,7vw,48px)!important}
+${C} .page .content .aura-screen:not(:has(.aura-stage-photo:not(.aura-stage-photo-empty))) .aura-date-panel,
+${C} .page .content .aura-screen:not(:has(.aura-stage-photo:not(.aura-stage-photo-empty))) .aura-family-panel,
+${C} .page .content .aura-screen:not(:has(.aura-stage-photo:not(.aura-stage-photo-empty))) .aura-location-panel{
+ margin-top:0!important}
+${otherPanels}{margin:0 auto!important;padding:clamp(32px,8vw,50px) clamp(18px,6vw,34px)!important;
+ width:min(96%,540px)!important;max-width:100%!important;
+ background:${paper}!important;background-image:none!important;
+ border:1px solid ${outline}!important;border-radius:${panelRadius}!important;
+ -webkit-backdrop-filter:${blur}!important;backdrop-filter:${blur}!important;
+ box-shadow:0 10px 25px ${rgba(ink,opacity*.05)}!important;transform:none!important}
+${C} .page .content .aura-map-preview{border-radius:clamp(15px,4vw,25px)!important;overflow:hidden!important}
+/* Cierre: estructura independiente, imagen intacta y a escala real. */
+${C} .page .content .aura-screen-close:has(.aura-close-photo:not(.aura-stage-photo-empty)) .aura-close-shell{
+ display:flex!important;flex-direction:column!important;align-items:center!important;
+ justify-content:flex-start!important;gap:0!important;min-height:0!important;height:auto!important;
+ padding:0 clamp(14px,4vw,26px)!important;overflow:visible!important}
+${C} .page .content .aura-screen-close .aura-close-photo:not(.aura-stage-photo-empty){
+ position:relative!important;inset:auto!important;display:block!important;
+ width:100%!important;max-width:560px!important;
+ height:clamp(390px,63svh,680px)!important;min-height:0!important;max-height:none!important;
+ margin:0 auto!important;transform:none!important;filter:none!important;
+ background-size:cover!important;overflow:hidden!important;
+ border:0!important;border-radius:${photoRadius}!important;
+ box-shadow:${photoShadow}!important;z-index:1!important}
+${C} .page .content .aura-screen-close .aura-close-photo::after{
+ content:none!important;display:none!important;background:none!important}
+${C} .page .content .aura-screen-close .aura-close-panel{
+ position:relative!important;inset:auto!important;z-index:3!important;
+ width:min(96%,540px)!important;max-width:100%!important;
+ margin:0 auto!important;padding:clamp(35px,8vw,52px) clamp(18px,6vw,32px)!important;
+ border:1px solid ${outline}!important;border-radius:${panelRadius}!important;
+ background:${paper}!important;background-image:none!important;
+ -webkit-backdrop-filter:${blur}!important;backdrop-filter:${blur}!important;
+ box-shadow:0 10px 25px ${rgba(ink,opacity*.065)}!important;
+ color:${ink}!important;text-align:center!important;transform:none!important}
+${C} .page .content .aura-screen-close:has(.aura-close-photo:not(.aura-stage-photo-empty)) .aura-close-panel{
+ margin-top:-39px!important}
+${C} .page .content .aura-screen-close .aura-close-panel .final-message,
+${C} .page .content .aura-screen-close .aura-close-panel .section-label,
+${C} .page .content .aura-screen-close .aura-close-panel .closing-signature{
+ color:inherit!important;text-shadow:none!important}
+${C} .page .content .aura-screen-close:not(:has(.aura-close-photo:not(.aura-stage-photo-empty))) .aura-close-shell{
+ display:block!important;min-height:0!important;height:auto!important}
+${C} .page .content .aura-screen-close:not(:has(.aura-close-photo:not(.aura-stage-photo-empty))) .aura-close-panel{
+ margin:0 auto!important}
+@media(max-width:420px){
+${C} .page .content .aura-screen-close .aura-close-photo:not(.aura-stage-photo-empty){
+ height:clamp(350px,56svh,570px)!important}
+${C} .page .content .aura-screen-family .aura-family-portrait{width:100%!important}
+}
 `;
 }
   const _coverCss=coverCss;
