@@ -804,72 +804,8 @@ ${C} .aura-screen-gallery .aura-gallery-grid.gallery.polaroid_pro > figure.aura-
     default:return standard+foundation;
    }
   }
-
-  /* PRUEBAS · Moderna de Lujo, Fecha + Ubicación.
-     No se copia fondo: queda la ÚNICA imagen global .invitation-background.
-     Únicamente cambia la sección: foto individual fuera y cristal de extremo
-     a extremo con blur real y fondo sin tintes. */
-  const _luxuryGlobalGlassStagePhoto=auraStagePhoto54;
-  auraStagePhoto54=function(src,extraClass='',p={},index=-1){
-    if(p?.themeVisual==='wedding_luxury'&&(
-      extraClass==='aura-date-photo'||extraClass==='aura-location-photo'
-    ))return '';
-    return _luxuryGlobalGlassStagePhoto(src,extraClass,p,index);
-  };
-  /* Moderna de Lujo · SOLO dimensionado de Fecha y Ubicación.
-     El fondo y el velo globales siguen siendo los originales.
-     Colores, sombras, degradado café, blur, paletas y textos son los del
-     diseño original y se editan con los controles normales del Studio. */
-  function luxuryGlobalFullGlassCss(p){
-    if(p?.themeVisual!=='wedding_luxury')return '';
-    const C='body.theme-wedding_luxury';
-    return `
-/* Mostrar detrás el fondo global de la invitación; no añadir ni copiar fotos. */
-${C} .page .content>section.aura-screen.aura-screen-date,
-${C} .page .content>section.aura-screen.aura-screen-location{
- display:flex!important;flex-direction:column!important;align-items:stretch!important;
- justify-content:stretch!important;box-sizing:border-box!important;
- width:100%!important;max-width:none!important;
- min-height:100svh!important;height:auto!important;
- padding:0!important;margin:0!important;
- background:transparent!important;background-image:none!important;
- overflow:visible!important;
-}
-${C} .page .content>section.aura-screen.aura-screen-date::before,
-${C} .page .content>section.aura-screen.aura-screen-date::after,
-${C} .page .content>section.aura-screen.aura-screen-location::before,
-${C} .page .content>section.aura-screen.aura-screen-location::after{
- display:none!important;content:none!important;
-}
-/* El único cambio del cuadro es que llena la superficie de la sección. */
-${C} .page .content>section.aura-screen.aura-screen-date>.aura-screen-shell,
-${C} .page .content>section.aura-screen.aura-screen-location>.aura-screen-shell{
- display:flex!important;flex-direction:column!important;
- align-items:stretch!important;justify-content:stretch!important;
- width:100%!important;max-width:none!important;
- min-height:100svh!important;height:auto!important;
- margin:0!important;padding:0!important;
-}
-/* Conservamos el café original de wedding_luxury:
-   NO sobreescribir background, background-color, color, blur ni borde. */
-${C} .page .content>section.aura-screen.aura-screen-date .aura-date-panel,
-${C} .page .content>section.aura-screen.aura-screen-location .aura-location-panel{
- box-sizing:border-box!important;display:flex!important;flex-direction:column!important;
- align-items:center!important;justify-content:center!important;
- flex:1 0 auto!important;position:relative!important;
- width:calc(100% - 16px)!important;max-width:none!important;
- min-height:calc(100svh - 16px)!important;height:auto!important;
- margin:8px auto!important;
-}
-/* La foto individual eliminada no deja huecos en el diseño. */
-${C} .page .content .aura-screen-date .aura-stage-photo,
-${C} .page .content .aura-screen-location .aura-stage-photo{
- display:none!important;
-}
-`;
-  }
   const _coverCss=coverCss;
-  coverCss=function(p){return _coverCss(p)+decorationCss(p)+mediterraneanCoverFramingCss(p)+mediterraneanTextFlowCss(p)+mediterraneanGalleryRespectCss(p)+editorialBannerCss(p)+editorialGalleryLayoutRepairCss(p)+luxuryGlobalFullGlassCss(p)};
+  coverCss=function(p){return _coverCss(p)+decorationCss(p)+mediterraneanCoverFramingCss(p)+mediterraneanTextFlowCss(p)+mediterraneanGalleryRespectCss(p)+editorialBannerCss(p)+editorialGalleryLayoutRepairCss(p)};
   const _editionCss=editionCss;
   editionCss=function(p,t,a){return _editionCss(p,t,a)};
   const _fullCss=invitationCss;
