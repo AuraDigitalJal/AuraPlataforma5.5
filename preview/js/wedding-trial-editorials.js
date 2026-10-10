@@ -103,7 +103,7 @@
   position:absolute!important;inset:0 0 auto 0!important;height:clamp(340px,55svh,585px)!important
 }
 .theme-wedding_lino_editorial .hero.aura-story-cover .hero-overlay{
-  background:linear-gradient(to top,color-mix(in srgb,var(--heading) 12%,transparent),transparent 55%)!important
+  background:linear-gradient(to top,color-mix(in srgb,var(--heading) 12%,transparent),transparent 55%),var(--trial-overlay)!important
 }
 .theme-wedding_lino_editorial .hero.aura-story-cover .hero-inner{
   padding:clamp(14px,3svh,26px) 10px 0!important;background:transparent!important;
@@ -115,7 +115,7 @@
 }
 .theme-wedding_lino_editorial .hero.aura-story-cover .aura-editorial-copy h1{font-style:italic!important}
 .theme-wedding_lino_editorial .hero.aura-story-cover .aura-quick-action,
-.theme-wedding_lino_editorial .hero.aura-story-cover .aura-enter{border-radius:2px!important}
+.theme-wedding_lino_editorial .hero.aura-story-cover .aura-enter{border-radius:var(--trial-radius)!important}
 .theme-wedding_lino_editorial .page .content .aura-screen{
   background:linear-gradient(176deg,var(--bg),color-mix(in srgb,var(--bg) 91%,var(--card)))!important
 }
@@ -135,7 +135,7 @@
 }
 .theme-wedding_velo_sobrio .hero.aura-story-cover .hero-overlay{
   position:absolute!important;inset:0!important;height:100%!important;
-  background:linear-gradient(to bottom,transparent 0 44%,color-mix(in srgb,var(--heading) 18%,transparent) 85%,color-mix(in srgb,var(--heading) 27%,transparent))!important
+  background:linear-gradient(to bottom,transparent 0 44%,color-mix(in srgb,var(--heading) 18%,transparent) 85%,color-mix(in srgb,var(--heading) 27%,transparent)),var(--trial-overlay)!important
 }
 .theme-wedding_velo_sobrio .hero.aura-story-cover .hero-inner{
   padding:clamp(20px,5vw,34px)!important;
@@ -145,7 +145,7 @@
   -webkit-backdrop-filter:blur(8px)!important;backdrop-filter:blur(8px)!important
 }
 .theme-wedding_velo_sobrio .hero.aura-story-cover .aura-quick-action,
-.theme-wedding_velo_sobrio .hero.aura-story-cover .aura-enter{border-radius:999px!important}
+.theme-wedding_velo_sobrio .hero.aura-story-cover .aura-enter{border-radius:var(--trial-radius)!important}
 .theme-wedding_velo_sobrio .page .content .aura-screen{
   background:linear-gradient(160deg,var(--bg),color-mix(in srgb,var(--bg) 85%,var(--card)))!important
 }
@@ -168,7 +168,7 @@
   outline:1px solid color-mix(in srgb,var(--accent) 33%,transparent)!important;
   box-shadow:0 12px 24px color-mix(in srgb,var(--heading) 8%,transparent)!important
 }
-.theme-wedding_papel_artesanal .hero.aura-story-cover .hero-overlay{display:none!important}
+.theme-wedding_papel_artesanal .hero.aura-story-cover .hero-overlay{position:absolute!important;inset:15px 15px auto 15px!important;height:clamp(308px,52svh,545px)!important;background:var(--trial-overlay)!important;pointer-events:none!important}
 .theme-wedding_papel_artesanal .hero.aura-story-cover .hero-inner{
   padding:clamp(14px,3svh,30px) 10px 0!important;
   background:transparent!important;border:0!important;box-shadow:none!important;
@@ -178,7 +178,7 @@
   content:'✳';display:block;margin:0 auto 12px;color:var(--accent);font:400 20px/1 var(--display)
 }
 .theme-wedding_papel_artesanal .hero.aura-story-cover .aura-quick-action,
-.theme-wedding_papel_artesanal .hero.aura-story-cover .aura-enter{border-radius:3px!important}
+.theme-wedding_papel_artesanal .hero.aura-story-cover .aura-enter{border-radius:var(--trial-radius)!important}
 .theme-wedding_papel_artesanal .page .content .aura-screen{
   background-color:var(--bg)!important;
   background-image:repeating-linear-gradient(107deg,transparent 0 6px,color-mix(in srgb,var(--heading) 1%,transparent) 7px 8px,transparent 9px 17px)!important
@@ -207,7 +207,9 @@
  coverCss=function(p){
   const base=priorCoverCss(p);
   if(!p||!ids.includes(p.themeVisual))return base;
-  return base+'.theme-'+p.themeVisual+'{--trial-button:'+rgba(p.primaryColor,bounded(p.buttonOpacity,.92,0,1))+';}\n'+styles;
+  const buttonColor=p.heroButtonUsePalette===false&&p.heroButtonColor?p.heroButtonColor:p.primaryColor;
+  const radius=p.heroButtonShape==='pill'?'999px':p.heroButtonShape==='rounded'?'12px':p.heroButtonShape==='square'?'0px':(p.themeVisual==='wedding_velo_sobrio'?'999px':'2px');
+  return base+'.theme-'+p.themeVisual+'{--trial-button:'+rgba(buttonColor,bounded(p.buttonOpacity,.92,0,1))+';--trial-overlay:'+rgba(p.overlayColor||'#000000',bounded(p.overlayOpacity,.1,0,1))+';--trial-radius:'+radius+';}\n'+styles;
  };
  function activate(){
   const selector=document.getElementById('themeVisual');
