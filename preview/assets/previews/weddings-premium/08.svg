@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="540" viewBox="0 0 360 540">
+<defs>
+<linearGradient id="warm" x2=".15" y2="1"><stop stop-color="#fbe5cd"/><stop offset=".52" stop-color="#e8b5aa"/><stop offset="1" stop-color="#926e69"/></linearGradient>
+<linearGradient id="silk" x2="1" y2=".7"><stop stop-color="#e9c6bc"/><stop offset=".5" stop-color="#fff5eb"/><stop offset="1" stop-color="#e4baaf"/></linearGradient>
+<linearGradient id="under" x2="1" y2="1"><stop stop-color="#bc8981"/><stop offset="1" stop-color="#ecddd1"/></linearGradient>
+<pattern id="n" width="7" height="8" patternUnits="userSpaceOnUse"><circle cx="2" cy="3" r=".36" fill="#5f3e3a" opacity=".15"/></pattern>
+</defs>
+<rect width="360" height="540" fill="url(#silk)"/><rect width="360" height="540" fill="url(#n)"/>
+<rect width="360" height="332" fill="url(#warm)"/>
+<circle cx="67" cy="81" r="46" fill="#fff2d7" opacity=".68"/>
+<path d="M0 207Q116 127 237 211T360 201V320H0Z" fill="#937473" opacity=".34"/>
+<g transform="translate(55 20)">
+<path d="M112 72q-19-24-38-4t-8 40q9 15 26 17l-25 58q-67 46-63 130h216q-29-105-85-131l-10-67q35-17 12-46t-25 3" fill="#f7e7df" opacity=".9"/>
+<path d="M79 85q-6-32 20-40 22-8 36 11l2 46-19 26-33-6Z" fill="#f1bcaa"/>
+<path d="M73 89q-4-50 31-54 34-4 39 51-15-26-38-24-19 14-32 27Z" fill="#60423f"/>
+<path d="M89 158q-47 68-42 154M120 160q35 91 35 151M137 181q39 47 47 128" fill="none" stroke="#fff8ef" opacity=".69" stroke-width="3"/>
+<path d="M146 69q26-31 49-10t18 47q-2 23-17 31l28 51 13 121h-65l-27-122" fill="#b99280"/>
+<path d="M169 79q0-39 24-31 17 7 13 44-12 27-26 25Z" fill="#dbad96"/>
+<path d="M163 67q9-28 26-29t26 36q-20-17-52-7Z" fill="#523b39"/>
+<path d="M148 155q-3 41-28 59" stroke="#f4cec1" stroke-width="5" fill="none"/>
+</g>
+<path d="M-10 251Q103 390 213 321T370 304V540H-10Z" fill="url(#under)"/>
+<path d="M-10 280Q111 390 217 341T370 322V540H-10Z" fill="#e9c9bd"/>
+<path d="M-10 305Q111 413 216 362T370 337V540H-10Z" fill="url(#silk)"/>
+<path d="M-10 305Q111 413 216 362T370 337" fill="none" stroke="#fff6ed" stroke-width="2.6" opacity=".8"/>
+<path d="M-10 280Q111 390 217 341T370 322" fill="none" stroke="#b58777" stroke-width="1.1" opacity=".6"/>
+<g font-family="Georgia,serif" text-anchor="middle">
+<text x="180" y="391" fill="#845d56" font-family="sans-serif" font-size="8.8" letter-spacing="4">NUESTRA BODA</text>
+<text x="180" y="442" fill="#4e3935" font-size="48" font-style="italic">Sofía</text>
+<text x="180" y="463" fill="#bd8b82" font-size="23" font-style="italic">y</text>
+<text x="180" y="506" fill="#4e3935" font-size="48" font-style="italic">Mateo</text>
+<text x="180" y="530" fill="#865b55" font-family="sans-serif" font-size="8.5" letter-spacing="3.5">25 · MAYO · 2027</text>
+</g></svg>
