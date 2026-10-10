@@ -623,8 +623,69 @@ ${C} .aura-screen-gallery .aura-gallery-grid{
   // object-position / object-fit configurados para cada fotografía.
   return normalize+(typeof auraGalleryStyleCss555==='function'?auraGalleryStyleCss555(p):'');
 }
+  function mediterraneanBannerCss(p){
+ if(p?.themeVisual!=='wedding_mediterranean')return '';
+ const C='.theme-wedding_mediterranean';
+ // Solo figura de banner vertical/auto, NUNCA div.banner-horizontal.
+ // Las imágenes crecen conforme a su proporción natural, sin máximo de altura.
+ return `
+${C} .page > figure.banner-media.banner-vertical,
+${C} .page > figure.banner-media.banner-auto,
+${C} .page .content > figure.banner-media.banner-vertical,
+${C} .page .content > figure.banner-media.banner-auto{
+ display:block!important;
+ position:relative!important;
+ box-sizing:border-box!important;
+ height:auto!important;
+ min-height:0!important;
+ max-height:none!important;
+ aspect-ratio:auto!important;
+ margin:clamp(14px,3vw,30px) auto!important;
+ padding:0!important;
+ overflow:visible!important;
+ background:transparent!important;
+ background-image:none!important;
+ border:0!important;
+ border-radius:0!important;
+ box-shadow:none!important;
+ align-self:center!important;
+}
+${C} .page > figure.banner-media.banner-vertical,
+${C} .page > figure.banner-media.banner-auto{
+ width:min(100%,680px)!important;max-width:100%!important;
+}
+${C} .page .content > figure.banner-media.banner-vertical,
+${C} .page .content > figure.banner-media.banner-auto{
+ width:min(calc(100% - 24px),650px)!important;
+ max-width:100%!important;
+}
+${C} .page figure.banner-media.banner-vertical > img,
+${C} .page figure.banner-media.banner-auto > img{
+ display:block!important;
+ box-sizing:border-box!important;
+ width:100%!important;
+ max-width:100%!important;
+ height:auto!important;
+ min-height:0!important;
+ max-height:none!important;
+ aspect-ratio:auto!important;
+ object-fit:contain!important;
+ position:static!important;
+ inset:auto!important;
+ transform:none!important;
+ filter:none!important;
+ clip-path:none!important;
+}
+${C} .page figure.banner-media.banner-vertical::before,
+${C} .page figure.banner-media.banner-vertical::after,
+${C} .page figure.banner-media.banner-auto::before,
+${C} .page figure.banner-media.banner-auto::after{
+ display:none!important;content:none!important;
+}
+`;
+}
   const _coverCss=coverCss;
-  coverCss=function(p){return _coverCss(p)+decorationCss(p)+mediterraneanCoverFramingCss(p)+mediterraneanTextFlowCss(p)+mediterraneanGalleryRespectCss(p)};
+  coverCss=function(p){return _coverCss(p)+decorationCss(p)+mediterraneanCoverFramingCss(p)+mediterraneanTextFlowCss(p)+mediterraneanGalleryRespectCss(p)+mediterraneanBannerCss(p)};
   const _editionCss=editionCss;
   editionCss=function(p,t,a){return _editionCss(p,t,a)};
   const _fullCss=invitationCss;
