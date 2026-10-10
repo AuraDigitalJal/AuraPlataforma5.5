@@ -826,6 +826,7 @@ ${C} .aura-screen-gallery .aura-gallery-grid.gallery.polaroid_pro > figure.aura-
     const stageNames=['date','family','location','close'];
     const stageSelector=stageNames.map(k=>C+' .page .content .aura-screen-'+k+':has(.aura-'+k+'-photo:not(.aura-stage-photo-empty))').join(',\n');
     const shellSelector=stageNames.map(k=>C+' .page .content .aura-screen-'+k+':has(.aura-'+k+'-photo:not(.aura-stage-photo-empty))>.aura-screen-shell').join(',\n');
+    const shellOverlaySelector=stageNames.map(k=>C+' .page .content .aura-screen-'+k+':has(.aura-'+k+'-photo:not(.aura-stage-photo-empty))>.aura-screen-shell::after').join(',\n');
     const imageSelector=stageNames.map(k=>C+' .page .content .aura-screen-'+k+' .aura-'+k+'-photo:not(.aura-stage-photo-empty)').join(',\n');
     const panelSelector=stageNames.map(k=>C+' .page .content .aura-screen-'+k+':has(.aura-'+k+'-photo:not(.aura-stage-photo-empty)) .aura-'+k+'-panel').join(',\n');
     const surface='linear-gradient(90deg,'+rgba(dark,alpha)+','+rgba(accent,alpha)+')';
@@ -847,7 +848,7 @@ ${C} .page .content>section.aura-screen>.aura-screen-shell{
 ${shellSelector}{
  position:relative!important;isolation:isolate!important;
 }
-${shellSelector}::after{
+${shellOverlaySelector}{
  content:''!important;display:block!important;position:absolute!important;
  inset:0!important;width:100%!important;height:100%!important;
  z-index:1!important;pointer-events:none!important;border:0!important;
