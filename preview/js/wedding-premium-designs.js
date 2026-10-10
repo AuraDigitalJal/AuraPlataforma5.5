@@ -690,9 +690,39 @@ ${C} .page figure.banner-media.banner-auto::after{
   editionCss=function(p,t,a){return _editionCss(p,t,a)};
   const _fullCss=invitationCss;
   invitationCss=function(p,t,a){return _fullCss(p,t,a)};
+  function bindMediterraneanPortraitBanners(){
+ const mappings=[['bannerFile','bannerMode'],['bannerExtraFile','bannerExtraMode'],['bannerExtra2File','bannerExtra2Mode']];
+ for(const [fileId,modeId] of mappings){
+  const field=document.getElementById(fileId);
+  const select=document.getElementById(modeId);
+  if(!field||!select||field.dataset.medBannerAutoBound==='true')continue;
+  field.dataset.medBannerAutoBound='true';
+  select.addEventListener('change',()=>{select.dataset.medBannerUserChanged='true';});
+  field.addEventListener('change',()=>{
+   if(document.getElementById('themeVisual')?.value!=='wedding_mediterranean')return;
+   const file=field.files?.[0];
+   if(!file||!file.type.startsWith('image/')||select.dataset.medBannerUserChanged==='true')return;
+   const url=URL.createObjectURL(file),img=new Image();
+   const finish=()=>URL.revokeObjectURL(url);
+   img.onload=()=>{
+    const portrait=img.naturalHeight>img.naturalWidth;
+    finish();
+    if(portrait&&select.value==='horizontal'){
+     select.value='auto';
+     select.dispatchEvent(new Event('change',{bubbles:true}));
+     // Es una selección automática, el usuario aún puede cambiarla a Horizontal.
+     delete select.dataset.medBannerUserChanged;
+    }
+   };
+   img.onerror=finish;
+   img.src=url;
+  });
+ }
+}
   const run=()=>{
     // Actualizar las miniaturas originales en el catálogo visible.
     if(typeof renderThemeStrip==='function')renderThemeStrip();
+    bindMediterraneanPortraitBanners();
   };
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',run);else run();
 })();
