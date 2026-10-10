@@ -885,10 +885,16 @@ ${C} .page .content .aura-screen-close:has(.aura-luxury-subject) .aura-close-pan
  margin:-98px auto 0!important;
  padding:clamp(28px,6vw,42px) clamp(20px,6vw,36px)!important;
  border:1px solid ${border}!important;border-radius:18px!important;
- background:linear-gradient(145deg,${rgba(dark,.82)},${rgba(dark,.92)})!important;
+ background:linear-gradient(145deg,${rgba(dark,.72)},${rgba(dark,.86)})!important;
  box-shadow:0 24px 58px rgba(0,0,0,.24)!important;
  color:${white}!important;filter:none!important;transform:none!important;
  -webkit-backdrop-filter:blur(20px)!important;backdrop-filter:blur(20px)!important;
+}
+/* Texto de ubicación compacto: que no consuma toda la zona de cristal. */
+${C} .page .content .aura-screen-location .aura-location-panel>h2{
+ font-size:clamp(34px,8.4vw,49px)!important;
+ max-width:15ch!important;line-height:1.08!important;
+ margin:0 auto 24px!important;text-wrap:balance!important;
 }
 ${C} .page .content .aura-screen-date .aura-date-panel h2,
 ${C} .page .content .aura-screen-family .aura-family-panel h2,
