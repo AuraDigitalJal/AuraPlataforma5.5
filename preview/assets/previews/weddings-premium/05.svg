@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="540" viewBox="0 0 360 540">
+<defs>
+<linearGradient id="sky" x2=".25" y2="1"><stop stop-color="#ead7b5"/><stop offset=".48" stop-color="#fae1b3"/><stop offset="1" stop-color="#b9c4bd"/></linearGradient>
+<linearGradient id="sea" y2="1"><stop stop-color="#c9d0ca"/><stop offset="1" stop-color="#718c8e"/></linearGradient>
+<linearGradient id="stone" x2=".8" y2="1"><stop stop-color="#f1dbc0"/><stop offset="1" stop-color="#b8a48d"/></linearGradient>
+<linearGradient id="paper" x2=".6" y2="1"><stop stop-color="#faf6ea"/><stop offset="1" stop-color="#eae2d3"/></linearGradient>
+<pattern id="grain" width="6" height="7" patternUnits="userSpaceOnUse"><circle cx="1" cy="4" r=".32" fill="#715d46" opacity=".16"/><circle cx="4" cy="1" r=".28" fill="#fff" opacity=".28"/></pattern>
+<clipPath id="arch"><path d="M16 292V114C16 55 83 14 180 14s164 41 164 100v178Z"/></clipPath>
+</defs>
+<rect width="360" height="540" fill="url(#paper)"/><rect width="360" height="540" fill="url(#grain)"/>
+<g clip-path="url(#arch)">
+<rect x="16" y="14" width="328" height="290" fill="url(#sky)"/>
+<circle cx="57" cy="114" r="58" fill="#fff1b8" opacity=".76"/>
+<path d="M0 175Q63 135 139 164T360 134V298H0Z" fill="#9e9d8f" opacity=".59"/>
+<path d="M0 210Q93 156 158 202T362 179V303H0Z" fill="#768c8a" opacity=".65"/>
+<path d="M0 214H360V303H0Z" fill="url(#sea)"/>
+<path d="M0 247Q115 218 360 237" fill="none" stroke="#fff5d0" stroke-width="2" opacity=".4"/>
+<path d="M239 114l105-40v222H237z" fill="url(#stone)"/>
+<path d="M249 92l86-23v168H258z" fill="#d7c1a6" opacity=".78"/>
+<path d="M248 200h98v8h-98z" fill="#c9aa86"/><path d="M237 222h113v81H237z" fill="#dcc5a3"/>
+<path d="M16 280L341 259v35H16z" fill="#c6aa86"/><path d="M16 291L343 270" stroke="#f5e5c8" stroke-width="4"/>
+<g fill="#4c6050" opacity=".9">
+<path d="M302 17q-23 41-19 97" fill="none" stroke="#566b4e" stroke-width="5"/>
+<ellipse cx="281" cy="38" rx="12" ry="25" transform="rotate(-40 281 38)"/>
+<ellipse cx="304" cy="61" rx="10" ry="23" transform="rotate(38 304 61)"/>
+<ellipse cx="281" cy="78" rx="11" ry="24" transform="rotate(-32 281 78)"/>
+<ellipse cx="312" cy="109" rx="11" ry="23" transform="rotate(47 312 109)"/>
+</g><g fill="#eee2cc"><circle cx="295" cy="63" r="5"/><circle cx="269" cy="91" r="4"/><circle cx="323" cy="106" r="5"/></g>
+</g>
+<path d="M16 292V114C16 55 83 14 180 14s164 41 164 100v178" fill="none" stroke="#42677d" stroke-width="1.4" opacity=".68"/>
+<path d="M0 297C99 324 175 355 271 327Q322 315 360 290V540H0Z" fill="url(#paper)"/>
+<path d="M0 297C99 324 175 355 271 327Q322 315 360 290" fill="none" stroke="#486a7d" stroke-width="1.4" opacity=".68"/>
+<g stroke="#61705a" fill="none" stroke-width="2" opacity=".63"><path d="M-5 362Q37 345 79 382"/><path d="M7 355Q22 374 37 388"/><path d="M39 364Q57 335 71 335"/></g>
+<g fill="#82917d" opacity=".69"><ellipse cx="19" cy="365" rx="9" ry="24" transform="rotate(-56 19 365)"/><ellipse cx="46" cy="376" rx="9" ry="23" transform="rotate(-60 46 376)"/><ellipse cx="62" cy="343" rx="9" ry="22" transform="rotate(31 62 343)"/></g>
+<g font-family="Georgia,serif" text-anchor="middle">
+<text x="180" y="359" fill="#45697b" font-size="9" letter-spacing="5">NUESTRA BODA</text>
+<path d="M103 373H257" stroke="#9b967f" stroke-width=".7"/><path d="M180 367l7 7-7 7-7-7Z" fill="#54748a" stroke="#fff4de" stroke-width="2"/>
+<text x="180" y="424" fill="#4a3a30" font-size="48" font-style="italic">Sofía</text>
+<text x="180" y="449" fill="#87745c" font-size="22" font-style="italic">y</text>
+<text x="180" y="492" fill="#4a3a30" font-size="48" font-style="italic">Mateo</text>
+<text x="180" y="517" fill="#4e6576" font-family="sans-serif" letter-spacing="4" font-size="9">25 · MAYO · 2027</text>
+</g></svg>
