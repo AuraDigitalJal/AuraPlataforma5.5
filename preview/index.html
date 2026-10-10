@@ -9,7 +9,7 @@
     // Las pruebas siempre abren la revisión más reciente, incluso desde un enlace viejo.
     (function () {
       if (window.location.protocol === 'file:') return;
-      var build = 'mediterranea-retratos-protegidos-20261009-v3';
+      var build = 'mediterranea-retrato-headroom-real-20261009-v4';
       var target = new URL(window.location.href);
       if (target.searchParams.get('v') === build) return;
       target.searchParams.set('v', build);
@@ -18,8 +18,8 @@
   </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#f2eee8" />
-  <title>Aura Digital · Pruebas · Mediterránea retratos v3</title>
-  <link rel="stylesheet" href="css/style.css?v=mediterranea-retratos-protegidos-20261009-v3" />
+  <title>Aura Digital · Pruebas · Mediterránea retratos v4</title>
+  <link rel="stylesheet" href="css/style.css?v=mediterranea-retrato-headroom-real-20261009-v4" />
   <script src="js/vendor/jszip.min.js"></script>
   
 <style id="aura-gallery-delete-style">
@@ -42,7 +42,7 @@
 <body>
   <div id="app">
     <header class="topbar">
-      <div class="topbar-brand"><span class="brand-mark small">A</span><div><strong>AURA DIGITAL</strong><small>Invitation Studio · PRUEBAS · Mediterránea retratos v3</small></div></div>
+      <div class="topbar-brand"><span class="brand-mark small">A</span><div><strong>AURA DIGITAL</strong><small>Invitation Studio · PRUEBAS · Mediterránea retratos v4</small></div></div>
       <div class="topbar-actions">
         <span class="save-indicator"><i></i> Vista en vivo</span>
         <button type="button" id="open-preview-window" class="btn secondary">Abrir preview ↗</button>
@@ -122,9 +122,9 @@
                   </label>
                 </div>
                 <label>Altura de foto y curva
-                  <input type="range" id="auraHeroCurveY" min="45" max="86" step="1" value="78">
+                  <input type="range" id="auraHeroCurveY" min="45" max="94" step="1" value="90">
                 </label>
-                <p class="helper">La curva baja y se escala con toda la fotografía, sin desplazar únicamente la línea. En posición vertical, 0 muestra más la parte superior de la imagen. Para mover solo el texto usa «Ajustar texto y acomodo».</p>
+                <p class="helper">En retratos verticales se conserva la parte superior y se deja aire encima para proteger las cabezas. La curva ahora queda mucho más abajo. El resto de las fotos conserva su encuadre normal.</p>
               </div>
               <div class="cover-label-settings"><label class="cover-check"><input type="checkbox" id="showHeroLabel" checked> Mostrar etiqueta del evento <small>(opcional)</small></label><label>Texto de la etiqueta<input type="text" id="heroLabelText" placeholder="Automático según el evento"><small id="hero-label-hint" class="field-hint"></small></label><label>Tamaño de etiqueta<select id="heroLabelSize"><option value="auto">Del diseño</option><option value="xs">XS</option><option value="s">S</option><option value="m">M</option><option value="l">L</option><option value="xl">XL</option></select></label></div>
               <label>Título principal<textarea id="title" rows="2">Ana &amp; Carlos</textarea><small class="field-hint">Enter permite elegir dónde separar los nombres en líneas.</small><span class="text-size-control"><span>Tamaño</span><select class="text-size-select" id="titleSize"><option value="auto" selected>Automático</option><option value="xs">XS</option><option value="s">S</option><option value="m">M</option><option value="l">L</option><option value="xl">XL</option></select></span></label>
@@ -426,8 +426,8 @@
   </dialog>
 
   <script src="js/font-data.js?v=5.6.17"></script>
-  <script src="preview/js/script.js?v=mediterranea-retratos-protegidos-20261009-v3"></script>
-  <script src="preview/js/fixed-copy-editor.js?v=mediterranea-retratos-protegidos-20261009-v3"></script>
-  <script src="preview/js/wedding-premium-designs.js?v=mediterranea-retratos-protegidos-20261009-v3"></script>
+  <script src="preview/js/script.js?v=mediterranea-retrato-headroom-real-20261009-v4"></script>
+  <script src="preview/js/fixed-copy-editor.js?v=mediterranea-retrato-headroom-real-20261009-v4"></script>
+  <script src="preview/js/wedding-premium-designs.js?v=mediterranea-retrato-headroom-real-20261009-v4"></script>
 </body>
 </html>

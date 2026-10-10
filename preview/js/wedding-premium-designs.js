@@ -477,17 +477,20 @@ ${C} .page .content .aura-screen-family .aura-family-portrait{width:100%!importa
  const C='.theme-wedding_mediterranean';
  const photoX=bounded(p.auraHeroPhotoX,50,0,100);
  const photoY=bounded(p.auraHeroPhotoY,18,0,100);
- const curve=bounded(p.auraHeroCurveY,78,45,86);
+ const curve=bounded(p.auraHeroCurveY,90,45,94);
  // El control representa el nivel real de la transición; no se añade un segundo bloque de foto.
  const photoBottom=curve+4;
  // La ondulación crece proporcionalmente con la zona de foto: nunca desplazar sólo el trazo.
  const waveDepth=Math.round(photoBottom*0.195*10)/10;
+ // Aire visible real en retratos, no un cambio ilusorio de background-position.
+ const portraitHeadroom=11;
  const textOffset=bounded(p.heroOffset,0,-200,200);
  return `
 /* El marco fotográfico contiene el SVG de la curva y el velo, sin medidas divergentes. */
 ${C} .hero.aura-story-cover{
  --med-photo-bottom:${photoBottom}svh;
  --med-wave-depth:${waveDepth}svh;
+ --med-portrait-headroom:${portraitHeadroom}svh;
  min-height:100svh!important;
  height:auto!important;
  justify-content:flex-start!important;
@@ -517,6 +520,27 @@ ${C} .hero.aura-story-cover .ap-cover-photo-frame .hero-media{
 ${C} .hero.aura-story-cover .ap-cover-photo-frame .hero-overlay{
  z-index:2!important;pointer-events:none!important;
 }
+/* Sólo cuando la fotografía subida es vertical: conservar su borde superior,
+   dejar aire real arriba y evitar que COVER descabece retratos muy ajustados.
+   El fondo difuminado usa la misma fotografía, no un archivo nuevo. */
+${C} .hero.aura-story-cover.ap-med-portrait-safe .ap-cover-photo-frame .hero-media{
+ background-position:center center!important;
+}
+${C} .hero.aura-story-cover.ap-med-portrait-safe .ap-cover-photo-frame .hero-media::before{
+ content:''!important;display:block!important;position:absolute!important;
+ inset:-20px!important;z-index:1!important;pointer-events:none!important;
+ background-image:inherit!important;background-size:cover!important;
+ background-position:center top!important;background-repeat:no-repeat!important;
+ filter:blur(22px) saturate(.78) brightness(.93)!important;
+ transform:scale(1.06)!important;
+}
+${C} .hero.aura-story-cover.ap-med-portrait-safe .ap-cover-photo-frame .hero-media::after{
+ content:''!important;display:block!important;position:absolute!important;
+ inset:var(--med-portrait-headroom) 0 0!important;
+ z-index:2!important;pointer-events:none!important;
+ background-image:inherit!important;background-size:cover!important;
+ background-position:${photoX}% top!important;background-repeat:no-repeat!important;
+}
 ${C} .hero.aura-story-cover .ap-cover-photo-frame .ap-cover-seam{
  display:block!important;position:absolute!important;
  top:auto!important;bottom:-1px!important;left:0!important;right:0!important;
@@ -543,7 +567,7 @@ ${C} .hero.aura-story-cover .hero-inner{
     const p=_getFormParamsMed();
     p.auraHeroPhotoX=document.getElementById('auraHeroPhotoX')?.value??'50';
     p.auraHeroPhotoY=document.getElementById('auraHeroPhotoY')?.value??'18';
-    p.auraHeroCurveY=document.getElementById('auraHeroCurveY')?.value??'78';
+    p.auraHeroCurveY=document.getElementById('auraHeroCurveY')?.value??'90';
     return p;
   };
   const _applyConfigMed=applyConfig;
@@ -552,12 +576,12 @@ ${C} .hero.aura-story-cover .hero-inner{
     // Actualizar el par de valores predeterminados usado en la prueba anterior.
     // No alterar ajustes manuales diferentes ni la plataforma oficial.
     if(incoming?.themeVisual==='wedding_mediterranean' &&
-       String(incoming.auraHeroPhotoY)==='32' &&
-       String(incoming.auraHeroCurveY)==='73'){
+       ((String(incoming.auraHeroPhotoY)==='32' && String(incoming.auraHeroCurveY)==='73') ||
+        (String(incoming.auraHeroPhotoY)==='18' && String(incoming.auraHeroCurveY)==='78'))){
       incoming.auraHeroPhotoY='18';
-      incoming.auraHeroCurveY='78';
+      incoming.auraHeroCurveY='90';
     }
-    for(const [id,def] of [['auraHeroPhotoX','50'],['auraHeroPhotoY','18'],['auraHeroCurveY','78']]){
+    for(const [id,def] of [['auraHeroPhotoX','50'],['auraHeroPhotoY','18'],['auraHeroCurveY','90']]){
       if(incoming?.[id]===undefined||incoming[id]===null){
         const control=document.getElementById(id);
         if(control)control.value=def;
@@ -903,6 +927,29 @@ ${shell('close')} .aura-close-panel{margin:0!important}
 }
 `;
   }
+
+  /* La exportación y la vista previa emplean el MISMO HTML.
+     Detectar la relación de aspecto real del archivo en ambos contextos. */
+  function auraMedPortraitCropSafety(){
+    const hero=document.querySelector('body.theme-wedding_mediterranean .hero.aura-story-cover');
+    const media=hero?.querySelector('.ap-cover-photo-frame .hero-media');
+    if(!hero||!media)return;
+    const bg=getComputedStyle(media).backgroundImage;
+    const urlMatch=bg.match(/url\(\s*(?:"([^"]+)"|'([^']+)'|([^)]*))\s*\)/);
+    const imageUrl=urlMatch&&(urlMatch[1]||urlMatch[2]||urlMatch[3])?.trim();
+    if(!imageUrl)return;
+    const probe=new Image();
+    probe.onload=()=>{
+      if(!hero.isConnected)return;
+      hero.classList.toggle('ap-med-portrait-safe',probe.naturalHeight>probe.naturalWidth);
+    };
+    probe.onerror=()=>hero.classList.remove('ap-med-portrait-safe');
+    probe.src=imageUrl;
+  }
+  const _invitationJsMedPortrait=invitationJs;
+  invitationJs=function(){
+    return _invitationJsMedPortrait()+';('+auraMedPortraitCropSafety.toString()+')();';
+  };
   const _coverCss=coverCss;
   coverCss=function(p){return _coverCss(p)+decorationCss(p)+mediterraneanCoverFramingCss(p)+mediterraneanTextFlowCss(p)+mediterraneanGalleryRespectCss(p)+editorialBannerCss(p)+editorialGalleryLayoutRepairCss(p)+luxuryHeritageGlassScenesCss(p)};
   const _editionCss=editionCss;
