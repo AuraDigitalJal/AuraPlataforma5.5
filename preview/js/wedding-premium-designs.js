@@ -127,8 +127,225 @@ ${C} .page .content .aura-gallery-tile{border-radius:48% 48% 7px 7px / 13% 13% 0
 ${C} .page .content .aura-gallery-tile:first-child{grid-column:1/-1!important;aspect-ratio:5/4!important}
 `;
     }
-    return css+parameterResponsiveCss(p);
+    return css+parameterResponsiveCss(p)+artDirectedLayoutCss(p);
   }
+  function artDirectedLayoutCss(p){
+  const k=p.themeVisual;
+  const C='.theme-'+k;
+  const v=bounded(p.contentBgOpacity,.94,0,1);
+  const base=p.bgContentColor||'#fcf8f1',ink=p.headingColor||'#44342e',accent=p.primaryColor||'#aa8171';
+  const matte=rgba(base,v), tinted=rgba(base,v*.92), line=rgba(accent,v*.27);
+  const has=['.aura-screen-date','.aura-screen-family','.aura-screen-location'];
+  const image=['.aura-date-photo','.aura-family-photo','.aura-location-photo'];
+  const panels=['.aura-date-panel','.aura-family-panel','.aura-location-panel'];
+  const shellSel=has.map(h=>C+' .page .content '+h+':has(.aura-stage-photo:not(.aura-stage-photo-empty)) .aura-screen-shell').join(',');
+  const imageSel=image.map(h=>C+' .page .content '+h+':not(.aura-stage-photo-empty)').join(',');
+  const panelSel=has.map((h,i)=>C+' .page .content '+h+':has(.aura-stage-photo:not(.aura-stage-photo-empty)) '+panels[i]).join(',');
+  const familyWrap=C+' .page .content .aura-screen-family:has(.aura-family-photo:not(.aura-stage-photo-empty)) .aura-family-portrait';
+  const close=C+' .page .content .aura-screen-close:has(.aura-close-photo:not(.aura-stage-photo-empty))';
+  let css=`
+/* BOUTIQUE v5 - composiciones fotografica/editorial. Portada intacta. */
+${shellSel}{
+  position:relative!important;isolation:isolate!important;display:block!important;
+  box-sizing:border-box!important;max-width:610px!important;
+  min-height:0!important;height:auto!important;overflow:visible!important;
+}
+${imageSel}{
+  position:relative!important;inset:auto!important;display:block!important;
+  height:clamp(350px,58svh,590px)!important;
+  max-height:none!important;min-height:0!important;
+  background-size:cover!important;
+  box-sizing:border-box!important;z-index:1!important;
+  filter:none!important;transform:none!important;
+}
+${panelSel}{
+  position:relative!important;inset:auto!important;box-sizing:border-box!important;
+  height:auto!important;min-height:0!important;max-width:100%!important;
+  z-index:3!important;text-align:center!important;
+  -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+}
+${familyWrap}{
+  display:block!important;position:relative!important;inset:auto!important;
+  min-height:0!important;height:auto!important;z-index:1!important;
+  padding:0!important;margin:0!important;width:100%!important;
+}
+${imageSel.split(',').map(s=>s+'::after').join(',')}{
+  content:none!important;display:none!important;background:none!important;
+}
+/* El cierre es una composición fotográfica autónoma, no una tarjeta debajo. */
+${close} .aura-close-shell{
+  position:relative!important;isolation:isolate!important;
+  display:grid!important;grid-template-columns:minmax(0,1fr)!important;
+  grid-template-rows:minmax(clamp(470px,74svh,740px),auto)!important;
+  width:min(100%,650px)!important;max-width:650px!important;
+  min-height:0!important;height:auto!important;
+  align-items:stretch!important;justify-items:center!important;
+  padding:0 clamp(9px,2vw,18px)!important;
+  overflow:visible!important;
+}
+${close} .aura-close-photo:not(.aura-stage-photo-empty){
+  grid-area:1/1!important;position:relative!important;inset:auto!important;
+  align-self:stretch!important;justify-self:stretch!important;
+  width:100%!important;max-width:none!important;
+  height:100%!important;min-height:clamp(470px,74svh,740px)!important;max-height:none!important;
+  margin:0!important;background-size:cover!important;
+  background-position:center!important;
+  border:0!important;box-shadow:none!important;filter:none!important;transform:none!important;
+  border-radius:24px!important;z-index:1!important;
+}
+${close} .aura-close-photo::after{
+  content:none!important;display:none!important;background:none!important;
+}
+${close} .aura-close-panel{
+  grid-area:1/1!important;align-self:end!important;justify-self:center!important;
+  position:relative!important;inset:auto!important;z-index:3!important;
+  width:min(88%,480px)!important;max-width:100%!important;
+  margin:0 auto 23px!important;
+  padding:clamp(24px,7vw,44px) clamp(18px,5vw,36px)!important;
+  border:1px solid ${line}!important;
+  border-radius:23px!important;
+  background:${matte}!important;background-image:none!important;
+  box-shadow:0 14px 38px ${rgba(ink,v*.14)}!important;
+  color:${ink}!important;transform:none!important;
+  -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+}
+${C} .page .content .aura-screen-close:not(:has(.aura-close-photo:not(.aura-stage-photo-empty))) .aura-close-panel{
+  display:block!important;margin:0 auto!important;position:relative!important;
+}
+@media(max-width:420px){
+${close} .aura-close-shell{grid-template-rows:minmax(490px,auto)!important}
+${close} .aura-close-photo:not(.aura-stage-photo-empty){min-height:490px!important}
+${close} .aura-close-panel{width:92%!important;margin-bottom:15px!important}
+}
+`;
+  if(k==='wedding_mediterranean'){
+    css+=`
+/* 05 — único nicho arquitectónico: foto y texto pertenecen a la misma pieza. */
+${shellSel}{
+  padding:clamp(12px,3vw,19px) clamp(12px,3vw,19px) 22px!important;
+  border:1px solid ${line}!important;
+  border-radius:230px 230px 16px 16px / 125px 125px 16px 16px!important;
+  background:${rgba(base,v*.94)}!important;
+  box-shadow:0 18px 40px ${rgba(ink,v*.045)}!important;
+}
+${imageSel}{
+  width:100%!important;max-width:none!important;
+  height:clamp(340px,54svh,570px)!important;
+  border:0!important;outline:0!important;
+  margin:0 auto!important;
+  border-radius:220px 220px 4px 4px / 123px 123px 4px 4px!important;
+  box-shadow:none!important;
+}
+${familyWrap}{width:100%!important}
+${panelSel}{
+  width:100%!important;max-width:none!important;
+  margin:0 auto!important;
+  padding:clamp(30px,7vw,48px) clamp(15px,5vw,36px) 28px!important;
+  border:0!important;border-radius:0!important;
+  background:transparent!important;background-image:none!important;
+  box-shadow:none!important;transform:none!important;
+}
+/* Un remate arquitectónico que está pegado al marco, no flota en el contenido. */
+${has.map((h)=>C+' .page .content '+h+':has(.aura-stage-photo:not(.aura-stage-photo-empty)) .aura-screen-shell::after').join(',')}{
+  content:''!important;display:block!important;
+  position:absolute!important;inset:auto 20% 13px 20%!important;
+  height:1px!important;background:${rgba(accent,v*.34)}!important;
+  pointer-events:none!important;
+}
+${close} .aura-close-photo:not(.aura-stage-photo-empty){
+  border-radius:220px 220px 11px 11px / 115px 115px 11px 11px!important}
+${close} .aura-close-panel{
+  border-radius:18px!important;
+  width:min(84%,450px)!important;
+}
+`;
+  } else if(k==='wedding_layers'){
+    css+=`
+/* 06 — la fotografía y el texto se cruzan como hojas de una composición real. */
+${shellSel}{
+  padding:12px 12px 24px!important;
+  background:transparent!important;border:0!important;
+}
+${imageSel}{
+  width:85%!important;max-width:510px!important;
+  margin:0 auto 0 2%!important;
+  height:clamp(370px,55svh,570px)!important;
+  border:clamp(7px,2.5vw,12px) solid ${rgba(base,Math.max(.22,v*.95))}!important;
+  border-radius:3px!important;outline:1px solid ${rgba(accent,v*.2)}!important;
+  box-shadow:15px 17px 0 ${rgba(accent,v*.115)},0 23px 45px ${rgba(ink,v*.16)}!important;
+  transform:rotate(-2.25deg)!important;
+  transform-origin:center!important;
+}
+${familyWrap}{margin:0!important}
+${panelSel}{
+  width:81%!important;max-width:490px!important;
+  margin:-130px 1% 12px auto!important;
+  padding:clamp(28px,7vw,48px) clamp(17px,5vw,33px)!important;
+  border:1px solid ${line}!important;
+  border-radius:3px!important;
+  background:${matte}!important;
+  box-shadow:-12px 14px 0 ${rgba(accent,v*.105)},0 24px 46px ${rgba(ink,v*.12)}!important;
+  transform:rotate(.9deg)!important;
+}
+${close} .aura-close-photo:not(.aura-stage-photo-empty){
+  border:clamp(7px,2vw,11px) solid ${rgba(base,Math.max(.25,v*.86))}!important;
+  border-radius:3px!important;transform:rotate(-1deg)!important;
+  box-shadow:11px 12px 0 ${rgba(accent,v*.12)}!important;
+}
+${close} .aura-close-panel{
+  width:min(76%,435px)!important;
+  margin:0 4% 24px auto!important;
+  border-radius:3px!important;
+  box-shadow:-10px 12px 0 ${rgba(accent,v*.13)},0 19px 35px ${rgba(ink,v*.14)}!important;
+  transform:rotate(.8deg)!important;
+}
+@media(max-width:420px){
+${panelSel}{width:87%!important;margin-top:-105px!important}
+${close} .aura-close-panel{width:82%!important}
+}
+`;
+  } else if(k==='wedding_curves'){
+    css+=`
+/* 08 — una sola silueta ondulante: la tarjeta es continuación del recorte. */
+${shellSel}{
+  padding:0 0 14px!important;
+  background:${rgba(base,v*.26)}!important;
+  border-radius:140px 140px 34px 34px / 80px 80px 34px 34px!important;
+  overflow:visible!important;
+  box-shadow:0 17px 42px ${rgba(ink,v*.08)}!important;
+}
+${imageSel}{
+  width:100%!important;max-width:none!important;
+  margin:0!important;height:clamp(365px,57svh,580px)!important;
+  border:0!important;outline:0!important;box-shadow:none!important;
+  border-radius:46% 46% 0 0 / 14% 14% 0 0!important;
+  clip-path:polygon(0 0,100% 0,100% 79%,95% 81%,90% 83%,85% 85%,
+   80% 87%,75% 89%,70% 91%,65% 92%,60% 93%,55% 94%,50% 94%,
+   45% 93%,40% 92%,35% 91%,30% 89%,25% 87%,20% 85%,15% 83%,
+   10% 81%,5% 80%,0 80%)!important;
+}
+${panelSel}{
+  width:100%!important;max-width:none!important;
+  margin:-105px auto 0!important;
+  padding:clamp(72px,15vw,103px) clamp(19px,6vw,44px) 30px!important;
+  border:0!important;border-radius:54% 46% 31px 31px / 85px 73px 31px 31px!important;
+  background:${matte}!important;background-image:none!important;
+  box-shadow:none!important;transform:none!important;
+}
+/* La tarjeta coincide con el borde de la fotografía; nada se superpone a la cara. */
+${close} .aura-close-photo:not(.aura-stage-photo-empty){
+  border-radius:46% 46% 32px 32px / 14% 14% 32px 32px!important}
+${close} .aura-close-panel{
+  width:min(89%,480px)!important;
+  border-radius:55px 26px 49px 25px!important;
+}
+@media(max-width:420px){
+${panelSel}{margin-top:-95px!important;padding-top:73px!important}
+}
+`;
+  }
+  return css;
+}
   function parameterResponsiveCss(p){
  const k=p.themeVisual,C='.theme-'+k, opacity=bounded(p.contentBgOpacity,.94,0,1),
  buttonOpacity=bounded(p.buttonOpacity,.92,0,1),
