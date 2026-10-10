@@ -968,11 +968,27 @@ ${C} .page .content .aura-screen-location .aura-locations{
     luxuryGlassDateShift:'0',luxuryGlassLocationShift:'0'
   };
   const _getFormParamsLuxuryGlass=getFormParams;
+  function refreshLuxuryGlassEditor(){
+    const el=document.getElementById('auraLuxuryGlassControls');
+    if(el)el.style.display=document.getElementById('themeVisual')?.value==='wedding_luxury'?'block':'none';
+  }
   getFormParams=function(){
     const p=_getFormParamsLuxuryGlass();
     for(const [key,def] of Object.entries(luxuryGlassDefaults))
       p[key]=document.getElementById(key)?.value??def;
+    refreshLuxuryGlassEditor();
     return p;
+  };
+  const _applyConfigLuxuryGlass=applyConfig;
+  applyConfig=function(cfg){
+    // Proyectos antiguos sin estos valores recuperan los predeterminados.
+    for(const [key,def] of Object.entries(luxuryGlassDefaults)){
+      const el=document.getElementById(key);
+      if(el && (!cfg || !Object.prototype.hasOwnProperty.call(cfg,key)))el.value=def;
+    }
+    const result=_applyConfigLuxuryGlass(cfg);
+    refreshLuxuryGlassEditor();
+    return result;
   };
   function mountLuxuryGlassEditor(){
     if(document.getElementById('auraLuxuryGlassControls'))return;
@@ -1005,9 +1021,7 @@ ${C} .page .content .aura-screen-location .aura-locations{
     `;
     // Evitar disparar cambios sobre otras secciones del formulario.
     main.insertBefore(container,document.getElementById('buttonOpacity')?.closest('label')||null);
-    const toggle=()=>{
-      container.style.display=document.getElementById('themeVisual')?.value==='wedding_luxury'?'block':'none';
-    };
+    const toggle=refreshLuxuryGlassEditor;
     document.getElementById('themeVisual')?.addEventListener('change',toggle);
     document.getElementById('designCollection')?.addEventListener('change',toggle);
     document.getElementById('config-form')?.addEventListener('input',e=>{
