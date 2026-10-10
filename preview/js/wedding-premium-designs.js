@@ -60,6 +60,8 @@ ${C} .hero.aura-story-cover .scroll-note{position:relative!important;z-index:5!i
 ${C} .hero.aura-story-cover .ap-sprig-wrap{position:absolute;z-index:4;left:-14px;top:clamp(353px,53svh,569px);width:145px;height:110px;pointer-events:none;opacity:.65;color:var(--ap-accent)}
 ${C} .hero.aura-story-cover .ap-craft-sprig{width:100%;height:100%;display:block}
 ${C} .page .content .aura-screen{background:var(--ap-card)!important;${paper};min-height:0!important}
+${C} .page .content .aura-screen::before,${C} .page .content .aura-screen::after{display:none!important;content:none!important}
+${C} .page .content .aura-gallery-ornament{display:none!important}
 ${C} .page .content .aura-screen-shell{position:relative!important;width:min(100%,660px)!important;margin:0 auto!important;padding:0 clamp(14px,4vw,28px)!important}
 ${C} .page .content .aura-stage-photo{filter:saturate(.87) contrast(1.02)!important;box-shadow:none!important;transform:none!important}
 ${C} .page .content .aura-date-panel,${C} .page .content .aura-family-panel,${C} .page .content .aura-location-panel,${C} .page .content .aura-close-panel,${C} .page .content .aura-confirm-panel,${C} .page .content .aura-transfer-panel,${C} .page .content .aura-video-panel{position:relative!important;z-index:2!important;transform:none!important;max-width:100%!important;box-sizing:border-box!important;text-align:center!important}
