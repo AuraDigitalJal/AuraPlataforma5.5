@@ -807,22 +807,25 @@ ${C} .aura-screen-gallery .aura-gallery-grid.gallery.polaroid_pro > figure.aura-
 
   /* Moderna de Lujo · solo refinamiento de tarjeta y superficie compartida.
      No se cambian fotografías, paletas, contenido ni controles del editor. */
+  /* Moderna de Lujo: fondo uniforme + una sola transición EN LA FOTO,
+     desde el 36% de su altura. No se dibujan capas de blur en las tarjetas:
+     Fecha/Familia/Ubicación conservan su cristal normal, y Cierre conserva
+     el degradado que tenía, sin un blur inventado. */
   function luxuryUnifiedSurfaceFadeCss(p){
     if(p?.themeVisual!=='wedding_luxury')return '';
     const C='body.theme-wedding_luxury',dark=paletteDark55(p);
     const accent=mixHex55(dark,p.primaryColor||'#a98a6c',.20);
     const alpha=bounded(p.contentBgOpacity,.82,0,1);
-    const start=Math.min(.34,alpha*.42),end=alpha;
     const surface='linear-gradient(90deg,'+rgba(dark,alpha)+','+rgba(accent,alpha)+')';
-    const panels=[
-      C+' .page .content .aura-screen-date:has(.aura-stage-photo:not(.aura-stage-photo-empty)) .aura-date-panel',
-      C+' .page .content .aura-screen-family:has(.aura-stage-photo:not(.aura-stage-photo-empty)) .aura-family-panel',
-      C+' .page .content .aura-screen-location:has(.aura-stage-photo:not(.aura-stage-photo-empty)) .aura-location-panel',
-      C+' .page .content .aura-screen-close:has(.aura-stage-photo:not(.aura-stage-photo-empty)) .aura-close-panel'
+    const photofade=[
+      C+' .page .content .aura-screen-date .aura-date-photo:not(.aura-stage-photo-empty)::after',
+      C+' .page .content .aura-screen-family .aura-family-photo:not(.aura-stage-photo-empty)::after',
+      C+' .page .content .aura-screen-location .aura-location-photo:not(.aura-stage-photo-empty)::after',
+      C+' .page .content .aura-screen-close .aura-close-photo:not(.aura-stage-photo-empty)::after'
     ];
     return `
-/* Un fondo para el contenido completo; sin variar el color entre secciones.
-   La imagen y el velo global de la invitación permanecen sin modificaciones. */
+/* Un solo fondo común, sin colores alternados ni dobles fondos por sección.
+   Imagen global y opacidad del velo conservan su funcionamiento normal. */
 ${C} .page{background:${surface}!important}
 ${C} .page .content{background:transparent!important;background-image:none!important}
 ${C} .page .content>section.aura-screen,
@@ -834,29 +837,24 @@ ${C} .page .content>section.aura-screen:nth-child(odd){
 ${C} .page .content>section.aura-screen>.aura-screen-shell{
  background:transparent!important;background-image:none!important;
 }
-/* Solo cuando hay foto: se difumina la parte superior de la tarjeta hacia ella.
-   No se añade ningún cuadro ni imagen. */
-${panels.join(',\n')}{
- position:relative!important;isolation:isolate!important;
- overflow:visible!important;
- background:transparent!important;background-image:none!important;
- -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
- border-top-color:transparent!important;
-}
-${panels.map(q=>q+'::before').join(',\n')}{
- content:''!important;position:absolute!important;inset:-82px 0 -1px!important;
- display:block!important;z-index:0!important;pointer-events:none!important;
+/* Inicia apenas pasado el primer tercio, antes de la mitad de la foto.
+   Continúa de manera progresiva hasta unir imagen y el tono del panel. */
+${photofade.join(',\n')}{
+ content:''!important;position:absolute!important;inset:0!important;
+ display:block!important;pointer-events:none!important;
+ border-radius:inherit!important;
  background:linear-gradient(to bottom,
-   ${rgba(dark,0)} 0px,
-   ${rgba(dark,start*.40)} 45px,
-   ${rgba(dark,start)} 96px,
-   ${rgba(dark,end)} 100%)!important;
- -webkit-backdrop-filter:blur(12px)!important;
- backdrop-filter:blur(12px)!important;
- -webkit-mask-image:linear-gradient(to bottom,transparent 0px,#000 80px,#000 100%)!important;
- mask-image:linear-gradient(to bottom,transparent 0px,#000 80px,#000 100%)!important;
+   ${rgba(dark,0)} 0%,
+   ${rgba(dark,0)} 36%,
+   ${rgba(dark,Math.min(.14,alpha*.18))} 49%,
+   ${rgba(dark,Math.min(.38,alpha*.48))} 66%,
+   ${rgba(dark,Math.min(.66,alpha*.82))} 84%,
+   ${rgba(dark,Math.min(.82,alpha))} 100%)!important;
+ -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+ -webkit-mask-image:none!important;mask-image:none!important;
 }
-${panels.map(q=>q+'>*').join(',\n')}{position:relative;z-index:1}
+/* No se sustituye la tarjeta: su degradado, border y blur originales
+   permanecen tal cual. En particular, Cierre no gana ningún blur. */
 `;
   }
   const _coverCss=coverCss;
