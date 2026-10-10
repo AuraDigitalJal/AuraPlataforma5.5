@@ -804,8 +804,136 @@ ${C} .aura-screen-gallery .aura-gallery-grid.gallery.polaroid_pro > figure.aura-
     default:return standard+foundation;
    }
   }
+
+  /* Moderna de Lujo · experimento exclusivo de la plataforma de PRUEBAS.
+     La fotografía real mantiene su relación de aspecto: no es un fondo recortado.
+     Panel inferior compacto y color de lectura constante entre paletas. */
+  const _luxuryOriginalStagePhoto=auraStagePhoto54;
+  auraStagePhoto54=function(src,extraClass='',p,index){
+    if(p?.themeVisual!=='wedding_luxury'||!src)return _luxuryOriginalStagePhoto(src,extraClass,p,index);
+    // El mismo asset se usa en vista previa, ZIP y publicación.
+    return '<div class="aura-stage-photo aura-luxury-natural-photo '+esc(extraClass)+'" aria-hidden="true"><img class="aura-luxury-natural-image" src="'+esc(src)+'" alt="" loading="lazy"></div>';
+  };
+  function luxuryPhotoFirstCss(p){
+    if(p?.themeVisual!=='wedding_luxury')return '';
+    const C='.theme-wedding_luxury';
+    // Fondo oscuro de la paleta; superficie legible independiente del color de texto global.
+    const base=typeof paletteDark55==='function'?paletteDark55(p):'#161219';
+    const ink='#fffaf5';
+    const soft='rgba(255,250,245,.80)';
+    const dim='rgba(255,250,245,.67)';
+    const edge=rgba(p.primaryColor||'#b69c87',.42);
+    return `
+/* Foto íntegra, sin height/cover forzados, para fecha, familia, ubicación y cierre. */
+${C} .page .content .aura-screen-date .aura-screen-shell,
+${C} .page .content .aura-screen-family .aura-screen-shell,
+${C} .page .content .aura-screen-location .aura-screen-shell,
+${C} .page .content .aura-screen-close .aura-close-shell{
+ display:flex!important;flex-direction:column!important;justify-content:flex-start!important;
+ align-items:stretch!important;gap:0!important;height:auto!important;min-height:0!important;
+ width:min(100%,650px)!important;max-width:100%!important;padding:0!important;
+ overflow:visible!important;margin:0 auto!important;
+}
+${C} .page .content .aura-screen-family .aura-family-portrait{
+ display:block!important;position:relative!important;width:100%!important;max-width:none!important;
+ margin:0 auto!important;padding:0!important;z-index:auto!important;
+}
+${C} .page .content .aura-screen-date .aura-stage-photo.aura-luxury-natural-photo,
+${C} .page .content .aura-screen-family .aura-stage-photo.aura-luxury-natural-photo,
+${C} .page .content .aura-screen-location .aura-stage-photo.aura-luxury-natural-photo,
+${C} .page .content .aura-screen-close .aura-stage-photo.aura-luxury-natural-photo{
+ display:block!important;position:relative!important;inset:auto!important;
+ width:100%!important;max-width:100%!important;height:auto!important;min-height:0!important;
+ max-height:none!important;aspect-ratio:auto!important;margin:0 auto!important;
+ padding:0!important;overflow:visible!important;border:0!important;border-radius:0!important;
+ box-shadow:none!important;filter:none!important;transform:none!important;
+ background:transparent!important;background-image:none!important;
+}
+${C} .page .content .aura-luxury-natural-photo .aura-luxury-natural-image{
+ display:block!important;position:relative!important;width:100%!important;max-width:100%!important;
+ height:auto!important;max-height:none!important;min-height:0!important;aspect-ratio:auto!important;
+ object-fit:contain!important;object-position:center center!important;transform:none!important;
+ border:0!important;border-radius:0!important;filter:none!important;
+}
+${C} .page .content .aura-luxury-natural-photo::before,
+${C} .page .content .aura-luxury-natural-photo::after{
+ display:none!important;content:none!important;
+}
+/* Tarjetas debajo de la foto; solo 14 px de continuidad, nunca media imagen. */
+${C} .page .content .aura-screen-date:has(.aura-luxury-natural-photo) .aura-date-panel,
+${C} .page .content .aura-screen-family:has(.aura-luxury-natural-photo) .aura-family-panel,
+${C} .page .content .aura-screen-location:has(.aura-luxury-natural-photo) .aura-location-panel,
+${C} .page .content .aura-screen-close:has(.aura-luxury-natural-photo) .aura-close-panel{
+ display:block!important;position:relative!important;inset:auto!important;z-index:3!important;
+ box-sizing:border-box!important;width:calc(100% - 24px)!important;max-width:590px!important;
+ min-width:0!important;height:auto!important;min-height:0!important;
+ margin:-14px auto 0!important;padding:clamp(24px,6vw,40px) clamp(18px,5vw,34px)!important;
+ border:1px solid ${edge}!important;border-radius:16px!important;
+ background:linear-gradient(155deg,${rgba(base,.91)},${rgba(base,.96)})!important;
+ -webkit-backdrop-filter:blur(18px)!important;backdrop-filter:blur(18px)!important;
+ box-shadow:0 16px 38px ${rgba(base,.24)}!important;color:${ink}!important;
+ text-align:center!important;transform:none!important;filter:none!important;
+}
+${C} .page .content .aura-screen-date .aura-date-panel h2,
+${C} .page .content .aura-screen-family .aura-family-panel h2,
+${C} .page .content .aura-screen-location .aura-location-panel h2,
+${C} .page .content .aura-screen-close .aura-close-panel .final-message,
+${C} .page .content .aura-screen-family .aura-family-name strong,
+${C} .page .content .aura-screen-location .aura-location-copy strong,
+${C} .page .content .aura-date-lockup,
+${C} .page .content .aura-date-lockup strong,
+${C} .page .content .aura-countdown .count-item b,
+${C} .page .content .aura-close-panel .closing-signature{
+ color:${ink}!important;text-shadow:none!important;
+}
+${C} .page .content .aura-screen-date .aura-date-panel .section-label,
+${C} .page .content .aura-screen-family .aura-family-panel .section-label,
+${C} .page .content .aura-screen-location .aura-location-panel .section-label,
+${C} .page .content .aura-screen-close .aura-close-panel .section-label,
+${C} .page .content .aura-family-name small,
+${C} .page .content .aura-location-copy small,
+${C} .page .content .aura-date-lockup>span:first-child,
+${C} .page .content .aura-date-lockup em,
+${C} .page .content .aura-countdown .count-item span,
+${C} .page .content .aura-location-panel .aura-location-note,
+${C} .page .content .aura-date-note{
+ color:${soft}!important;opacity:1!important;text-shadow:none!important;
+}
+${C} .page .content .aura-location-panel .map-toggle,
+${C} .page .content .aura-location-panel .map-external,
+${C} .page .content .aura-location-panel .aura-map-button{
+ color:${ink}!important;opacity:1!important;text-decoration-color:${edge}!important;
+}
+${C} .page .content .aura-location-panel .aura-location-copy small{color:${dim}!important}
+${C} .page .content .aura-date-panel .aura-date-lockup,
+${C} .page .content .aura-date-panel .aura-countdown{max-width:100%!important}
+${C} .page .content .aura-date-panel .aura-countdown .count-item{
+ background:transparent!important;border-color:${edge}!important;
+}
+${C} .page .content .aura-screen-date:has(.aura-luxury-natural-photo),
+${C} .page .content .aura-screen-family:has(.aura-luxury-natural-photo),
+${C} .page .content .aura-screen-location:has(.aura-luxury-natural-photo),
+${C} .page .content .aura-screen-close:has(.aura-luxury-natural-photo){
+ min-height:0!important;height:auto!important;overflow:visible!important;
+}
+@media(max-width:480px){
+ ${C} .page .content .aura-screen-date .aura-date-panel,
+ ${C} .page .content .aura-screen-family .aura-family-panel,
+ ${C} .page .content .aura-screen-location .aura-location-panel,
+ ${C} .page .content .aura-screen-close .aura-close-panel{
+   padding:25px 17px 30px!important;
+ }
+ ${C} .page .content .aura-screen-date:has(.aura-luxury-natural-photo) .aura-date-panel,
+ ${C} .page .content .aura-screen-family:has(.aura-luxury-natural-photo) .aura-family-panel,
+ ${C} .page .content .aura-screen-location:has(.aura-luxury-natural-photo) .aura-location-panel,
+ ${C} .page .content .aura-screen-close:has(.aura-luxury-natural-photo) .aura-close-panel{
+   width:calc(100% - 16px)!important;margin-top:-12px!important;
+ }
+}
+`;
+  }
   const _coverCss=coverCss;
-  coverCss=function(p){return _coverCss(p)+decorationCss(p)+mediterraneanCoverFramingCss(p)+mediterraneanTextFlowCss(p)+mediterraneanGalleryRespectCss(p)+editorialBannerCss(p)+editorialGalleryLayoutRepairCss(p)};
+  coverCss=function(p){return _coverCss(p)+decorationCss(p)+mediterraneanCoverFramingCss(p)+mediterraneanTextFlowCss(p)+mediterraneanGalleryRespectCss(p)+editorialBannerCss(p)+editorialGalleryLayoutRepairCss(p)+luxuryPhotoFirstCss(p)};
   const _editionCss=editionCss;
   editionCss=function(p,t,a){return _editionCss(p,t,a)};
   const _fullCss=invitationCss;
