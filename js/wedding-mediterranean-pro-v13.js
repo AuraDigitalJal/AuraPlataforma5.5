@@ -624,95 +624,215 @@ ${C} .aura-screen-gallery .aura-gallery-grid{
   // object-position / object-fit configurados para cada fotografía.
   return normalize+(typeof auraGalleryStyleCss555==='function'?auraGalleryStyleCss555(p):'');
 }
-  function mediterraneanBannerCss(p){
- if(p?.themeVisual!=='wedding_mediterranean')return '';
- const C='.theme-wedding_mediterranean';
- // Solo figura de banner vertical/auto, NUNCA div.banner-horizontal.
- // Las imágenes crecen conforme a su proporción natural, sin máximo de altura.
- return `
-${C} .page > figure.banner-media.banner-vertical,
-${C} .page > figure.banner-media.banner-auto,
-${C} .page .content > figure.banner-media.banner-vertical,
-${C} .page .content > figure.banner-media.banner-auto{
+  // Estilos en producción: estilos de Aura Editorial y colección de boda 01–10.
+  function isEditorialBannerGalleryTheme(p){
+   const id=p?.themeVisual;
+   return id==='aura_editorial_boda'||id==='aura_editorial_xv'||(typeof WEDDING_THEME_IDS_55!=='undefined'&&WEDDING_THEME_IDS_55.includes(id));
+  }
+  // En estas invitaciones el banner es una sección visual completa, sin marco exterior.
+  // El modo vertical/automático conserva TODA la imagen, sin recortar ni estirarla.
+  // El modo horizontal continúa siendo un recorte panorámico explícito.
+  function editorialBannerCss(p){
+   if(!isEditorialBannerGalleryTheme(p))return '';
+   const C='.theme-'+p.themeVisual;
+   return `
+${C} .page > figure.banner-media,
+${C} .page .content > figure.banner-media{
  display:block!important;
  position:relative!important;
  box-sizing:border-box!important;
+ width:100vw!important;
+ max-width:100vw!important;
+ min-width:0!important;
  height:auto!important;
  min-height:0!important;
  max-height:none!important;
  aspect-ratio:auto!important;
- margin:clamp(14px,3vw,30px) auto!important;
+ margin:0!important;
  padding:0!important;
- overflow:visible!important;
- background:transparent!important;
- background-image:none!important;
  border:0!important;
+ outline:0!important;
  border-radius:0!important;
  box-shadow:none!important;
- align-self:center!important;
+ background:transparent!important;
+ background-image:none!important;
+ clip-path:none!important;
+ filter:none!important;
+ overflow:hidden!important;
 }
-${C} .page > figure.banner-media.banner-vertical,
-${C} .page > figure.banner-media.banner-auto{
- width:min(100%,680px)!important;max-width:100%!important;
+${C} .page .content > figure.banner-media{
+ margin-left:calc(50% - 50vw)!important;
+ margin-right:0!important;
 }
-${C} .page .content > figure.banner-media.banner-vertical,
-${C} .page .content > figure.banner-media.banner-auto{
- width:min(calc(100% - 24px),650px)!important;
- max-width:100%!important;
-}
-${C} .page figure.banner-media.banner-vertical > img,
-${C} .page figure.banner-media.banner-auto > img{
+${C} .page figure.banner-media > img{
  display:block!important;
+ position:static!important;
+ inset:auto!important;
  box-sizing:border-box!important;
  width:100%!important;
  max-width:100%!important;
+ min-width:0!important;
  height:auto!important;
  min-height:0!important;
  max-height:none!important;
  aspect-ratio:auto!important;
  object-fit:contain!important;
- position:static!important;
- inset:auto!important;
  transform:none!important;
  filter:none!important;
  clip-path:none!important;
+ border:0!important;
+ border-radius:0!important;
+ box-shadow:none!important;
 }
-${C} .page figure.banner-media.banner-vertical::before,
-${C} .page figure.banner-media.banner-vertical::after,
-${C} .page figure.banner-media.banner-auto::before,
-${C} .page figure.banner-media.banner-auto::after{
- display:none!important;content:none!important;
+${C} .page > .banner-horizontal,
+${C} .page .content > .banner-horizontal{
+ display:block!important;
+ position:relative!important;
+ box-sizing:border-box!important;
+ width:100vw!important;
+ max-width:100vw!important;
+ min-width:0!important;
+ height:clamp(220px,56.25vw,540px)!important;
+ min-height:0!important;
+ max-height:none!important;
+ aspect-ratio:auto!important;
+ margin:0!important;
+ padding:0!important;
+ border:0!important;
+ outline:0!important;
+ border-radius:0!important;
+ box-shadow:none!important;
+ clip-path:none!important;
+ filter:none!important;
+ overflow:hidden!important;
+ background-size:cover!important;
+ background-position:center center!important;
+ background-repeat:no-repeat!important;
+}
+${C} .page .content > .banner-horizontal{
+ margin-left:calc(50% - 50vw)!important;
+ margin-right:0!important;
+}
+${C} .page figure.banner-media::before,
+${C} .page figure.banner-media::after,
+${C} .page .banner-horizontal::before,
+${C} .page .banner-horizontal::after{
+ content:none!important;
+ display:none!important;
 }
 `;
-}
+  }
+  // Galería estable para Aura Digital (Aura Editorial + boda 01-10).
+  // El selector del usuario determina el layout; el encuadre por foto permanece intacto.
+  // Separar el tamaño de las celdas de las imágenes elimina las filas que se montan.
+  function editorialGalleryLayoutRepairCss(p){
+   if(!isEditorialBannerGalleryTheme(p))return '';
+   const C='.theme-'+p.themeVisual;
+   const mode=String(p.galleryStyle||'editorial');
+   // Prioridad final sobre weddingThemeCss55 y los estilos de Aura Editorial.
+   const standard=typeof auraGalleryStyleCss555==='function'?auraGalleryStyleCss555(p):'';
+   const foundation=`
+${C} .aura-screen-gallery{height:auto!important;min-height:0!important;overflow:visible!important}
+${C} .aura-screen-gallery .aura-screen-shell{height:auto!important;min-height:0!important;display:block!important;min-width:0!important;max-width:100%;overflow:visible!important}
+${C} .aura-screen-gallery .aura-gallery-grid.gallery{box-sizing:border-box!important;position:relative!important;width:100%!important;max-width:100%!important;min-width:0!important;clear:both!important;grid-template-rows:none!important;grid-auto-flow:row!important}
+${C} .aura-screen-gallery .aura-gallery-grid > figure.aura-gallery-tile{box-sizing:border-box!important;min-width:0!important;min-height:0!important;max-height:none!important;float:none!important;z-index:auto!important}
+${C} .aura-screen-gallery .aura-gallery-grid > figure.aura-gallery-tile img.gallery-image{box-sizing:border-box!important;display:block!important;width:100%!important;min-width:0!important;max-width:100%!important;margin:0!important;transform:none!important}
+`;
+   // Aspecto y tamaños de los recuadros: la imagen no participa en el cálculo
+   // de filas del grid, evitando alturas circulares y fotografías empalmadas.
+   const framed=`
+${C} .aura-screen-gallery .aura-gallery-grid > figure.aura-gallery-tile{position:relative!important;height:auto!important;margin:0!important;overflow:hidden!important}
+${C} .aura-screen-gallery .aura-gallery-grid > figure.aura-gallery-tile img.gallery-image{position:absolute!important;inset:0!important;height:100%!important}
+`;
+   switch(mode){
+    case 'square':
+     return standard+foundation+framed+`
+${C} .aura-screen-gallery .aura-gallery-grid.gallery.square{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-auto-rows:auto!important;gap:10px!important;overflow:visible!important}
+${C} .aura-screen-gallery .aura-gallery-grid.gallery.square > figure.aura-gallery-tile{grid-column:auto!important;grid-row:auto!important;aspect-ratio:1/1!important}
+`;
+    case 'rectangular':
+     return standard+foundation+framed+`
+${C} .aura-screen-gallery .aura-gallery-grid.gallery.rectangular{display:grid!important;grid-template-columns:minmax(0,1fr)!important;grid-auto-rows:auto!important;gap:16px!important;overflow:visible!important}
+${C} .aura-screen-gallery .aura-gallery-grid.gallery.rectangular > figure.aura-gallery-tile{grid-column:auto!important;grid-row:auto!important;aspect-ratio:4/3!important}
+`;
+    case 'editorial':
+     return standard+foundation+framed+`
+${C} .aura-screen-gallery .aura-gallery-grid.gallery.editorial{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-auto-rows:auto!important;gap:10px!important;overflow:visible!important}
+${C} .aura-screen-gallery .aura-gallery-grid.gallery.editorial > figure.aura-gallery-tile{grid-column:auto!important;grid-row:auto!important;aspect-ratio:3/4!important}
+${C} .aura-screen-gallery .aura-gallery-grid.gallery.editorial > figure.aura-gallery-tile:nth-child(3n+1){grid-column:1/-1!important;grid-row:auto!important;aspect-ratio:4/5!important}
+${C} .aura-screen-gallery .aura-gallery-grid.gallery.editorial > figure.aura-gallery-tile:last-child:nth-child(3n+2){grid-column:1/-1!important;grid-row:auto!important;aspect-ratio:4/3!important}
+`;
+    case 'collage':
+     return standard+foundation+framed+`
+${C} .aura-screen-gallery .aura-gallery-grid.gallery.collage{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-auto-rows:clamp(110px,30vw,185px)!important;gap:9px!important;overflow:visible!important}
+${C} .aura-screen-gallery .aura-gallery-grid.gallery.collage > figure.aura-gallery-tile{grid-column:auto!important;grid-row:auto!important;aspect-ratio:auto!important;height:100%!important}
+${C} .aura-screen-gallery .aura-gallery-grid.gallery.collage > figure.aura-gallery-tile:first-child{grid-column:1/-1!important;grid-row:span 2!important}
+${C} .aura-screen-gallery .aura-gallery-grid.gallery.collage > figure.aura-gallery-tile:nth-child(4n+2){grid-row:span 2!important}
+${C} .aura-screen-gallery .aura-gallery-grid.gallery.collage > figure.aura-gallery-tile:nth-child(5n){grid-column:1/-1!important}
+`;
+    case 'carousel':
+    case 'filmstrip':
+     return standard+foundation+framed+`
+${C} .aura-screen-gallery .aura-gallery-grid.gallery.${mode}{display:flex!important;flex-direction:row!important;flex-wrap:nowrap!important;grid-template-columns:none!important;gap:${mode==='carousel'?'12':'10'}px!important;overflow-x:auto!important;overflow-y:hidden!important;scroll-snap-type:x mandatory!important;scrollbar-width:thin!important;padding:0 0 14px!important}
+${C} .aura-screen-gallery .aura-gallery-grid.gallery.${mode} > figure.aura-gallery-tile{flex:0 0 ${mode==='carousel'?'86':'72'}%!important;width:auto!important;min-width:0!important;aspect-ratio:${mode==='carousel'?'4/5':'3/4'}!important;scroll-snap-align:start!important}
+`;
+    case 'masonry':
+     return standard+foundation+`
+${C} .aura-screen-gallery .aura-gallery-grid.gallery.masonry{display:block!important;columns:2!important;column-gap:10px!important;overflow:visible!important}
+${C} .aura-screen-gallery .aura-gallery-grid.gallery.masonry > figure.aura-gallery-tile{display:inline-block!important;position:relative!important;vertical-align:top!important;width:100%!important;height:auto!important;aspect-ratio:auto!important;margin:0 0 10px!important;padding:0!important;break-inside:avoid!important;overflow:hidden!important}
+${C} .aura-screen-gallery .aura-gallery-grid.gallery.masonry > figure.aura-gallery-tile img.gallery-image{position:static!important;inset:auto!important;height:auto!important;aspect-ratio:auto!important}
+`;
+    case 'story':
+     return standard+foundation+`
+${C} .aura-screen-gallery .aura-gallery-grid.gallery.story{display:grid!important;grid-template-columns:minmax(0,1fr)!important;grid-auto-rows:auto!important;gap:22px!important;overflow:visible!important}
+${C} .aura-screen-gallery .aura-gallery-grid.gallery.story > figure.aura-gallery-tile{position:relative!important;grid-column:auto!important;grid-row:auto!important;width:100%!important;height:auto!important;aspect-ratio:auto!important;margin:0!important;overflow:visible!important}
+${C} .aura-screen-gallery .aura-gallery-grid.gallery.story > figure.aura-gallery-tile img.gallery-image{position:static!important;inset:auto!important;height:auto!important;aspect-ratio:auto!important}
+`;
+    case 'narrative':
+     return standard+foundation+`
+${C} .aura-screen-gallery .aura-gallery-grid.gallery.narrative{display:flex!important;flex-direction:column!important;flex-wrap:nowrap!important;gap:28px!important;overflow:visible!important}
+${C} .aura-screen-gallery .aura-gallery-grid.gallery.narrative > figure.aura-gallery-tile{position:relative!important;flex:none!important;width:88%!important;height:auto!important;aspect-ratio:auto!important;margin:0!important;align-self:flex-start!important;overflow:visible!important}
+${C} .aura-screen-gallery .aura-gallery-grid.gallery.narrative > figure.aura-gallery-tile:nth-child(even){align-self:flex-end!important}
+${C} .aura-screen-gallery .aura-gallery-grid.gallery.narrative > figure.aura-gallery-tile:nth-child(3n+1){width:100%!important}
+${C} .aura-screen-gallery .aura-gallery-grid.gallery.narrative > figure.aura-gallery-tile img.gallery-image{position:static!important;inset:auto!important;height:auto!important;aspect-ratio:auto!important}
+`;
+    case 'polaroid_pro':
+     return standard+foundation+`
+${C} .aura-screen-gallery .aura-gallery-grid.gallery.polaroid_pro{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-auto-rows:auto!important;gap:20px!important;padding:10px!important;overflow:visible!important}
+${C} .aura-screen-gallery .aura-gallery-grid.gallery.polaroid_pro > figure.aura-gallery-tile{position:relative!important;grid-column:auto!important;grid-row:auto!important;height:auto!important;aspect-ratio:auto!important;margin:0!important;align-self:start!important;overflow:visible!important}
+${C} .aura-screen-gallery .aura-gallery-grid.gallery.polaroid_pro > figure.aura-gallery-tile img.gallery-image{position:static!important;inset:auto!important;height:auto!important;aspect-ratio:3/4!important}
+`;
+    default:return standard+foundation;
+   }
+  }
   const _coverCss=coverCss;
-  coverCss=function(p){return _coverCss(p)+decorationCss(p)+mediterraneanCoverFramingCss(p)+mediterraneanTextFlowCss(p)+mediterraneanGalleryRespectCss(p)+mediterraneanBannerCss(p)};
+  coverCss=function(p){return _coverCss(p)+decorationCss(p)+mediterraneanCoverFramingCss(p)+mediterraneanTextFlowCss(p)+mediterraneanGalleryRespectCss(p)+editorialBannerCss(p)+editorialGalleryLayoutRepairCss(p)};
   const _editionCss=editionCss;
   editionCss=function(p,t,a){return _editionCss(p,t,a)};
   const _fullCss=invitationCss;
   invitationCss=function(p,t,a){return _fullCss(p,t,a)};
-  function bindMediterraneanPortraitBanners(){
+  function bindEditorialPortraitBanners(){
  const mappings=[['bannerFile','bannerMode'],['bannerExtraFile','bannerExtraMode'],['bannerExtra2File','bannerExtra2Mode']];
  for(const [fileId,modeId] of mappings){
   const field=document.getElementById(fileId);
   const select=document.getElementById(modeId);
-  if(!field||!select||field.dataset.medBannerAutoBound==='true')continue;
-  field.dataset.medBannerAutoBound='true';
-  select.addEventListener('change',()=>{select.dataset.medBannerUserChanged='true';});
+  if(!field||!select||field.dataset.edBannerAutoBound==='true')continue;
+  field.dataset.edBannerAutoBound='true';
+  select.addEventListener('change',()=>{select.dataset.edBannerUserChanged='true';});
   field.addEventListener('change',()=>{
-   if(document.getElementById('themeVisual')?.value!=='wedding_mediterranean')return;
+   if(!isEditorialBannerGalleryTheme({themeVisual:document.getElementById('themeVisual')?.value}))return;
    const file=field.files?.[0];
-   if(!file||!file.type.startsWith('image/')||select.dataset.medBannerUserChanged==='true')return;
+   if(!file||!file.type.startsWith('image/')||select.dataset.edBannerUserChanged==='true')return;
    const url=URL.createObjectURL(file),img=new Image();
    const finish=()=>URL.revokeObjectURL(url);
    img.onload=()=>{
     const portrait=img.naturalHeight>img.naturalWidth;
     finish();
-    if(portrait&&select.value==='horizontal'&&select.dataset.medBannerUserChanged!=='true'&&document.getElementById('themeVisual')?.value==='wedding_mediterranean'){
+    if(portrait&&select.value==='horizontal'&&select.dataset.edBannerUserChanged!=='true'&&isEditorialBannerGalleryTheme({themeVisual:document.getElementById('themeVisual')?.value})){
      select.value='auto';
      select.dispatchEvent(new Event('change',{bubbles:true}));
      // Es una selección automática, el usuario aún puede cambiarla a Horizontal.
-     delete select.dataset.medBannerUserChanged;
+     delete select.dataset.edBannerUserChanged;
     }
    };
    img.onerror=finish;
@@ -723,7 +843,7 @@ ${C} .page figure.banner-media.banner-auto::after{
   const run=()=>{
     // Actualizar las miniaturas originales en el catálogo visible.
     if(typeof renderThemeStrip==='function')renderThemeStrip();
-    bindMediterraneanPortraitBanners();
+    bindEditorialPortraitBanners();
   };
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',run);else run();
 })();
