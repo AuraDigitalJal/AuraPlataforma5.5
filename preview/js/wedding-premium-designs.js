@@ -476,11 +476,12 @@ ${C} .page .content .aura-screen-family .aura-family-portrait{width:100%!importa
  if(p?.themeVisual!=='wedding_mediterranean')return '';
  const C='.theme-wedding_mediterranean';
  const photoX=bounded(p.auraHeroPhotoX,50,0,100);
- const photoY=bounded(p.auraHeroPhotoY,50,0,100);
- const curve=bounded(p.auraHeroCurveY,56,45,62);
+ const photoY=bounded(p.auraHeroPhotoY,32,0,100);
+ const curve=bounded(p.auraHeroCurveY,59,45,65);
  // El control representa el nivel real de la transición; no se añade un segundo bloque de foto.
- const waveDepth=10;
- const photoBottom=curve+3;
+ const photoBottom=curve+4;
+ // La ondulación crece proporcionalmente con la zona de foto: nunca desplazar sólo el trazo.
+ const waveDepth=Math.round(photoBottom*0.195*10)/10;
  const textOffset=bounded(p.heroOffset,0,-200,200);
  return `
 /* El marco fotográfico contiene el SVG de la curva y el velo, sin medidas divergentes. */
@@ -541,13 +542,13 @@ ${C} .hero.aura-story-cover .hero-inner{
   getFormParams=function(){
     const p=_getFormParamsMed();
     p.auraHeroPhotoX=document.getElementById('auraHeroPhotoX')?.value??'50';
-    p.auraHeroPhotoY=document.getElementById('auraHeroPhotoY')?.value??'50';
-    p.auraHeroCurveY=document.getElementById('auraHeroCurveY')?.value??'56';
+    p.auraHeroPhotoY=document.getElementById('auraHeroPhotoY')?.value??'32';
+    p.auraHeroCurveY=document.getElementById('auraHeroCurveY')?.value??'59';
     return p;
   };
   const _applyConfigMed=applyConfig;
   applyConfig=function(cfg){
-    for(const [id,def] of [['auraHeroPhotoX','50'],['auraHeroPhotoY','50'],['auraHeroCurveY','56']]){
+    for(const [id,def] of [['auraHeroPhotoX','50'],['auraHeroPhotoY','32'],['auraHeroCurveY','59']]){
       if(cfg?.[id]===undefined||cfg[id]===null){
         const control=document.getElementById(id);
         if(control)control.value=def;
