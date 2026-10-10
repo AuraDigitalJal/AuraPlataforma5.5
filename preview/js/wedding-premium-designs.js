@@ -628,67 +628,99 @@ ${C} .aura-screen-gallery .aura-gallery-grid{
    const id=p?.themeVisual;
    return id==='aura_editorial_boda'||id==='aura_editorial_xv'||(typeof WEDDING_THEME_IDS_55!=='undefined'&&WEDDING_THEME_IDS_55.includes(id));
   }
+  // En las pruebas el banner es una sección visual completa, sin marco exterior.
+  // El modo vertical/automático conserva TODA la imagen, sin recortar ni estirarla.
+  // El modo horizontal continúa siendo un recorte panorámico explícito.
   function editorialBannerCss(p){
- if(!isEditorialBannerGalleryTheme(p))return '';
- const C='.theme-'+p.themeVisual;
- // Solo figura de banner vertical/auto, NUNCA div.banner-horizontal.
- // Las imágenes crecen conforme a su proporción natural, sin máximo de altura.
- return `
-${C} .page > figure.banner-media.banner-vertical,
-${C} .page > figure.banner-media.banner-auto,
-${C} .page .content > figure.banner-media.banner-vertical,
-${C} .page .content > figure.banner-media.banner-auto{
+   if(!isEditorialBannerGalleryTheme(p))return '';
+   const C='.theme-'+p.themeVisual;
+   return `
+${C} .page > figure.banner-media,
+${C} .page .content > figure.banner-media{
  display:block!important;
  position:relative!important;
  box-sizing:border-box!important;
+ width:100vw!important;
+ max-width:100vw!important;
+ min-width:0!important;
  height:auto!important;
  min-height:0!important;
  max-height:none!important;
  aspect-ratio:auto!important;
- margin:clamp(14px,3vw,30px) auto!important;
+ margin:0!important;
  padding:0!important;
- overflow:visible!important;
- background:transparent!important;
- background-image:none!important;
  border:0!important;
+ outline:0!important;
  border-radius:0!important;
  box-shadow:none!important;
- align-self:center!important;
+ background:transparent!important;
+ background-image:none!important;
+ clip-path:none!important;
+ filter:none!important;
+ overflow:hidden!important;
 }
-${C} .page > figure.banner-media.banner-vertical,
-${C} .page > figure.banner-media.banner-auto{
- width:min(100%,680px)!important;max-width:100%!important;
+${C} .page .content > figure.banner-media{
+ margin-left:calc(50% - 50vw)!important;
+ margin-right:0!important;
 }
-${C} .page .content > figure.banner-media.banner-vertical,
-${C} .page .content > figure.banner-media.banner-auto{
- width:min(calc(100% - 24px),650px)!important;
- max-width:100%!important;
-}
-${C} .page figure.banner-media.banner-vertical > img,
-${C} .page figure.banner-media.banner-auto > img{
+${C} .page figure.banner-media > img{
  display:block!important;
+ position:static!important;
+ inset:auto!important;
  box-sizing:border-box!important;
  width:100%!important;
  max-width:100%!important;
+ min-width:0!important;
  height:auto!important;
  min-height:0!important;
  max-height:none!important;
  aspect-ratio:auto!important;
  object-fit:contain!important;
- position:static!important;
- inset:auto!important;
  transform:none!important;
  filter:none!important;
  clip-path:none!important;
+ border:0!important;
+ border-radius:0!important;
+ box-shadow:none!important;
 }
-${C} .page figure.banner-media.banner-vertical::before,
-${C} .page figure.banner-media.banner-vertical::after,
-${C} .page figure.banner-media.banner-auto::before,
-${C} .page figure.banner-media.banner-auto::after{
- display:none!important;content:none!important;
+${C} .page > .banner-horizontal,
+${C} .page .content > .banner-horizontal{
+ display:block!important;
+ position:relative!important;
+ box-sizing:border-box!important;
+ width:100vw!important;
+ max-width:100vw!important;
+ min-width:0!important;
+ height:clamp(220px,56.25vw,540px)!important;
+ min-height:0!important;
+ max-height:none!important;
+ aspect-ratio:auto!important;
+ margin:0!important;
+ padding:0!important;
+ border:0!important;
+ outline:0!important;
+ border-radius:0!important;
+ box-shadow:none!important;
+ clip-path:none!important;
+ filter:none!important;
+ overflow:hidden!important;
+ background-size:cover!important;
+ background-position:center center!important;
+ background-repeat:no-repeat!important;
+}
+${C} .page .content > .banner-horizontal{
+ margin-left:calc(50% - 50vw)!important;
+ margin-right:0!important;
+}
+${C} .page figure.banner-media::before,
+${C} .page figure.banner-media::after,
+${C} .page .banner-horizontal::before,
+${C} .page .banner-horizontal::after{
+ content:none!important;
+ display:none!important;
 }
 `;
-}
+  }
   // Reparar la galería al final del CSS, conservando radios, formas y encuadre por foto.
   function editorialGalleryLayoutRepairCss(p){
    if(!isEditorialBannerGalleryTheme(p)||p.themeVisual==='wedding_mediterranean')return '';
