@@ -804,8 +804,139 @@ ${C} .aura-screen-gallery .aura-gallery-grid.gallery.polaroid_pro > figure.aura-
     default:return standard+foundation;
    }
   }
+
+  /* PRUEBAS · Moderna de Lujo, Fecha + Ubicación.
+     No se copia fondo: queda la ÚNICA imagen global .invitation-background.
+     Únicamente cambia la sección: foto individual fuera y cristal de extremo
+     a extremo con blur real y fondo sin tintes. */
+  const _luxuryGlobalGlassStagePhoto=auraStagePhoto54;
+  auraStagePhoto54=function(src,extraClass='',p={},index=-1){
+    if(p?.themeVisual==='wedding_luxury'&&(
+      extraClass==='aura-date-photo'||extraClass==='aura-location-photo'
+    ))return '';
+    return _luxuryGlobalGlassStagePhoto(src,extraClass,p,index);
+  };
+  function luxuryGlobalFullGlassCss(p){
+    if(p?.themeVisual!=='wedding_luxury')return '';
+    const C='body.theme-wedding_luxury';
+    const contrast='#fffaf5',soft='rgba(255,250,245,.84)';
+    const trim=rgba(p.primaryColor||'#c8ae94',.46);
+    return `
+/* No añadir otra imagen ni otra capa: desenfocar la foto original del fondo. */
+${C} .invitation-background .background-veil{
+ display:none!important;opacity:0!important;background:none!important;
+}
+${C} .page,
+${C} .page>.content{background:transparent!important;background-image:none!important}
+/* La sección entera es transparente. Sólo su panel es cristal. */
+${C} .page .content>section.aura-screen.aura-screen-date,
+${C} .page .content>section.aura-screen.aura-screen-location{
+ box-sizing:border-box!important;display:flex!important;flex-direction:column!important;
+ align-items:stretch!important;justify-content:stretch!important;
+ width:100%!important;max-width:none!important;
+ min-height:100svh!important;height:auto!important;
+ padding:0!important;margin:0!important;
+ position:relative!important;isolation:auto!important;
+ background:transparent!important;background-color:transparent!important;
+ background-image:none!important;
+ -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+ overflow:visible!important;
+}
+${C} .page .content>section.aura-screen.aura-screen-date::before,
+${C} .page .content>section.aura-screen.aura-screen-date::after,
+${C} .page .content>section.aura-screen.aura-screen-location::before,
+${C} .page .content>section.aura-screen.aura-screen-location::after{
+ content:none!important;display:none!important;box-shadow:none!important;
+}
+/* No figuran las fotografías individuales de la galería. */
+${C} .page .content .aura-screen-date .aura-stage-photo,
+${C} .page .content .aura-screen-location .aura-stage-photo{
+ display:none!important;
+}
+${C} .page .content>section.aura-screen.aura-screen-date>.aura-screen-shell,
+${C} .page .content>section.aura-screen.aura-screen-location>.aura-screen-shell{
+ box-sizing:border-box!important;position:relative!important;inset:auto!important;
+ display:flex!important;flex-direction:column!important;flex-wrap:nowrap!important;
+ align-items:stretch!important;justify-content:stretch!important;
+ grid-template-columns:none!important;
+ width:100%!important;max-width:none!important;min-width:0!important;
+ height:auto!important;min-height:100svh!important;
+ padding:0!important;margin:0!important;
+ overflow:visible!important;
+ background:transparent!important;background-image:none!important;
+ -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+ transform:none!important;box-shadow:none!important;
+}
+${C} .page .content>section.aura-screen.aura-screen-date>.aura-screen-shell::before,
+${C} .page .content>section.aura-screen.aura-screen-date>.aura-screen-shell::after,
+${C} .page .content>section.aura-screen.aura-screen-location>.aura-screen-shell::before,
+${C} .page .content>section.aura-screen.aura-screen-location>.aura-screen-shell::after{
+ content:none!important;display:none!important;
+}
+/* Un vidrio que ocupa TODO el alto/ancho útil de la sección, no una tarjeta.
+   Se dejan sólo 8px de borde perimetral; altura crece con el contenido. */
+${C} .page .content>section.aura-screen.aura-screen-date .aura-date-panel,
+${C} .page .content>section.aura-screen.aura-screen-location .aura-location-panel{
+ box-sizing:border-box!important;display:flex!important;flex-direction:column!important;
+ align-items:center!important;justify-content:center!important;
+ flex:1 0 auto!important;
+ position:relative!important;inset:auto!important;z-index:2!important;
+ width:calc(100% - 16px)!important;max-width:none!important;min-width:0!important;
+ min-height:calc(100svh - 16px)!important;height:auto!important;max-height:none!important;
+ margin:8px auto!important;
+ padding:clamp(32px,6vw,58px) clamp(18px,6vw,44px)!important;
+ border:1px solid ${trim}!important;border-radius:4px!important;
+ background:rgba(255,255,255,.008)!important;
+ background-image:none!important;background-color:rgba(255,255,255,.008)!important;
+ -webkit-backdrop-filter:blur(25px) saturate(1.10)!important;
+ backdrop-filter:blur(25px) saturate(1.10)!important;
+ box-shadow:0 16px 48px rgba(0,0,0,.10)!important;
+ color:${contrast}!important;text-align:center!important;
+ transform:none!important;filter:none!important;
+}
+/* Mantener el tratamiento editorial, pero dar lectura sobre cualquier foto. */
+${C} .page .content .aura-screen-date .aura-date-panel>h2,
+${C} .page .content .aura-screen-location .aura-location-panel>h2,
+${C} .page .content .aura-screen-date .aura-date-lockup,
+${C} .page .content .aura-screen-date .aura-date-lockup strong,
+${C} .page .content .aura-screen-date .aura-countdown .count-item b,
+${C} .page .content .aura-screen-location .aura-location-copy strong{
+ color:${contrast}!important;opacity:1!important;
+ text-shadow:0 2px 10px rgba(0,0,0,.52)!important;
+}
+${C} .page .content .aura-screen-date .section-label,
+${C} .page .content .aura-screen-location .section-label,
+${C} .page .content .aura-screen-date .aura-date-lockup>span,
+${C} .page .content .aura-screen-date .aura-date-lockup em,
+${C} .page .content .aura-screen-date .aura-date-note,
+${C} .page .content .aura-screen-date .aura-countdown .count-item span,
+${C} .page .content .aura-screen-location .aura-location-note,
+${C} .page .content .aura-screen-location .aura-location-copy small,
+${C} .page .content .aura-screen-location .map-toggle,
+${C} .page .content .aura-screen-location .map-external,
+${C} .page .content .aura-screen-location .aura-map-button{
+ color:${soft}!important;opacity:1!important;
+ text-shadow:0 1px 8px rgba(0,0,0,.55)!important;
+}
+${C} .page .content .aura-screen-date .aura-date-panel>h2,
+${C} .page .content .aura-screen-location .aura-location-panel>h2{
+ max-width:16ch!important;font-size:clamp(35px,9vw,52px)!important;
+ line-height:1.08!important;text-wrap:balance!important;margin:0 auto 22px!important;
+}
+${C} .page .content .aura-screen-date .aura-countdown,
+${C} .page .content .aura-screen-location .aura-locations{
+ width:100%!important;max-width:100%!important;
+}
+@media(max-width:430px){
+ ${C} .page .content>section.aura-screen.aura-screen-date .aura-date-panel,
+ ${C} .page .content>section.aura-screen.aura-screen-location .aura-location-panel{
+   padding:32px 18px!important;
+ }
+}
+`;
+  }
   const _coverCss=coverCss;
-  coverCss=function(p){return _coverCss(p)+decorationCss(p)+mediterraneanCoverFramingCss(p)+mediterraneanTextFlowCss(p)+mediterraneanGalleryRespectCss(p)+editorialBannerCss(p)+editorialGalleryLayoutRepairCss(p)};
+  coverCss=function(p){return _coverCss(p)+decorationCss(p)+mediterraneanCoverFramingCss(p)+mediterraneanTextFlowCss(p)+mediterraneanGalleryRespectCss(p)+editorialBannerCss(p)+editorialGalleryLayoutRepairCss(p)+luxuryGlobalFullGlassCss(p)};
   const _editionCss=editionCss;
   editionCss=function(p,t,a){return _editionCss(p,t,a)};
   const _fullCss=invitationCss;
