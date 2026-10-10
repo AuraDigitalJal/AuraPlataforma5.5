@@ -609,13 +609,13 @@ ${C} .page .content .aura-screen-close .aura-close-panel{
   // El estilo de la galería, NO el tema, controla tamaño, forma y distribución.
   // Aplicar después de weddingThemeCss55 y editionCss para ganar a 110px!important.
   const normalize=`
-${C} .page .content .aura-screen-gallery .aura-gallery-tile{
+${C} .aura-screen-gallery .aura-gallery-tile{
  border-radius:2px!important;
  box-shadow:none!important;
  outline:0!important;
  transform:none!important;
 }
-${C} .page .content .aura-screen-gallery .aura-gallery-grid{
+${C} .aura-screen-gallery .aura-gallery-grid{
  grid-auto-rows:auto!important;
 }
 `;
