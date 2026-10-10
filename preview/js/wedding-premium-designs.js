@@ -477,7 +477,7 @@ ${C} .page .content .aura-screen-family .aura-family-portrait{width:100%!importa
  const C='.theme-wedding_mediterranean';
  const photoX=bounded(p.auraHeroPhotoX,50,0,100);
  const photoY=bounded(p.auraHeroPhotoY,32,0,100);
- const curve=bounded(p.auraHeroCurveY,59,45,65);
+ const curve=bounded(p.auraHeroCurveY,73,45,82);
  // El control representa el nivel real de la transición; no se añade un segundo bloque de foto.
  const photoBottom=curve+4;
  // La ondulación crece proporcionalmente con la zona de foto: nunca desplazar sólo el trazo.
@@ -543,12 +543,12 @@ ${C} .hero.aura-story-cover .hero-inner{
     const p=_getFormParamsMed();
     p.auraHeroPhotoX=document.getElementById('auraHeroPhotoX')?.value??'50';
     p.auraHeroPhotoY=document.getElementById('auraHeroPhotoY')?.value??'32';
-    p.auraHeroCurveY=document.getElementById('auraHeroCurveY')?.value??'59';
+    p.auraHeroCurveY=document.getElementById('auraHeroCurveY')?.value??'73';
     return p;
   };
   const _applyConfigMed=applyConfig;
   applyConfig=function(cfg){
-    for(const [id,def] of [['auraHeroPhotoX','50'],['auraHeroPhotoY','32'],['auraHeroCurveY','59']]){
+    for(const [id,def] of [['auraHeroPhotoX','50'],['auraHeroPhotoY','32'],['auraHeroCurveY','73']]){
       if(cfg?.[id]===undefined||cfg[id]===null){
         const control=document.getElementById(id);
         if(control)control.value=def;

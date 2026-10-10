@@ -5,21 +5,21 @@
   <!-- Los recursos compartidos siguen proviniendo de la version oficial, sin alterarla. -->
   <base href="../" />
   <meta name="robots" content="noindex, nofollow" />
-  <script id="aura-default-version-redirect">
-    // Open the current published editor even when visitors use the clean platform URL.
+  <script id="aura-preview-version-redirect">
+    // Las pruebas siempre abren la revisión más reciente, incluso desde un enlace viejo.
     (function () {
       if (window.location.protocol === 'file:') return;
+      var build = 'mediterranea-curva-profunda-pruebas-20261009-v2';
       var target = new URL(window.location.href);
-      if (!target.searchParams.has('v')) {
-        target.searchParams.set('v', 'hatzi-slim1');
-        window.location.replace(target.pathname + target.search + target.hash);
-      }
+      if (target.searchParams.get('v') === build) return;
+      target.searchParams.set('v', build);
+      window.location.replace(target.pathname + target.search + target.hash);
     })();
   </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#f2eee8" />
-  <title>Aura Digital · Pruebas de textos fijos</title>
-  <link rel="stylesheet" href="css/style.css?v=5.6.17-repocopy1" />
+  <title>Aura Digital · Pruebas · Mediterránea curva profunda v2</title>
+  <link rel="stylesheet" href="css/style.css?v=mediterranea-curva-profunda-pruebas-20261009-v2" />
   <script src="js/vendor/jszip.min.js"></script>
   
 <style id="aura-gallery-delete-style">
@@ -42,7 +42,7 @@
 <body>
   <div id="app">
     <header class="topbar">
-      <div class="topbar-brand"><span class="brand-mark small">A</span><div><strong>AURA DIGITAL</strong><small>Invitation Studio · v5.6.21 · Calidad original opcional</small></div></div>
+      <div class="topbar-brand"><span class="brand-mark small">A</span><div><strong>AURA DIGITAL</strong><small>Invitation Studio · PRUEBAS · Mediterránea curva baja v2</small></div></div>
       <div class="topbar-actions">
         <span class="save-indicator"><i></i> Vista en vivo</span>
         <button type="button" id="open-preview-window" class="btn secondary">Abrir preview ↗</button>
@@ -122,7 +122,7 @@
                   </label>
                 </div>
                 <label>Altura de foto y curva
-                  <input type="range" id="auraHeroCurveY" min="45" max="65" step="1" value="59">
+                  <input type="range" id="auraHeroCurveY" min="45" max="82" step="1" value="73">
                 </label>
                 <p class="helper">La curva baja y se escala con toda la fotografía, sin desplazar únicamente la línea. En posición vertical, 0 muestra más la parte superior de la imagen. Para mover solo el texto usa «Ajustar texto y acomodo».</p>
               </div>
@@ -426,8 +426,8 @@
   </dialog>
 
   <script src="js/font-data.js?v=5.6.17"></script>
-  <script src="preview/js/script.js?v=frases-fijas-publicacion-prueba-1"></script>
-  <script src="preview/js/fixed-copy-editor.js?v=frases-fijas-1"></script>
-  <script src="preview/js/wedding-premium-designs.js?v=mediterranea-curva-encuadre-pruebas-20261009-1"></script>
+  <script src="preview/js/script.js?v=mediterranea-curva-profunda-pruebas-20261009-v2"></script>
+  <script src="preview/js/fixed-copy-editor.js?v=mediterranea-curva-profunda-pruebas-20261009-v2"></script>
+  <script src="preview/js/wedding-premium-designs.js?v=mediterranea-curva-profunda-pruebas-20261009-v2"></script>
 </body>
 </html>
