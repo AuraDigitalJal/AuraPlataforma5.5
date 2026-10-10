@@ -476,8 +476,75 @@ ${C} .page .content .aura-screen-family .aura-family-portrait{width:100%!importa
 }
 `;
 }
+  /* Encuadre de portada Mediterránea: la curva no mueve la foto; la cubre.
+     Foto, curva y remate se sincronizan desde los controles editables. */
+  function mediterraneanCoverFramingCss(p){
+    if(p?.themeVisual!=='wedding_mediterranean')return '';
+    const C='.theme-wedding_mediterranean';
+    const photoX=bounded(p.auraHeroPhotoX,50,0,100);
+    const photoY=bounded(p.auraHeroPhotoY,50,0,100);
+    const curve=bounded(p.auraHeroCurveY,56,46,65);
+    const photoBottom=curve+12;
+    const copyStart=photoBottom+2;
+    const textOffset=bounded(p.heroOffset,0,-200,200);
+    return `
+/* Misma geometría en móvil y computadora: el SVG tapa, nunca desplaza, la foto. */
+${C} .hero.aura-story-cover{
+  padding-top:${copyStart}svh!important;
+}
+${C} .hero.aura-story-cover .hero-media,
+${C} .hero.aura-story-cover .hero-overlay{
+  height:${photoBottom}svh!important;
+}
+${C} .hero.aura-story-cover .hero-media{
+  background-position:${photoX}% ${photoY}%!important;
+  background-size:cover!important;
+}
+${C} .hero.aura-story-cover .ap-cover-seam{
+  top:${curve}svh!important;
+  height:12svh!important;
+}
+${C} .hero.aura-story-cover .ap-sprig-wrap{
+  top:${curve+4}svh!important;
+}
+${C} .hero.aura-story-cover .hero-inner{
+  transform:translateY(${textOffset}px)!important;
+}
+`;
+  }
+  const _getFormParamsMed=getFormParams;
+  getFormParams=function(){
+    const p=_getFormParamsMed();
+    p.auraHeroPhotoX=document.getElementById('auraHeroPhotoX')?.value??'50';
+    p.auraHeroPhotoY=document.getElementById('auraHeroPhotoY')?.value??'50';
+    p.auraHeroCurveY=document.getElementById('auraHeroCurveY')?.value??'56';
+    return p;
+  };
+  const _applyConfigMed=applyConfig;
+  applyConfig=function(cfg){
+    for(const [id,def] of [['auraHeroPhotoX','50'],['auraHeroPhotoY','50'],['auraHeroCurveY','56']]){
+      if(cfg?.[id]===undefined||cfg[id]===null){
+        const control=document.getElementById(id);
+        if(control)control.value=def;
+      }
+    }
+    return _applyConfigMed(cfg);
+  };
+  function syncMediterraneanCoverControls(){
+    const panel=document.getElementById('medCoverAdjustments');
+    if(!panel)return;
+    const current=document.getElementById('themeVisual')?.value==='wedding_mediterranean';
+    panel.hidden=!current;
+    panel.style.display=current?'':'none';
+  }
+  const _renderThemeStripMed=renderThemeStrip;
+  renderThemeStrip=function(...args){
+    const out=_renderThemeStripMed(...args);
+    syncMediterraneanCoverControls();
+    return out;
+  };
   const _coverCss=coverCss;
-  coverCss=function(p){return _coverCss(p)+decorationCss(p)};
+  coverCss=function(p){return _coverCss(p)+decorationCss(p)+mediterraneanCoverFramingCss(p)};
   const _editionCss=editionCss;
   editionCss=function(p,t,a){return _editionCss(p,t,a)};
   const _fullCss=invitationCss;
