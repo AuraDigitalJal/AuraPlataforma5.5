@@ -33,7 +33,7 @@
     const paper=`background-color:var(--ap-card)!important;background-image:radial-gradient(ellipse at 13% 29%,${rgba(accent,.055)} 0,transparent 42%),radial-gradient(ellipse at 88% 90%,${rgba(ink,.025)},transparent 39%),repeating-linear-gradient(104deg,transparent 0 4px,${rgba(ink,.012)} 5px 6px,transparent 7px 14px)!important`;
     let css=`
 ${C}{--ap-card:${neutral};--ap-ink:${ink};--ap-accent:${accent};--ap-line:${rgba(accent,.48)};--ap-shadow:${rgba(ink,.12)}}
-${C} .hero.aura-story-cover{height:auto!important;min-height:100svh!important;min-height:100dvh!important;display:flex!important;flex-direction:column!important;justify-content:flex-end!important;align-items:stretch!important;gap:0!important;padding:clamp(365px,54svh,590px) 0 18px!important;position:relative!important;overflow:hidden!important;isolation:isolate;background:var(--ap-card)!important}
+${C} .hero.aura-story-cover{height:auto!important;min-height:100svh!important;min-height:100dvh!important;display:flex!important;flex-direction:column!important;justify-content:flex-end!important;align-items:stretch!important;gap:0!important;padding:clamp(410px,63svh,680px) 0 18px!important;position:relative!important;overflow:hidden!important;isolation:isolate;background:var(--ap-card)!important}
 ${C} .hero.aura-story-cover::before,${C} .hero.aura-story-cover::after{display:none!important;content:none!important}
 ${C} .hero.aura-story-cover .hero-media{position:absolute!important;inset:0 0 auto 0!important;height:clamp(400px,59svh,640px)!important;transform:none!important;filter:contrast(1.025) saturate(.9)}
 ${C} .hero.aura-story-cover .hero-overlay{position:absolute!important;inset:0 0 auto 0!important;height:clamp(400px,59svh,640px)!important;background:linear-gradient(0deg,${rgba(ink,.10)},transparent 45%)!important;pointer-events:none!important}
@@ -70,7 +70,7 @@ ${C} .page .content .aura-gallery-tile{transform:none!important;box-shadow:none!
 ${C} .page .content .aura-screen .section-label{font:500 10px/1.45 var(--body)!important;letter-spacing:.24em!important;color:${accent}!important;text-transform:uppercase!important}
 ${C} .page .content .aura-screen h2{font-family:var(--display)!important;letter-spacing:-.025em!important;line-height:1.1!important}
 @media(max-width:420px){
-${C} .hero.aura-story-cover{padding-top:clamp(320px,52svh,510px)!important}
+${C} .hero.aura-story-cover{padding-top:clamp(365px,62svh,610px)!important}
 ${C} .hero.aura-story-cover .hero-media,${C} .hero.aura-story-cover .hero-overlay{height:clamp(355px,58svh,580px)!important}
 ${C} .hero.aura-story-cover .ap-cover-seam{top:clamp(290px,46svh,465px)!important}
 ${C} .hero.aura-story-cover .ap-sprig-wrap{top:clamp(315px,51svh,510px)!important}
