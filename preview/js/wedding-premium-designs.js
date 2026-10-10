@@ -519,8 +519,15 @@ ${C} .hero.aura-story-cover .ap-cover-photo-frame .hero-overlay{
 }
 ${C} .hero.aura-story-cover .ap-cover-photo-frame .hero-media{
  z-index:1!important;
+ /* Solo la capa de fotografía sube el 10% de la altura del marco.
+    Ampliar esa misma capa al 110% garantiza cobertura hasta la curva,
+    sin huecos y SIN desplazar marco, curva, textos, botones o portada. */
+ inset:-10% 0 auto 0!important;
+ top:-10%!important;
+ bottom:auto!important;
+ height:110%!important;
  background-size:cover!important;
- background-position:${photoX}% ${photoY}%!important; /* 0% mantiene visible la parte superior original */
+ background-position:${photoX}% ${photoY}%!important;
  background-repeat:no-repeat!important;
 }
 ${C} .hero.aura-story-cover .ap-cover-photo-frame .hero-overlay{
