@@ -811,50 +811,80 @@ ${C} .aura-screen-gallery .aura-gallery-grid.gallery.polaroid_pro > figure.aura-
      desde el 36% de su altura. No se dibujan capas de blur en las tarjetas:
      Fecha/Familia/Ubicación conservan su cristal normal, y Cierre conserva
      el degradado que tenía, sin un blur inventado. */
+  /* Moderna de Lujo · un solo gradiente CONTINUO entre foto y tarjeta.
+     Comienza al 34% de la foto, sin doble velo ni elementos nuevos en el editor.
+     Solo conserva los desenfoques que originalmente tenía cada panel. */
   function luxuryUnifiedSurfaceFadeCss(p){
     if(p?.themeVisual!=='wedding_luxury')return '';
-    const C='body.theme-wedding_luxury',dark=paletteDark55(p);
-    const accent=mixHex55(dark,p.primaryColor||'#a98a6c',.20);
-    const alpha=bounded(p.contentBgOpacity,.82,0,1);
-    const surface='linear-gradient(90deg,'+rgba(dark,alpha)+','+rgba(accent,alpha)+')';
-    const photofade=[
-      C+' .page .content .aura-screen-date .aura-date-photo:not(.aura-stage-photo-empty)::after',
-      C+' .page .content .aura-screen-family .aura-family-photo:not(.aura-stage-photo-empty)::after',
-      C+' .page .content .aura-screen-location .aura-location-photo:not(.aura-stage-photo-empty)::after',
-      C+' .page .content .aura-screen-close .aura-close-photo:not(.aura-stage-photo-empty)::after'
-    ];
+    const C='body.theme-wedding_luxury';
+    const dark=paletteDark55(p),accent=mixHex55(dark,p.primaryColor||'#a98a6c',.20);
+    const intensity=bounded(p.contentBgOpacity,.82,0,1);
+    const commonBg='linear-gradient(90deg,'+rgba(dark,intensity)+','+rgba(accent,intensity)+')';
+    const sections=['date','family','location','close'];
+    const photos=['date','family','location','close'].map(k=>
+      C+' .page .content .aura-screen-'+k+' .aura-'+k+'-photo:not(.aura-stage-photo-empty)::after');
+    const glass=['date','family','location'].map(k=>
+      C+' .page .content .aura-screen-'+k+':has(.aura-'+k+'-photo:not(.aura-stage-photo-empty)) .aura-'+k+'-panel');
+    const closing=C+' .page .content .aura-screen-close:has(.aura-close-photo:not(.aura-stage-photo-empty)) .aura-close-panel';
+    const ink=(a)=>rgba(dark,Math.min(1,Math.max(0,a*intensity)));
     return `
-/* Un solo fondo común, sin colores alternados ni dobles fondos por sección.
-   Imagen global y opacidad del velo conservan su funcionamiento normal. */
-${C} .page{background:${surface}!important}
+/* Una sola superficie: se mantiene intacto el fondo general y su velo. */
+${C} .page{background:${commonBg}!important}
 ${C} .page .content{background:transparent!important;background-image:none!important}
 ${C} .page .content>section.aura-screen,
 ${C} .page .content>section.aura-screen:nth-child(even),
 ${C} .page .content>section.aura-screen:nth-child(odd){
- background:transparent!important;background-color:transparent!important;
- background-image:none!important;
+ background:transparent!important;background-image:none!important;
+ background-color:transparent!important;
 }
 ${C} .page .content>section.aura-screen>.aura-screen-shell{
  background:transparent!important;background-image:none!important;
 }
-/* Inicia apenas pasado el primer tercio, antes de la mitad de la foto.
-   Continúa de manera progresiva hasta unir imagen y el tono del panel. */
-${photofade.join(',\n')}{
- content:''!important;position:absolute!important;inset:0!important;
- display:block!important;pointer-events:none!important;
- border-radius:inherit!important;
+/* La fotografía conserva su textura; el oscurecimiento realmente empieza
+   antes de la mitad y alcanza el mismo café que el panel. */
+${photos.join(',\n')}{
+ content:''!important;display:block!important;
+ position:absolute!important;inset:0!important;
+ pointer-events:none!important;border-radius:inherit!important;
  background:linear-gradient(to bottom,
-   ${rgba(dark,0)} 0%,
-   ${rgba(dark,0)} 36%,
-   ${rgba(dark,Math.min(.14,alpha*.18))} 49%,
-   ${rgba(dark,Math.min(.38,alpha*.48))} 66%,
-   ${rgba(dark,Math.min(.66,alpha*.82))} 84%,
-   ${rgba(dark,Math.min(.82,alpha))} 100%)!important;
+   transparent 0%,
+   transparent 34%,
+   ${ink(.12)} 45%,
+   ${ink(.33)} 56%,
+   ${ink(.62)} 70%,
+   ${ink(.84)} 85%,
+   ${ink(.95)} 100%)!important;
+ opacity:1!important;
  -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
  -webkit-mask-image:none!important;mask-image:none!important;
 }
-/* No se sustituye la tarjeta: su degradado, border y blur originales
-   permanecen tal cual. En particular, Cierre no gana ningún blur. */
+/* La tarjeta no tiene borde rectangular arriba: su fondo nace transparente
+   y se hace café de modo gradual. El texto se mantiene intacto. */
+${glass.join(',\n')},
+${closing}{
+ background:linear-gradient(to bottom,
+   transparent 0%,
+   ${ink(.12)} 17%,
+   ${ink(.40)} 46%,
+   ${ink(.72)} 80%,
+   ${ink(.90)} 100%)!important;
+ background-image:linear-gradient(to bottom,
+   transparent 0%,
+   ${ink(.12)} 17%,
+   ${ink(.40)} 46%,
+   ${ink(.72)} 80%,
+   ${ink(.90)} 100%)!important;
+ border-top-color:transparent!important;
+ box-shadow:0 18px 40px ${rgba(dark,.08)}!important;
+}
+/* Fecha, Familia y Ubicación ya tenían blur; Cierre no. */
+${glass.join(',\n')}{
+ -webkit-backdrop-filter:blur(12px)!important;backdrop-filter:blur(12px)!important;
+}
+${closing}{
+ -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+}
+/* No crear tarjetas ni fotografías adicionales. */
 `;
   }
   const _coverCss=coverCss;
