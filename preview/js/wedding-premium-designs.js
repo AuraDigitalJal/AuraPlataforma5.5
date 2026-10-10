@@ -319,10 +319,10 @@ ${imageSel}{
   margin:0!important;height:clamp(365px,57svh,580px)!important;
   border:0!important;outline:0!important;box-shadow:none!important;
   border-radius:46% 46% 0 0 / 14% 14% 0 0!important;
-  clip-path:polygon(0 0,100% 0,100% 79%,95% 81%,90% 83%,85% 85%,
-   80% 87%,75% 89%,70% 91%,65% 92%,60% 93%,55% 94%,50% 94%,
-   45% 93%,40% 92%,35% 91%,30% 89%,25% 87%,20% 85%,15% 83%,
-   10% 81%,5% 80%,0 80%)!important;
+  clip-path:polygon(0 0,100% 0,100% 96%,95% 94%,90% 92%,85% 90%,
+   80% 88%,75% 86%,70% 83%,65% 81%,60% 79%,55% 78%,50% 78%,
+   45% 78%,40% 79%,35% 81%,30% 83%,25% 86%,20% 88%,15% 90%,
+   10% 92%,5% 94%,0 96%)!important;
 }
 ${panelSel}{
   width:100%!important;max-width:none!important;
