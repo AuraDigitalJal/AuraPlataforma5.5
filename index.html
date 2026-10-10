@@ -8,7 +8,7 @@
       if (window.location.protocol === 'file:') return;
       var target = new URL(window.location.href);
       if (!target.searchParams.has('v')) {
-        target.searchParams.set('v', 'hatzi-slim1');
+        target.searchParams.set('v', 'pro-mediterranea-v14-20261010');
         window.location.replace(target.pathname + target.search + target.hash);
       }
     })();
@@ -115,13 +115,13 @@
                     <input type="range" id="auraHeroPhotoX" min="0" max="100" step="1" value="50">
                   </label>
                   <label>Foto · posición vertical
-                    <input type="range" id="auraHeroPhotoY" min="0" max="100" step="1" value="50">
+                    <input type="range" id="auraHeroPhotoY" min="0" max="100" step="1" value="0">
                   </label>
                 </div>
                 <label>Altura de foto y curva
-                  <input type="range" id="auraHeroCurveY" min="45" max="62" step="1" value="56">
+                  <input type="range" id="auraHeroCurveY" min="45" max="94" step="1" value="90">
                 </label>
-                <p class="helper">Este control escala la zona fotográfica con su curva. Menos altura deja más espacio a los nombres y botones. Para mover solo el texto usa «Ajustar texto y acomodo».</p>
+                <p class="helper">Solo la fotografía está elevada un 10%, manteniendo cubierto el marco. La curva, textos, botones y altura de la portada no se desplazan.</p>
               </div>
               <div class="cover-label-settings"><label class="cover-check"><input type="checkbox" id="showHeroLabel" checked> Mostrar etiqueta del evento <small>(opcional)</small></label><label>Texto de la etiqueta<input type="text" id="heroLabelText" placeholder="Automático según el evento"><small id="hero-label-hint" class="field-hint"></small></label><label>Tamaño de etiqueta<select id="heroLabelSize"><option value="auto">Del diseño</option><option value="xs">XS</option><option value="s">S</option><option value="m">M</option><option value="l">L</option><option value="xl">XL</option></select></label></div>
               <label>Título principal<textarea id="title" rows="2">Ana &amp; Carlos</textarea><small class="field-hint">Enter permite elegir dónde separar los nombres en líneas.</small><span class="text-size-control"><span>Tamaño</span><select class="text-size-select" id="titleSize"><option value="auto" selected>Automático</option><option value="xs">XS</option><option value="s">S</option><option value="m">M</option><option value="l">L</option><option value="xl">XL</option></select></span></label>
@@ -425,6 +425,6 @@
   <script src="js/font-data.js?v=5.6.17"></script>
   <script src="js/script.js?v=5.6.21-navfix1-gallery1-media1-text1-navsize1-repocopy1-mapmusic1-hatzi1-slim1-webstudio-protect1-fixedcopy1-galeria-pro-sin-0608-sin-05-mediterranea13"></script>
   <script src="js/fixed-copy-editor.js?v=5.6.21-frases-fijas-1"></script>
-  <script src="js/wedding-mediterranean-pro-v13.js?v=pro-banners-galerias-20261009-1"></script>
+  <script src="js/wedding-mediterranean-pro-v14.js?v=pro-mediterranea-v14-foto10-20261010"></script>
 </body>
 </html>
