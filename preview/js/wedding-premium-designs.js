@@ -814,77 +814,77 @@ ${C} .aura-screen-gallery .aura-gallery-grid.gallery.polaroid_pro > figure.aura-
   /* Moderna de Lujo · un solo gradiente CONTINUO entre foto y tarjeta.
      Comienza al 34% de la foto, sin doble velo ni elementos nuevos en el editor.
      Solo conserva los desenfoques que originalmente tenía cada panel. */
+  /* Moderna de Lujo: una única película de degradado en el ESCENARIO,
+     encima de la foto y por debajo del texto. No usar gradientes separados
+     en fotografía/tarjeta: producían un corte o cambios imperceptibles. */
   function luxuryUnifiedSurfaceFadeCss(p){
     if(p?.themeVisual!=='wedding_luxury')return '';
     const C='body.theme-wedding_luxury';
-    const dark=paletteDark55(p),accent=mixHex55(dark,p.primaryColor||'#a98a6c',.20);
-    const intensity=bounded(p.contentBgOpacity,.82,0,1);
-    const commonBg='linear-gradient(90deg,'+rgba(dark,intensity)+','+rgba(accent,intensity)+')';
-    const sections=['date','family','location','close'];
-    const photos=['date','family','location','close'].map(k=>
-      C+' .page .content .aura-screen-'+k+' .aura-'+k+'-photo:not(.aura-stage-photo-empty)::after');
-    const glass=['date','family','location'].map(k=>
-      C+' .page .content .aura-screen-'+k+':has(.aura-'+k+'-photo:not(.aura-stage-photo-empty)) .aura-'+k+'-panel');
-    const closing=C+' .page .content .aura-screen-close:has(.aura-close-photo:not(.aura-stage-photo-empty)) .aura-close-panel';
-    const ink=(a)=>rgba(dark,Math.min(1,Math.max(0,a*intensity)));
+    const dark=paletteDark55(p);
+    const accent=mixHex55(dark,p.primaryColor||'#a98a6c',.20);
+    const alpha=bounded(p.contentBgOpacity,.82,0,1);
+    const stageNames=['date','family','location','close'];
+    const stageSelector=stageNames.map(k=>C+' .page .content .aura-screen-'+k+':has(.aura-'+k+'-photo:not(.aura-stage-photo-empty))').join(',\n');
+    const shellSelector=stageNames.map(k=>C+' .page .content .aura-screen-'+k+':has(.aura-'+k+'-photo:not(.aura-stage-photo-empty))>.aura-screen-shell').join(',\n');
+    const imageSelector=stageNames.map(k=>C+' .page .content .aura-screen-'+k+' .aura-'+k+'-photo:not(.aura-stage-photo-empty)').join(',\n');
+    const panelSelector=stageNames.map(k=>C+' .page .content .aura-screen-'+k+':has(.aura-'+k+'-photo:not(.aura-stage-photo-empty)) .aura-'+k+'-panel').join(',\n');
+    const surface='linear-gradient(90deg,'+rgba(dark,alpha)+','+rgba(accent,alpha)+')';
+    const ink=(part)=>rgba(dark,Math.min(1,Math.max(0,part*alpha)));
     return `
-/* Una sola superficie: se mantiene intacto el fondo general y su velo. */
-${C} .page{background:${commonBg}!important}
+/* Color uniforme detrás de todas las secciones, sin doble capa o bandas pares. */
+${C} .page{background:${surface}!important}
 ${C} .page .content{background:transparent!important;background-image:none!important}
 ${C} .page .content>section.aura-screen,
-${C} .page .content>section.aura-screen:nth-child(even),
-${C} .page .content>section.aura-screen:nth-child(odd){
- background:transparent!important;background-image:none!important;
- background-color:transparent!important;
+${C} .page .content>section.aura-screen:nth-child(odd),
+${C} .page .content>section.aura-screen:nth-child(even){
+ background:transparent!important;background-image:none!important;background-color:transparent!important;
 }
 ${C} .page .content>section.aura-screen>.aura-screen-shell{
  background:transparent!important;background-image:none!important;
 }
-/* La fotografía conserva su textura; el oscurecimiento realmente empieza
-   antes de la mitad y alcanza el mismo café que el panel. */
-${photos.join(',\n')}{
- content:''!important;display:block!important;
- position:absolute!important;inset:0!important;
- pointer-events:none!important;border-radius:inherit!important;
- background:linear-gradient(to bottom,
-   transparent 0%,
-   transparent 34%,
-   ${ink(.12)} 45%,
-   ${ink(.33)} 56%,
-   ${ink(.62)} 70%,
-   ${ink(.84)} 85%,
-   ${ink(.95)} 100%)!important;
- opacity:1!important;
- -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
- -webkit-mask-image:none!important;mask-image:none!important;
+/* Un degradado CONTINUO desde el 34% de la foto al fondo de la tarjeta.
+   El after del escenario no compite con los textos ni intercepta los botones. */
+${shellSelector}{
+ position:relative!important;isolation:isolate!important;
 }
-/* La tarjeta no tiene borde rectangular arriba: su fondo nace transparente
-   y se hace café de modo gradual. El texto se mantiene intacto. */
-${glass.join(',\n')},
-${closing}{
+${shellSelector}::after{
+ content:''!important;display:block!important;position:absolute!important;
+ inset:0!important;width:100%!important;height:100%!important;
+ z-index:1!important;pointer-events:none!important;border:0!important;
+ border-radius:0!important;opacity:1!important;
  background:linear-gradient(to bottom,
-   transparent 0%,
-   ${ink(.12)} 17%,
-   ${ink(.40)} 46%,
-   ${ink(.72)} 80%,
-   ${ink(.90)} 100%)!important;
- background-image:linear-gradient(to bottom,
-   transparent 0%,
-   ${ink(.12)} 17%,
-   ${ink(.40)} 46%,
-   ${ink(.72)} 80%,
-   ${ink(.90)} 100%)!important;
+  transparent 0%,
+  transparent 34%,
+  ${ink(.10)} 44%,
+  ${ink(.32)} 55%,
+  ${ink(.64)} 69%,
+  ${ink(.88)} 83%,
+  ${ink(1)} 100%)!important;
+ -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+}
+/* Fotos reales abajo; familia usa un contenedor fotográfico propio. */
+${imageSelector}{
+ z-index:0!important;
+}
+${C} .page .content .aura-screen-family:has(.aura-family-photo:not(.aura-stage-photo-empty)) .aura-family-portrait{
+ z-index:0!important;
+}
+/* Eliminar el segundo velo anterior de Cierre (antes de esta corrección)
+   y cualquier degradado preexistente dentro de la propia fotografía. */
+${stageNames.map(k=>C+' .page .content .aura-screen-'+k+' .aura-'+k+'-photo:not(.aura-stage-photo-empty)::after').join(',\n')}{
+ content:none!important;display:none!important;background:none!important;
+}
+/* El texto está por encima de un único degradado, sin el rectángulo opaco
+   de la tarjeta que ocultaba el efecto. No se altera posición/tamaño. */
+${panelSelector}{
+ position:relative!important;z-index:3!important;
+ background:transparent!important;background-image:none!important;
  border-top-color:transparent!important;
- box-shadow:0 18px 40px ${rgba(dark,.08)}!important;
+ box-shadow:none!important;
 }
-/* Fecha, Familia y Ubicación ya tenían blur; Cierre no. */
-${glass.join(',\n')}{
- -webkit-backdrop-filter:blur(12px)!important;backdrop-filter:blur(12px)!important;
-}
-${closing}{
+${C} .page .content .aura-screen-close:has(.aura-close-photo:not(.aura-stage-photo-empty)) .aura-close-panel{
  -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
 }
-/* No crear tarjetas ni fotografías adicionales. */
 `;
   }
   const _coverCss=coverCss;
