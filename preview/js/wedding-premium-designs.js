@@ -30,12 +30,11 @@
  if(!premium.has(k)||!html.includes('aura-story-cover'))return html;
  const source='<div class="hero-media"></div><div class="hero-overlay"></div>';
  if(!html.includes(source))return html;
+ const sprig='<div class="ap-sprig-wrap" aria-hidden="true">'+motif+'</div>';
  const art='<div class="ap-cover-photo-frame" aria-hidden="true">'+
    '<div class="hero-media"></div><div class="hero-overlay"></div>'+
-   '<div class="ap-cover-seam ap-'+k+'">'+seams[k]+'</div></div>';
- html=html.replace(source,art);
- const sprig='<div class="ap-sprig-wrap" aria-hidden="true">'+motif+'</div>';
- return html.replace('<div class="hero-inner">',sprig+'<div class="hero-inner">');
+   '<div class="ap-cover-seam ap-'+k+'">'+seams[k]+'</div>'+sprig+'</div>';
+ return html.replace(source,art);
 };
   function decorationCss(p){
     if(!premium.has(p?.themeVisual))return '';
@@ -486,17 +485,27 @@ ${C} .page .content .aura-screen-family .aura-family-portrait{width:100%!importa
  return `
 /* El marco fotográfico contiene el SVG de la curva y el velo, sin medidas divergentes. */
 ${C} .hero.aura-story-cover{
- --med-photo-bottom:${photoBottom}svh;
+ --med-photo-target:${photoBottom}svh;
  --med-wave-depth:${waveDepth}svh;
+ box-sizing:border-box!important;
+ height:100svh!important;
  min-height:100svh!important;
- height:auto!important;
+ max-height:100svh!important;
+ display:flex!important;
+ flex-direction:column!important;
+ align-items:stretch!important;
  justify-content:flex-start!important;
- padding-top:calc(var(--med-photo-bottom) + .5svh)!important;
- padding-bottom:clamp(12px,2svh,20px)!important;
+ padding:0!important;
+ gap:0!important;
+ overflow:hidden!important;
 }
 ${C} .hero.aura-story-cover .ap-cover-photo-frame{
- position:absolute!important;inset:0 0 auto 0!important;
- width:100%!important;height:var(--med-photo-bottom)!important;
+ /* Marco en el flujo flex: crece hasta donde quepa sin aumentar la portada. */
+ position:relative!important;inset:auto!important;
+ box-sizing:border-box!important;
+ flex:0 1 var(--med-photo-target)!important;
+ min-height:0!important;max-height:none!important;
+ width:100%!important;height:auto!important;
  overflow:hidden!important;isolation:isolate!important;
  z-index:1!important;pointer-events:none!important;
 }
@@ -520,7 +529,7 @@ ${C} .hero.aura-story-cover .ap-cover-photo-frame .hero-overlay{
 ${C} .hero.aura-story-cover .ap-cover-photo-frame .ap-cover-seam{
  display:block!important;position:absolute!important;
  top:auto!important;bottom:-1px!important;left:0!important;right:0!important;
- width:100%!important;height:var(--med-wave-depth)!important;
+ width:100%!important;height:min(var(--med-wave-depth),27%)!important;
  z-index:3!important;pointer-events:none!important;
  transform:none!important;
 }
@@ -528,13 +537,18 @@ ${C} .hero.aura-story-cover .ap-cover-photo-frame .ap-cover-seam svg{
  width:100%!important;height:100%!important;display:block!important;
  overflow:hidden!important;
 }
-${C} .hero.aura-story-cover .ap-sprig-wrap{
- top:calc(var(--med-photo-bottom) - 8svh)!important;
- z-index:4!important;
+${C} .hero.aura-story-cover .ap-cover-photo-frame .ap-sprig-wrap{
+ position:absolute!important;top:auto!important;bottom:4svh!important;
+ z-index:4!important;pointer-events:none!important;
 }
 ${C} .hero.aura-story-cover .hero-inner{
+ flex:1 0 auto!important;min-height:0!important;
+ box-sizing:border-box!important;
  transform:translateY(${textOffset}px)!important;
  position:relative!important;z-index:5!important;
+}
+${C} .hero.aura-story-cover .scroll-note{
+ flex:0 0 auto!important;
 }
 `;
 }
