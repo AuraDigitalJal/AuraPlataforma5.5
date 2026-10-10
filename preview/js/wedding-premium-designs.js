@@ -476,8 +476,8 @@ ${C} .page .content .aura-screen-family .aura-family-portrait{width:100%!importa
  if(p?.themeVisual!=='wedding_mediterranean')return '';
  const C='.theme-wedding_mediterranean';
  const photoX=bounded(p.auraHeroPhotoX,50,0,100);
- const photoY=bounded(p.auraHeroPhotoY,32,0,100);
- const curve=bounded(p.auraHeroCurveY,73,45,82);
+ const photoY=bounded(p.auraHeroPhotoY,18,0,100);
+ const curve=bounded(p.auraHeroCurveY,78,45,86);
  // El control representa el nivel real de la transición; no se añade un segundo bloque de foto.
  const photoBottom=curve+4;
  // La ondulación crece proporcionalmente con la zona de foto: nunca desplazar sólo el trazo.
@@ -542,19 +542,28 @@ ${C} .hero.aura-story-cover .hero-inner{
   getFormParams=function(){
     const p=_getFormParamsMed();
     p.auraHeroPhotoX=document.getElementById('auraHeroPhotoX')?.value??'50';
-    p.auraHeroPhotoY=document.getElementById('auraHeroPhotoY')?.value??'32';
-    p.auraHeroCurveY=document.getElementById('auraHeroCurveY')?.value??'73';
+    p.auraHeroPhotoY=document.getElementById('auraHeroPhotoY')?.value??'18';
+    p.auraHeroCurveY=document.getElementById('auraHeroCurveY')?.value??'78';
     return p;
   };
   const _applyConfigMed=applyConfig;
   applyConfig=function(cfg){
-    for(const [id,def] of [['auraHeroPhotoX','50'],['auraHeroPhotoY','32'],['auraHeroCurveY','73']]){
-      if(cfg?.[id]===undefined||cfg[id]===null){
+    const incoming=cfg&&typeof cfg==='object'?{...cfg}:cfg;
+    // Actualizar el par de valores predeterminados usado en la prueba anterior.
+    // No alterar ajustes manuales diferentes ni la plataforma oficial.
+    if(incoming?.themeVisual==='wedding_mediterranean' &&
+       String(incoming.auraHeroPhotoY)==='32' &&
+       String(incoming.auraHeroCurveY)==='73'){
+      incoming.auraHeroPhotoY='18';
+      incoming.auraHeroCurveY='78';
+    }
+    for(const [id,def] of [['auraHeroPhotoX','50'],['auraHeroPhotoY','18'],['auraHeroCurveY','78']]){
+      if(incoming?.[id]===undefined||incoming[id]===null){
         const control=document.getElementById(id);
         if(control)control.value=def;
       }
     }
-    return _applyConfigMed(cfg);
+    return _applyConfigMed(incoming);
   };
   function syncMediterraneanCoverControls(){
     const panel=document.getElementById('medCoverAdjustments');
