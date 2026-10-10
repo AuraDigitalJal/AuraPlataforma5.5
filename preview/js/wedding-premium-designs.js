@@ -721,20 +721,88 @@ ${C} .page .banner-horizontal::after{
 }
 `;
   }
-  // Reparar la galería al final del CSS, conservando radios, formas y encuadre por foto.
+  // Galería estable en PRUEBAS (Aura Editorial + boda 01-10).
+  // El selector del usuario determina el layout; el encuadre por foto permanece intacto.
+  // Separar el tamaño de las celdas de las imágenes elimina las filas que se montan.
   function editorialGalleryLayoutRepairCss(p){
-   if(!isEditorialBannerGalleryTheme(p)||p.themeVisual==='wedding_mediterranean')return '';
+   if(!isEditorialBannerGalleryTheme(p))return '';
    const C='.theme-'+p.themeVisual;
    const mode=String(p.galleryStyle||'editorial');
-   const layout=typeof auraGalleryStyleCss555==='function'?auraGalleryStyleCss555(p):'';
-   return layout+`
-${C} .aura-screen-gallery .aura-gallery-grid{min-width:0!important;max-width:100%!important}
-${C} .aura-screen-gallery .aura-gallery-tile{
- min-height:0!important;max-height:none!important;
- height:${mode==='collage'?'100%':'auto'}!important;
-}
-${C} .aura-screen-gallery .aura-gallery-tile img{min-width:0!important;max-width:100%!important}
+   // Prioridad final sobre weddingThemeCss55 y los estilos de Aura Editorial.
+   const standard=typeof auraGalleryStyleCss555==='function'?auraGalleryStyleCss555(p):'';
+   const foundation=`
+${C} .aura-screen-gallery{height:auto!important;min-height:0!important;overflow:visible!important}
+${C} .aura-screen-gallery .aura-screen-shell{height:auto!important;min-height:0!important;display:block!important;min-width:0!important;max-width:100%;overflow:visible!important}
+${C} .aura-screen-gallery .aura-gallery-grid.gallery{box-sizing:border-box!important;position:relative!important;width:100%!important;max-width:100%!important;min-width:0!important;clear:both!important;grid-template-rows:none!important;grid-auto-flow:row!important}
+${C} .aura-screen-gallery .aura-gallery-grid > figure.aura-gallery-tile{box-sizing:border-box!important;min-width:0!important;min-height:0!important;max-height:none!important;float:none!important;z-index:auto!important}
+${C} .aura-screen-gallery .aura-gallery-grid > figure.aura-gallery-tile img.gallery-image{box-sizing:border-box!important;display:block!important;width:100%!important;min-width:0!important;max-width:100%!important;margin:0!important;transform:none!important}
 `;
+   // Aspecto y tamaños de los recuadros: la imagen no participa en el cálculo
+   // de filas del grid, evitando alturas circulares y fotografías empalmadas.
+   const framed=`
+${C} .aura-screen-gallery .aura-gallery-grid > figure.aura-gallery-tile{position:relative!important;height:auto!important;margin:0!important;overflow:hidden!important}
+${C} .aura-screen-gallery .aura-gallery-grid > figure.aura-gallery-tile img.gallery-image{position:absolute!important;inset:0!important;height:100%!important}
+`;
+   switch(mode){
+    case 'square':
+     return standard+foundation+framed+`
+${C} .aura-screen-gallery .aura-gallery-grid.gallery.square{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-auto-rows:auto!important;gap:10px!important;overflow:visible!important}
+${C} .aura-screen-gallery .aura-gallery-grid.gallery.square > figure.aura-gallery-tile{grid-column:auto!important;grid-row:auto!important;aspect-ratio:1/1!important}
+`;
+    case 'rectangular':
+     return standard+foundation+framed+`
+${C} .aura-screen-gallery .aura-gallery-grid.gallery.rectangular{display:grid!important;grid-template-columns:minmax(0,1fr)!important;grid-auto-rows:auto!important;gap:16px!important;overflow:visible!important}
+${C} .aura-screen-gallery .aura-gallery-grid.gallery.rectangular > figure.aura-gallery-tile{grid-column:auto!important;grid-row:auto!important;aspect-ratio:4/3!important}
+`;
+    case 'editorial':
+     return standard+foundation+framed+`
+${C} .aura-screen-gallery .aura-gallery-grid.gallery.editorial{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-auto-rows:auto!important;gap:10px!important;overflow:visible!important}
+${C} .aura-screen-gallery .aura-gallery-grid.gallery.editorial > figure.aura-gallery-tile{grid-column:auto!important;grid-row:auto!important;aspect-ratio:3/4!important}
+${C} .aura-screen-gallery .aura-gallery-grid.gallery.editorial > figure.aura-gallery-tile:nth-child(3n+1){grid-column:1/-1!important;grid-row:auto!important;aspect-ratio:4/5!important}
+${C} .aura-screen-gallery .aura-gallery-grid.gallery.editorial > figure.aura-gallery-tile:last-child:nth-child(3n+2){grid-column:1/-1!important;grid-row:auto!important;aspect-ratio:4/3!important}
+`;
+    case 'collage':
+     return standard+foundation+framed+`
+${C} .aura-screen-gallery .aura-gallery-grid.gallery.collage{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-auto-rows:clamp(110px,30vw,185px)!important;gap:9px!important;overflow:visible!important}
+${C} .aura-screen-gallery .aura-gallery-grid.gallery.collage > figure.aura-gallery-tile{grid-column:auto!important;grid-row:auto!important;aspect-ratio:auto!important;height:100%!important}
+${C} .aura-screen-gallery .aura-gallery-grid.gallery.collage > figure.aura-gallery-tile:first-child{grid-column:1/-1!important;grid-row:span 2!important}
+${C} .aura-screen-gallery .aura-gallery-grid.gallery.collage > figure.aura-gallery-tile:nth-child(4n+2){grid-row:span 2!important}
+${C} .aura-screen-gallery .aura-gallery-grid.gallery.collage > figure.aura-gallery-tile:nth-child(5n){grid-column:1/-1!important}
+`;
+    case 'carousel':
+    case 'filmstrip':
+     return standard+foundation+framed+`
+${C} .aura-screen-gallery .aura-gallery-grid.gallery.${mode}{display:flex!important;flex-direction:row!important;flex-wrap:nowrap!important;grid-template-columns:none!important;gap:${mode==='carousel'?'12':'10'}px!important;overflow-x:auto!important;overflow-y:hidden!important;scroll-snap-type:x mandatory!important;scrollbar-width:thin!important;padding:0 0 14px!important}
+${C} .aura-screen-gallery .aura-gallery-grid.gallery.${mode} > figure.aura-gallery-tile{flex:0 0 ${mode==='carousel'?'86':'72'}%!important;width:auto!important;min-width:0!important;aspect-ratio:${mode==='carousel'?'4/5':'3/4'}!important;scroll-snap-align:start!important}
+`;
+    case 'masonry':
+     return standard+foundation+`
+${C} .aura-screen-gallery .aura-gallery-grid.gallery.masonry{display:block!important;columns:2!important;column-gap:10px!important;overflow:visible!important}
+${C} .aura-screen-gallery .aura-gallery-grid.gallery.masonry > figure.aura-gallery-tile{display:inline-block!important;position:relative!important;vertical-align:top!important;width:100%!important;height:auto!important;aspect-ratio:auto!important;margin:0 0 10px!important;padding:0!important;break-inside:avoid!important;overflow:hidden!important}
+${C} .aura-screen-gallery .aura-gallery-grid.gallery.masonry > figure.aura-gallery-tile img.gallery-image{position:static!important;inset:auto!important;height:auto!important;aspect-ratio:auto!important}
+`;
+    case 'story':
+     return standard+foundation+`
+${C} .aura-screen-gallery .aura-gallery-grid.gallery.story{display:grid!important;grid-template-columns:minmax(0,1fr)!important;grid-auto-rows:auto!important;gap:22px!important;overflow:visible!important}
+${C} .aura-screen-gallery .aura-gallery-grid.gallery.story > figure.aura-gallery-tile{position:relative!important;grid-column:auto!important;grid-row:auto!important;width:100%!important;height:auto!important;aspect-ratio:auto!important;margin:0!important;overflow:visible!important}
+${C} .aura-screen-gallery .aura-gallery-grid.gallery.story > figure.aura-gallery-tile img.gallery-image{position:static!important;inset:auto!important;height:auto!important;aspect-ratio:auto!important}
+`;
+    case 'narrative':
+     return standard+foundation+`
+${C} .aura-screen-gallery .aura-gallery-grid.gallery.narrative{display:flex!important;flex-direction:column!important;flex-wrap:nowrap!important;gap:28px!important;overflow:visible!important}
+${C} .aura-screen-gallery .aura-gallery-grid.gallery.narrative > figure.aura-gallery-tile{position:relative!important;flex:none!important;width:88%!important;height:auto!important;aspect-ratio:auto!important;margin:0!important;align-self:flex-start!important;overflow:visible!important}
+${C} .aura-screen-gallery .aura-gallery-grid.gallery.narrative > figure.aura-gallery-tile:nth-child(even){align-self:flex-end!important}
+${C} .aura-screen-gallery .aura-gallery-grid.gallery.narrative > figure.aura-gallery-tile:nth-child(3n+1){width:100%!important}
+${C} .aura-screen-gallery .aura-gallery-grid.gallery.narrative > figure.aura-gallery-tile img.gallery-image{position:static!important;inset:auto!important;height:auto!important;aspect-ratio:auto!important}
+`;
+    case 'polaroid_pro':
+     return standard+foundation+`
+${C} .aura-screen-gallery .aura-gallery-grid.gallery.polaroid_pro{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-auto-rows:auto!important;gap:20px!important;padding:10px!important;overflow:visible!important}
+${C} .aura-screen-gallery .aura-gallery-grid.gallery.polaroid_pro > figure.aura-gallery-tile{position:relative!important;grid-column:auto!important;grid-row:auto!important;height:auto!important;aspect-ratio:auto!important;margin:0!important;align-self:start!important;overflow:visible!important}
+${C} .aura-screen-gallery .aura-gallery-grid.gallery.polaroid_pro > figure.aura-gallery-tile img.gallery-image{position:static!important;inset:auto!important;height:auto!important;aspect-ratio:3/4!important}
+`;
+    default:return standard+foundation;
+   }
   }
   const _coverCss=coverCss;
   coverCss=function(p){return _coverCss(p)+decorationCss(p)+mediterraneanCoverFramingCss(p)+mediterraneanTextFlowCss(p)+mediterraneanGalleryRespectCss(p)+editorialBannerCss(p)+editorialGalleryLayoutRepairCss(p)};
