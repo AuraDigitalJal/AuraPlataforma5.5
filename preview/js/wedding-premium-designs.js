@@ -580,8 +580,43 @@ ${C} .hero.aura-story-cover .hero-inner{
     syncMediterraneanCoverControls();
     return out;
   };
+  function mediterraneanTextFlowCss(p){
+ if(p?.themeVisual!=='wedding_mediterranean')return '';
+ const C='.theme-wedding_mediterranean';
+ // Sólo el texto de Ubicación y Cierre. No se fuerza text-align.
+ const locationSize=p.locationsHeadingSize&&p.locationsHeadingSize!=='auto'?'':'font-size:clamp(30px,7.8vw,46px);';
+ const closeSize=p.mainMessageSize&&p.mainMessageSize!=='auto'?'':'font-size:clamp(30px,8vw,45px);';
+ return `
+/* Editorial legible: sin columnas de 12 caracteres ni cortes de palabra. */
+${C} .page .content .aura-screen-location .aura-location-panel>h2{
+ display:block!important;
+ box-sizing:border-box!important;
+ max-width:100%!important;width:100%!important;min-width:0!important;
+ margin-left:0!important;margin-right:0!important;
+ white-space:normal!important;word-break:normal!important;
+ overflow-wrap:normal!important;hyphens:none!important;
+ text-wrap:pretty!important;
+ ${locationSize}
+}
+${C} .page .content .aura-screen-close .aura-close-panel .final-message{
+ display:block!important;
+ box-sizing:border-box!important;
+ max-width:100%!important;width:100%!important;min-width:0!important;
+ margin-left:0!important;margin-right:0!important;
+ white-space:normal!important;word-break:normal!important;
+ overflow-wrap:normal!important;hyphens:none!important;
+ text-wrap:pretty!important;
+ line-height:1.18!important;
+ ${closeSize}
+}
+${C} .page .content .aura-screen-location .aura-location-panel,
+${C} .page .content .aura-screen-close .aura-close-panel{
+ min-width:0!important;
+}
+`;
+}
   const _coverCss=coverCss;
-  coverCss=function(p){return _coverCss(p)+decorationCss(p)+mediterraneanCoverFramingCss(p)};
+  coverCss=function(p){return _coverCss(p)+decorationCss(p)+mediterraneanCoverFramingCss(p)+mediterraneanTextFlowCss(p)};
   const _editionCss=editionCss;
   editionCss=function(p,t,a){return _editionCss(p,t,a)};
   const _fullCss=invitationCss;
