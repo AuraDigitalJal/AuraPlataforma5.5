@@ -804,8 +804,63 @@ ${C} .aura-screen-gallery .aura-gallery-grid.gallery.polaroid_pro > figure.aura-
     default:return standard+foundation;
    }
   }
+
+  /* Moderna de Lujo · solo refinamiento de tarjeta y superficie compartida.
+     No se cambian fotografías, paletas, contenido ni controles del editor. */
+  function luxuryUnifiedSurfaceFadeCss(p){
+    if(p?.themeVisual!=='wedding_luxury')return '';
+    const C='body.theme-wedding_luxury',dark=paletteDark55(p);
+    const accent=mixHex55(dark,p.primaryColor||'#a98a6c',.20);
+    const alpha=bounded(p.contentBgOpacity,.82,0,1);
+    const start=Math.min(.34,alpha*.42),end=alpha;
+    const surface='linear-gradient(90deg,'+rgba(dark,alpha)+','+rgba(accent,alpha)+')';
+    const panels=[
+      C+' .page .content .aura-screen-date:has(.aura-stage-photo:not(.aura-stage-photo-empty)) .aura-date-panel',
+      C+' .page .content .aura-screen-family:has(.aura-stage-photo:not(.aura-stage-photo-empty)) .aura-family-panel',
+      C+' .page .content .aura-screen-location:has(.aura-stage-photo:not(.aura-stage-photo-empty)) .aura-location-panel',
+      C+' .page .content .aura-screen-close:has(.aura-stage-photo:not(.aura-stage-photo-empty)) .aura-close-panel'
+    ];
+    return `
+/* Un fondo para el contenido completo; sin variar el color entre secciones.
+   La imagen y el velo global de la invitación permanecen sin modificaciones. */
+${C} .page{background:${surface}!important}
+${C} .page .content{background:transparent!important;background-image:none!important}
+${C} .page .content>section.aura-screen,
+${C} .page .content>section.aura-screen:nth-child(even),
+${C} .page .content>section.aura-screen:nth-child(odd){
+ background:transparent!important;background-color:transparent!important;
+ background-image:none!important;
+}
+${C} .page .content>section.aura-screen>.aura-screen-shell{
+ background:transparent!important;background-image:none!important;
+}
+/* Solo cuando hay foto: se difumina la parte superior de la tarjeta hacia ella.
+   No se añade ningún cuadro ni imagen. */
+${panels.join(',\n')}{
+ position:relative!important;isolation:isolate!important;
+ overflow:visible!important;
+ background:transparent!important;background-image:none!important;
+ -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+ border-top-color:transparent!important;
+}
+${panels.map(q=>q+'::before').join(',\n')}{
+ content:''!important;position:absolute!important;inset:-82px 0 -1px!important;
+ display:block!important;z-index:0!important;pointer-events:none!important;
+ background:linear-gradient(to bottom,
+   ${rgba(dark,0)} 0px,
+   ${rgba(dark,start*.40)} 45px,
+   ${rgba(dark,start)} 96px,
+   ${rgba(dark,end)} 100%)!important;
+ -webkit-backdrop-filter:blur(12px)!important;
+ backdrop-filter:blur(12px)!important;
+ -webkit-mask-image:linear-gradient(to bottom,transparent 0px,#000 80px,#000 100%)!important;
+ mask-image:linear-gradient(to bottom,transparent 0px,#000 80px,#000 100%)!important;
+}
+${panels.map(q=>q+'>*').join(',\n')}{position:relative;z-index:1}
+`;
+  }
   const _coverCss=coverCss;
-  coverCss=function(p){return _coverCss(p)+decorationCss(p)+mediterraneanCoverFramingCss(p)+mediterraneanTextFlowCss(p)+mediterraneanGalleryRespectCss(p)+editorialBannerCss(p)+editorialGalleryLayoutRepairCss(p)};
+  coverCss=function(p){return _coverCss(p)+decorationCss(p)+mediterraneanCoverFramingCss(p)+mediterraneanTextFlowCss(p)+mediterraneanGalleryRespectCss(p)+editorialBannerCss(p)+editorialGalleryLayoutRepairCss(p)+luxuryUnifiedSurfaceFadeCss(p)};
   const _editionCss=editionCss;
   editionCss=function(p,t,a){return _editionCss(p,t,a)};
   const _fullCss=invitationCss;
