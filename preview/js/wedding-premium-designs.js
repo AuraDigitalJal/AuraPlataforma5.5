@@ -816,222 +816,57 @@ ${C} .aura-screen-gallery .aura-gallery-grid.gallery.polaroid_pro > figure.aura-
     ))return '';
     return _luxuryGlobalGlassStagePhoto(src,extraClass,p,index);
   };
+  /* Moderna de Lujo · SOLO dimensionado de Fecha y Ubicación.
+     El fondo y el velo globales siguen siendo los originales.
+     Colores, sombras, degradado café, blur, paletas y textos son los del
+     diseño original y se editan con los controles normales del Studio. */
   function luxuryGlobalFullGlassCss(p){
     if(p?.themeVisual!=='wedding_luxury')return '';
     const C='body.theme-wedding_luxury';
-    const contrast='#fffaf5',soft='rgba(255,250,245,.84)';
-    const trim=rgba(p.primaryColor||'#c8ae94',.46);
-    const glassColor=/^#[0-9a-fA-F]{6}$/.test(String(p.luxuryGlassColor||''))?p.luxuryGlassColor:'#493126';
-    const glassOpacity=bounded(p.luxuryGlassOpacity,.42,0,.85);
-    const glassBlur=bounded(p.luxuryGlassBlur,25,0,42);
-    const glassAlign=(v)=>({top:'flex-start',center:'center',bottom:'flex-end'})[v]||'center';
-    const dateAlign=glassAlign(p.luxuryGlassDateAlign),locAlign=glassAlign(p.luxuryGlassLocationAlign);
-    const dateShift=bounded(p.luxuryGlassDateShift,0,-140,140);
-    const locShift=bounded(p.luxuryGlassLocationShift,0,-140,140);
-    const dateTitleSize=textSizeCss(p.countdownLabelSize,'sectionTitle')||'clamp(35px,9vw,52px)';
-    const locTitleSize=textSizeCss(p.locationsHeadingSize,'sectionTitle')||'clamp(35px,9vw,52px)';
     return `
-/* El velo global sigue intacto fuera de Fecha y Ubicación.
-   El recorte transparente del velo se actualiza al desplazarse por la página. */
-${C} .page,
-${C} .page>.content{background:transparent!important;background-image:none!important}
-/* La sección entera es transparente. Sólo su panel es cristal. */
+/* Mostrar detrás el fondo global de la invitación; no añadir ni copiar fotos. */
 ${C} .page .content>section.aura-screen.aura-screen-date,
 ${C} .page .content>section.aura-screen.aura-screen-location{
- box-sizing:border-box!important;display:flex!important;flex-direction:column!important;
- align-items:stretch!important;justify-content:stretch!important;
+ display:flex!important;flex-direction:column!important;align-items:stretch!important;
+ justify-content:stretch!important;box-sizing:border-box!important;
  width:100%!important;max-width:none!important;
  min-height:100svh!important;height:auto!important;
  padding:0!important;margin:0!important;
- position:relative!important;isolation:auto!important;
- background:transparent!important;background-color:transparent!important;
- background-image:none!important;
- -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
+ background:transparent!important;background-image:none!important;
  overflow:visible!important;
 }
 ${C} .page .content>section.aura-screen.aura-screen-date::before,
 ${C} .page .content>section.aura-screen.aura-screen-date::after,
 ${C} .page .content>section.aura-screen.aura-screen-location::before,
 ${C} .page .content>section.aura-screen.aura-screen-location::after{
- content:none!important;display:none!important;box-shadow:none!important;
+ display:none!important;content:none!important;
 }
-/* No figuran las fotografías individuales de la galería. */
-${C} .page .content .aura-screen-date .aura-stage-photo,
-${C} .page .content .aura-screen-location .aura-stage-photo{
- display:none!important;
-}
+/* El único cambio del cuadro es que llena la superficie de la sección. */
 ${C} .page .content>section.aura-screen.aura-screen-date>.aura-screen-shell,
 ${C} .page .content>section.aura-screen.aura-screen-location>.aura-screen-shell{
- box-sizing:border-box!important;position:relative!important;inset:auto!important;
- display:flex!important;flex-direction:column!important;flex-wrap:nowrap!important;
+ display:flex!important;flex-direction:column!important;
  align-items:stretch!important;justify-content:stretch!important;
- grid-template-columns:none!important;
- width:100%!important;max-width:none!important;min-width:0!important;
- height:auto!important;min-height:100svh!important;
- padding:0!important;margin:0!important;
- overflow:visible!important;
- background:transparent!important;background-image:none!important;
- -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
- transform:none!important;box-shadow:none!important;
+ width:100%!important;max-width:none!important;
+ min-height:100svh!important;height:auto!important;
+ margin:0!important;padding:0!important;
 }
-${C} .page .content>section.aura-screen.aura-screen-date>.aura-screen-shell::before,
-${C} .page .content>section.aura-screen.aura-screen-date>.aura-screen-shell::after,
-${C} .page .content>section.aura-screen.aura-screen-location>.aura-screen-shell::before,
-${C} .page .content>section.aura-screen.aura-screen-location>.aura-screen-shell::after{
- content:none!important;display:none!important;
-}
-/* Un vidrio que ocupa TODO el alto/ancho útil de la sección, no una tarjeta.
-   Se dejan sólo 8px de borde perimetral; altura crece con el contenido. */
+/* Conservamos el café original de wedding_luxury:
+   NO sobreescribir background, background-color, color, blur ni borde. */
 ${C} .page .content>section.aura-screen.aura-screen-date .aura-date-panel,
 ${C} .page .content>section.aura-screen.aura-screen-location .aura-location-panel{
  box-sizing:border-box!important;display:flex!important;flex-direction:column!important;
  align-items:center!important;justify-content:center!important;
- flex:1 0 auto!important;
- position:relative!important;inset:auto!important;z-index:2!important;
- width:calc(100% - 16px)!important;max-width:none!important;min-width:0!important;
- min-height:calc(100svh - 16px)!important;height:auto!important;max-height:none!important;
+ flex:1 0 auto!important;position:relative!important;
+ width:calc(100% - 16px)!important;max-width:none!important;
+ min-height:calc(100svh - 16px)!important;height:auto!important;
  margin:8px auto!important;
- padding:clamp(32px,6vw,58px) clamp(18px,6vw,44px)!important;
- border:1px solid ${trim}!important;border-radius:4px!important;
- background:${rgba(glassColor,glassOpacity)}!important;
- background-image:none!important;background-color:${rgba(glassColor,glassOpacity)}!important;
- -webkit-backdrop-filter:blur(${glassBlur}px) saturate(1.10)!important;
- backdrop-filter:blur(${glassBlur}px) saturate(1.10)!important;
- box-shadow:0 16px 48px rgba(0,0,0,.10)!important;
- color:${contrast}!important;text-align:center!important;
- transform:none!important;filter:none!important;
 }
-/* Mantener el tratamiento editorial, pero dar lectura sobre cualquier foto. */
-${C} .page .content .aura-screen-date .aura-date-panel>h2,
-${C} .page .content .aura-screen-location .aura-location-panel>h2,
-${C} .page .content .aura-screen-date .aura-date-lockup,
-${C} .page .content .aura-screen-date .aura-date-lockup strong,
-${C} .page .content .aura-screen-date .aura-countdown .count-item b,
-${C} .page .content .aura-screen-location .aura-location-copy strong{
- color:${contrast}!important;opacity:1!important;
- text-shadow:0 2px 10px rgba(0,0,0,.52)!important;
-}
-${C} .page .content .aura-screen-date .section-label,
-${C} .page .content .aura-screen-location .section-label,
-${C} .page .content .aura-screen-date .aura-date-lockup>span,
-${C} .page .content .aura-screen-date .aura-date-lockup em,
-${C} .page .content .aura-screen-date .aura-date-note,
-${C} .page .content .aura-screen-date .aura-countdown .count-item span,
-${C} .page .content .aura-screen-location .aura-location-note,
-${C} .page .content .aura-screen-location .aura-location-copy small,
-${C} .page .content .aura-screen-location .map-toggle,
-${C} .page .content .aura-screen-location .map-external,
-${C} .page .content .aura-screen-location .aura-map-button{
- color:${soft}!important;opacity:1!important;
- text-shadow:0 1px 8px rgba(0,0,0,.55)!important;
-}
-/* Posiciones personalizables: la lámina cubre toda la sección, el texto se acomoda. */
-${C} .page .content>section.aura-screen.aura-screen-date .aura-date-panel{
- justify-content:${dateAlign}!important;
-}
-${C} .page .content>section.aura-screen.aura-screen-location .aura-location-panel{
- justify-content:${locAlign}!important;
-}
-${C} .page .content>section.aura-screen.aura-screen-date .aura-date-panel>*{
- position:relative;top:${dateShift}px;
-}
-${C} .page .content>section.aura-screen.aura-screen-location .aura-location-panel>*{
- position:relative;top:${locShift}px;
-}
-${C} .page .content .aura-screen-date .aura-date-panel>h2{
- max-width:100%!important;font-size:${dateTitleSize}!important;
- line-height:1.12!important;text-wrap:balance!important;margin:0 auto 22px!important;
-}
-${C} .page .content .aura-screen-location .aura-location-panel>h2{
- max-width:100%!important;font-size:${locTitleSize}!important;
- line-height:1.12!important;text-wrap:balance!important;margin:0 auto 22px!important;
-}
-${C} .page .content .aura-screen-date .aura-countdown,
-${C} .page .content .aura-screen-location .aura-locations{
- width:100%!important;max-width:100%!important;
-}
-@media(max-width:430px){
- ${C} .page .content>section.aura-screen.aura-screen-date .aura-date-panel,
- ${C} .page .content>section.aura-screen.aura-screen-location .aura-location-panel{
-   padding:32px 18px!important;
- }
+/* La foto individual eliminada no deja huecos en el diseño. */
+${C} .page .content .aura-screen-date .aura-stage-photo,
+${C} .page .content .aura-screen-location .aura-stage-photo{
+ display:none!important;
 }
 `;
-  }
-
-
-  // Solo Moderna de Lujo: controles reales de acabado y posición. Los valores
-  // viajan en p/config.json para vista previa, exportación ZIP y GitHub Pages.
-  const luxuryGlassDefaults={
-    luxuryGlassColor:'#493126',luxuryGlassOpacity:'0.42',luxuryGlassBlur:'25',
-    luxuryGlassDateAlign:'center',luxuryGlassLocationAlign:'center',
-    luxuryGlassDateShift:'0',luxuryGlassLocationShift:'0'
-  };
-  const _getFormParamsLuxuryGlass=getFormParams;
-  function refreshLuxuryGlassEditor(){
-    const el=document.getElementById('auraLuxuryGlassControls');
-    if(el)el.style.display=document.getElementById('themeVisual')?.value==='wedding_luxury'?'block':'none';
-  }
-  getFormParams=function(){
-    const p=_getFormParamsLuxuryGlass();
-    for(const [key,def] of Object.entries(luxuryGlassDefaults))
-      p[key]=document.getElementById(key)?.value??def;
-    refreshLuxuryGlassEditor();
-    return p;
-  };
-  const _applyConfigLuxuryGlass=applyConfig;
-  applyConfig=function(cfg){
-    // Proyectos antiguos sin estos valores recuperan los predeterminados.
-    for(const [key,def] of Object.entries(luxuryGlassDefaults)){
-      const el=document.getElementById(key);
-      if(el && (!cfg || !Object.prototype.hasOwnProperty.call(cfg,key)))el.value=def;
-    }
-    const result=_applyConfigLuxuryGlass(cfg);
-    refreshLuxuryGlassEditor();
-    return result;
-  };
-  function mountLuxuryGlassEditor(){
-    if(document.getElementById('auraLuxuryGlassControls'))return;
-    const main=document.getElementById('contentBgOpacity')?.closest('.section-body');
-    if(!main)return;
-    const container=document.createElement('div');
-    container.id='auraLuxuryGlassControls';
-    container.style.cssText='display:none;padding:18px 14px;margin:16px 0 10px;border:1px solid rgba(181,138,104,.36);border-radius:9px;background:rgba(150,106,78,.065)';
-    container.innerHTML=`
-      <div style="font-weight:650;font-size:13px;letter-spacing:.02em;margin-bottom:6px">Moderna de Lujo · cristal de Fecha y Ubicación</div>
-      <p style="font-size:12px;line-height:1.5;margin:0 0 14px;opacity:.78">Personaliza el tono café y acomoda los textos sin mover el fondo de la invitación.</p>
-      <div class="field-grid colors">
-       <label>Color del cristal<input type="color" id="luxuryGlassColor" value="#493126"></label>
-       <label>Intensidad café<input type="range" id="luxuryGlassOpacity" min="0" max=".85" step=".01" value=".42"></label>
-      </div>
-      <label>Desenfoque del cristal<input type="range" id="luxuryGlassBlur" min="0" max="42" step="1" value="25"></label>
-      <div class="field-grid">
-       <label>Texto de Fecha<select id="luxuryGlassDateAlign">
-        <option value="top">Arriba</option><option value="center" selected>Centro</option><option value="bottom">Abajo</option>
-       </select></label>
-       <label>Texto de Ubicación<select id="luxuryGlassLocationAlign">
-        <option value="top">Arriba</option><option value="center" selected>Centro</option><option value="bottom">Abajo</option>
-       </select></label>
-      </div>
-      <div class="field-grid">
-       <label>Mover texto de Fecha<input type="range" id="luxuryGlassDateShift" min="-140" max="140" step="5" value="0"></label>
-       <label>Mover texto de Ubicación<input type="range" id="luxuryGlassLocationShift" min="-140" max="140" step="5" value="0"></label>
-      </div>
-      <p style="font-size:11px;opacity:.7;margin:10px 0 0">El título, las fechas y los datos se siguen editando desde sus campos del formulario o tocando la vista previa.</p>
-    `;
-    // Evitar disparar cambios sobre otras secciones del formulario.
-    main.insertBefore(container,document.getElementById('buttonOpacity')?.closest('label')||null);
-    const toggle=refreshLuxuryGlassEditor;
-    document.getElementById('themeVisual')?.addEventListener('change',toggle);
-    document.getElementById('designCollection')?.addEventListener('change',toggle);
-    document.getElementById('config-form')?.addEventListener('input',e=>{
-      if(!container.contains(e.target))return;
-      const label=e.target.closest('label');
-      const out=label?.querySelector('output');
-      if(out)out.textContent=e.target.value;
-    });
-    // applyConfig ya lee por ID y actualiza los nuevos campos, como los demás.
-    toggle();
   }
   const _coverCss=coverCss;
   coverCss=function(p){return _coverCss(p)+decorationCss(p)+mediterraneanCoverFramingCss(p)+mediterraneanTextFlowCss(p)+mediterraneanGalleryRespectCss(p)+editorialBannerCss(p)+editorialGalleryLayoutRepairCss(p)+luxuryGlobalFullGlassCss(p)};
@@ -1072,7 +907,6 @@ ${C} .page .content .aura-screen-location .aura-locations{
     // Actualizar las miniaturas originales en el catálogo visible.
     if(typeof renderThemeStrip==='function')renderThemeStrip();
     bindEditorialPortraitBanners();
-    mountLuxuryGlassEditor();
   };
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',run);else run();
 })();
