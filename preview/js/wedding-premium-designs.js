@@ -603,8 +603,28 @@ ${C} .page .content .aura-screen-close .aura-close-panel{
 }
 `;
 }
+  function mediterraneanGalleryRespectCss(p){
+  if(p?.themeVisual!=='wedding_mediterranean')return '';
+  const C='.theme-wedding_mediterranean';
+  // El estilo de la galería, NO el tema, controla tamaño, forma y distribución.
+  // Aplicar después de weddingThemeCss55 y editionCss para ganar a 110px!important.
+  const normalize=`
+${C} .page .content .aura-screen-gallery .aura-gallery-tile{
+ border-radius:2px!important;
+ box-shadow:none!important;
+ outline:0!important;
+ transform:none!important;
+}
+${C} .page .content .aura-screen-gallery .aura-gallery-grid{
+ grid-auto-rows:auto!important;
+}
+`;
+  // Reutilizar los diez modos oficiales, sin duplicar sus reglas o cambiar
+  // object-position / object-fit configurados para cada fotografía.
+  return normalize+(typeof auraGalleryStyleCss555==='function'?auraGalleryStyleCss555(p):'');
+}
   const _coverCss=coverCss;
-  coverCss=function(p){return _coverCss(p)+decorationCss(p)+mediterraneanCoverFramingCss(p)+mediterraneanTextFlowCss(p)};
+  coverCss=function(p){return _coverCss(p)+decorationCss(p)+mediterraneanCoverFramingCss(p)+mediterraneanTextFlowCss(p)+mediterraneanGalleryRespectCss(p)};
   const _editionCss=editionCss;
   editionCss=function(p,t,a){return _editionCss(p,t,a)};
   const _fullCss=invitationCss;
