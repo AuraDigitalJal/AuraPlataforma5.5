@@ -1,16 +1,22 @@
 (function auraPremiumWeddings(){
   'use strict';
-  const premium=new Set(['wedding_mediterranean','wedding_layers','wedding_curves']);
+  const premium=new Set(['wedding_mediterranean']);
   Object.assign(THEMES,{
-    wedding_mediterranean:{...THEMES.wedding_mediterranean,label:'05 · Mediterránea editorial',display:"'Cormorant Garamond',serif",hero:'photo',ornament:'line',radius:'3px'},
-    wedding_layers:{...THEMES.wedding_layers,label:'06 · Capas boutique',display:"'Cormorant Garamond',serif",hero:'photo',ornament:'line',radius:'6px'},
-    wedding_curves:{...THEMES.wedding_curves,label:'08 · Curvas de seda',display:"'Cormorant Garamond',serif",hero:'photo',ornament:'line',radius:'18px'}
+    wedding_mediterranean:{...THEMES.wedding_mediterranean,label:'05 · Mediterránea editorial',display:"'Cormorant Garamond',serif",hero:'photo',ornament:'line',radius:'3px'}
   });
   Object.assign(AURA_THEME_PREVIEWS_531,{
-    wedding_mediterranean:{src:'preview/assets/previews/weddings-premium/05.svg?v=2',kicker:'BODA · 05',title:'Mediterránea',note:'editorial · oliva · cerámica'},
-    wedding_layers:{src:'preview/assets/previews/weddings-premium/06.svg?v=2',kicker:'BODA · 06',title:'Capas boutique',note:'papel · fotografía · relieve'},
-    wedding_curves:{src:'preview/assets/previews/weddings-premium/08.svg?v=2',kicker:'BODA · 08',title:'Curvas de seda',note:'fluida · romántica · editorial'}
+    wedding_mediterranean:{src:'preview/assets/previews/weddings-premium/05.svg?v=2',kicker:'BODA · 05',title:'Mediterránea',note:'editorial · oliva · cerámica'}
   });
+  // Sólo se publicita Mediterránea; no se borran definiciones antiguas, así
+  // las invitaciones ya creadas siguen cargando por su identificador original.
+  const retired=new Set(['wedding_layers','wedding_curves']);
+  if(COLLECTIONS?.boda?.themes){
+    COLLECTIONS.boda.themes=COLLECTIONS.boda.themes.filter(k=>!retired.has(k));
+    COLLECTIONS.boda.note=COLLECTIONS.boda.themes.length+' propuestas de boda con paletas editables.';
+  }
+  const themeSelector=document.getElementById('themeVisual');
+  if(themeSelector&&retired.has(themeSelector.value))
+    themeSelector.value='wedding_mediterranean';
   const seams={
     wedding_mediterranean: `<svg viewBox="0 0 400 120" preserveAspectRatio="none" aria-hidden="true"><path class="ap-seam-fill" d="M0 22 C78 76 170 112 260 87 C320 75 368 43 400 22 L400 120 H0Z"/><path class="ap-seam-rule" d="M0 22 C78 76 170 112 260 87 C320 75 368 43 400 22"/></svg>`,
     wedding_layers: `<svg viewBox="0 0 400 120" preserveAspectRatio="none" aria-hidden="true"><path class="ap-seam-shadow" d="M0 60 L400 18 L400 120 H0Z"/><path class="ap-seam-fill" d="M0 79 L400 36 L400 120 H0Z"/><path class="ap-seam-rule" d="M0 79 L400 36"/></svg>`,
@@ -127,7 +133,7 @@ ${C} .page .content .aura-gallery-tile{border-radius:48% 48% 7px 7px / 13% 13% 0
 ${C} .page .content .aura-gallery-tile:first-child{grid-column:1/-1!important;aspect-ratio:5/4!important}
 `;
     }
-    return css+parameterResponsiveCss(p)+artDirectedLayoutCss(p)+editorialFinalAndLayoutV6(p);
+    return css+parameterResponsiveCss(p)+artDirectedLayoutCss(p);
   }
   function artDirectedLayoutCss(p){
   const k=p.themeVisual;
@@ -346,227 +352,6 @@ ${panelSel}{margin-top:-95px!important;padding-top:73px!important}
   }
   return css;
 }
-  function editorialFinalAndLayoutV6(p){
-  if(!premium.has(p.themeVisual))return '';
-  const k=p.themeVisual,C='.theme-'+k;
-  const v=bounded(p.contentBgOpacity,.94,0,1);
-  const base=p.bgContentColor||'#fbf7f1',bg=p.bgBodyColor||'#eee8df';
-  const ink=p.headingColor||'#514038',accent=p.primaryColor||'#aa8975';
-  const paper=rgba(base,v),outline=rgba(accent,v*.22),shadow=rgba(ink,v*.095);
-  const closure=C+' .page .content .aura-screen-close';
-  const photo=closure+' .aura-close-photo:not(.aura-stage-photo-empty)';
-  const image=photo+' .ap-closing-image';
-  const panel=closure+' .aura-close-panel';
-  const shell=closure+' .aura-close-shell';
-  const allStages=['.aura-screen-date','.aura-screen-family','.aura-screen-location'];
-  const shellStages=allStages.map(x=>C+' .page .content '+x+':has(.aura-stage-photo:not(.aura-stage-photo-empty)) .aura-screen-shell').join(',');
-  const stageImages=['.aura-date-photo','.aura-family-photo','.aura-location-photo']
-    .map(x=>C+' .page .content '+x+':not(.aura-stage-photo-empty)').join(',');
-  const stagePanels=['.aura-date-panel','.aura-family-panel','.aura-location-panel']
-    .map(x=>C+' .page .content '+x).join(',');
-  let css=`
-/* Versión 6. La foto del cierre se muestra como IMG con su proporción natural:
-   no ocupa una pantalla fija y nunca queda detrás del texto. */
-${shell}{
-  display:flex!important;flex-direction:column!important;align-items:stretch!important;
-  justify-content:flex-start!important;gap:0!important;isolation:isolate!important;
-  width:min(100%,580px)!important;max-width:580px!important;min-width:0!important;
-  height:auto!important;min-height:0!important;overflow:visible!important;
-  padding:clamp(10px,3vw,18px)!important;
-  margin:0 auto!important;
-  background:${paper}!important;background-image:none!important;
-  border:1px solid ${outline}!important;
-  border-radius:24px!important;
-  box-shadow:0 15px 44px ${shadow}!important;
-}
-${photo}{
-  display:block!important;position:relative!important;grid-area:auto!important;
-  inset:auto!important;align-self:stretch!important;justify-self:stretch!important;
-  width:100%!important;max-width:none!important;
-  height:auto!important;min-height:0!important;max-height:none!important;
-  aspect-ratio:auto!important;margin:0!important;
-  padding:0!important;border:0!important;
-  background-image:none!important;background-color:transparent!important;
-  box-shadow:none!important;filter:none!important;transform:none!important;
-  clip-path:none!important;overflow:hidden!important;z-index:1!important;
-  border-radius:15px 15px 0 0!important;
-}
-${photo}::before,${photo}::after{
-  content:none!important;display:none!important;opacity:0!important
-}
-${image}{
-  display:block!important;position:relative!important;inset:auto!important;
-  width:100%!important;max-width:100%!important;
-  height:auto!important;min-height:0!important;max-height:none!important;
-  aspect-ratio:auto!important;object-fit:contain!important;
-  object-position:center center!important;
-  margin:0!important;padding:0!important;
-  border:0!important;border-radius:inherit!important;
-  opacity:1!important;filter:none!important;transform:none!important;
-  clip-path:none!important;
-}
-${panel}{
-  display:block!important;position:relative!important;grid-area:auto!important;
-  inset:auto!important;z-index:2!important;
-  align-self:stretch!important;justify-self:stretch!important;
-  width:100%!important;max-width:none!important;min-width:0!important;
-  height:auto!important;min-height:0!important;
-  margin:0!important;
-  padding:clamp(27px,7vw,45px) clamp(17px,5vw,34px)!important;
-  background:transparent!important;background-image:none!important;
-  color:${ink}!important;
-  border:0!important;border-radius:0!important;outline:none!important;
-  box-shadow:none!important;
-  -webkit-backdrop-filter:none!important;backdrop-filter:none!important;
-  filter:none!important;transform:none!important;text-align:center!important;
-}
-${panel}::before,${panel}::after{display:none!important;content:none!important}
-${panel} .final-message{
-  margin-left:auto!important;margin-right:auto!important;
-  max-width:18ch!important;overflow-wrap:anywhere!important;
-  line-height:1.12!important;color:${ink}!important;text-shadow:none!important
-}
-${panel} .section-label,${panel} .closing-signature{
-  color:${ink}!important;text-shadow:none!important
-}
-${closure}:not(:has(.ap-closing-image)) .aura-close-shell{
-  background:transparent!important;border:0!important;box-shadow:none!important;
-}
-@media(max-width:430px){
-  ${shell}{padding:10px!important;min-height:0!important}
-  ${photo}{height:auto!important;min-height:0!important}
-  ${image}{height:auto!important}
-  ${panel}{padding:27px 14px 30px!important}
-}
-`;
-  if(k==='wedding_mediterranean'){
-    css+=`
-/* Mediterránea conserva íntegra la composición de fecha, familia y ubicación. */
-${shell}{
-  border-radius:110px 110px 18px 18px / 66px 66px 18px 18px!important;
-}
-${photo}{border-radius:104px 104px 3px 3px / 65px 65px 3px 3px!important}
-${panel}{
-  border-top:1px solid ${outline}!important;
-  border-radius:0 0 16px 16px!important;
-}
-`;
-  }else if(k==='wedding_layers'){
-    css+=`
-/* Capas: una hoja fotográfica sobre un folio de texto, sin bloques torcidos. */
-${shellStages}{
-  display:flex!important;flex-direction:column!important;
-  align-items:stretch!important;
-  padding:clamp(12px,3vw,22px)!important;
-  background:${rgba(base,v*.58)}!important;
-  border:1px solid ${outline}!important;
-  border-radius:8px!important;
-  box-shadow:9px 11px 0 ${rgba(accent,v*.085)},0 22px 42px ${rgba(ink,v*.075)}!important;
-}
-${stageImages}{
-  width:100%!important;max-width:none!important;
-  min-height:0!important;height:clamp(350px,55svh,585px)!important;
-  margin:0!important;border:0!important;outline:0!important;
-  background-size:cover!important;
-  border-radius:4px!important;box-shadow:none!important;
-  transform:none!important;clip-path:none!important;
-}
-${C} .page .content .aura-screen-family .aura-family-portrait{
-  display:block!important;width:100%!important;max-width:none!important;
-  margin:0!important;padding:0!important;min-height:0!important;height:auto!important;
-}
-${stagePanels}{
-  width:100%!important;max-width:none!important;
-  min-height:0!important;height:auto!important;
-  margin:0 auto!important;
-  padding:clamp(31px,8vw,53px) clamp(20px,6vw,43px)!important;
-  border:0!important;outline:0!important;
-  border-radius:0!important;
-  background:${paper}!important;background-image:none!important;
-  box-shadow:none!important;transform:none!important;
-  text-align:left!important;
-}
-${stagePanels} .section-label,${stagePanels} h2{text-align:left!important}
-${C} .page .content .aura-screen-family .aura-family-grid,
-${C} .page .content .aura-screen-location .aura-locations{
-  text-align:left!important;
-}
-${stagePanels}::before{
-  content:''!important;display:block!important;
-  position:relative!important;inset:auto!important;
-  width:55px!important;height:1px!important;margin:0 0 22px!important;
-  background:${rgba(accent,v*.55)}!important;border:0!important;
-}
-${shell}{
-  border-radius:5px!important;
-  padding:clamp(9px,2.8vw,17px)!important;
-  background:${paper}!important;
-}
-${photo}{border-radius:2px!important}
-${panel}{
-  border-radius:0!important;
-  padding:35px 24px 43px!important;
-  border-top:1px solid ${outline}!important;
-}
-${panel}::before{content:''!important;display:block!important;
-  width:52px!important;height:1px!important;margin:0 0 23px!important;
-  background:${rgba(accent,v*.46)}!important}
-`;
-  }else if(k==='wedding_curves'){
-    css+=`
-/* Curvas: una hoja continua con fotografía redondeada y texto en la misma superficie. */
-${shellStages}{
-  display:block!important;
-  padding:0!important;overflow:hidden!important;
-  border:1px solid ${outline}!important;
-  border-radius:46% 46% 28px 28px / 72px 72px 28px 28px!important;
-  background:${paper}!important;
-  box-shadow:0 14px 34px ${rgba(ink,v*.085)}!important;
-}
-${stageImages}{
-  display:block!important;
-  width:100%!important;max-width:none!important;
-  height:clamp(365px,57svh,600px)!important;min-height:0!important;
-  margin:0!important;padding:0!important;
-  background-size:cover!important;
-  border:0!important;outline:0!important;box-shadow:none!important;
-  border-radius:46% 46% 0 0 / 74px 74px 0 0!important;
-  clip-path:none!important;transform:none!important;
-}
-${C} .page .content .aura-screen-family .aura-family-portrait{
-  display:block!important;width:100%!important;max-width:none!important;
-  margin:0!important;padding:0!important;min-height:0!important;height:auto!important;
-}
-${stageImages}{
-  clip-path:polygon(0 0,100% 0,100% 97%,90% 96%,80% 95%,70% 93%,
-    60% 91%,50% 90%,40% 91%,30% 93%,20% 95%,10% 96%,0 97%)!important;
-}
-${stagePanels}{
-  display:block!important;position:relative!important;inset:auto!important;
-  width:100%!important;max-width:none!important;
-  height:auto!important;min-height:0!important;
-  margin:-38px auto 0!important;
-  padding:clamp(72px,14vw,94px) clamp(19px,6vw,44px) clamp(35px,8vw,54px)!important;
-  background:${paper}!important;background-image:none!important;
-  border:0!important;border-radius:48% 52% 0 0 / 47px 45px 0 0!important;outline:0!important;
-  box-shadow:none!important;transform:none!important;
-  text-align:center!important;
-}
-${C} .page .content .aura-screen-family .aura-family-panel{padding-top:clamp(34px,9vw,56px)!important}
-${shell}{
-  border-radius:120px 120px 30px 30px / 70px 70px 30px 30px!important;
-  padding:0!important;overflow:hidden!important;
-}
-${photo}{border-radius:120px 120px 0 0 / 70px 70px 0 0!important}
-${panel}{
-  border-radius:0 0 30px 30px!important;
-  padding:38px 22px 47px!important;
-  border-top:1px solid ${outline}!important;
-}
-`;
-  }
-  return css;
-}
   function parameterResponsiveCss(p){
  const k=p.themeVisual,C='.theme-'+k, opacity=bounded(p.contentBgOpacity,.94,0,1),
  buttonOpacity=bounded(p.buttonOpacity,.92,0,1),
@@ -697,16 +482,6 @@ ${C} .page .content .aura-screen-family .aura-family-portrait{width:100%!importa
   editionCss=function(p,t,a){return _editionCss(p,t,a)};
   const _fullCss=invitationCss;
   invitationCss=function(p,t,a){return _fullCss(p,t,a)};
-
-  const _buildSectionsBoutiqueV6=buildSections;
-  buildSections=function(p,a){
-    const html=_buildSectionsBoutiqueV6(p,a);
-    if(!premium.has(p.themeVisual)||!a||!Array.isArray(a.gallery)||!a.gallery.length)return html;
-    const src=a.gallery[a.gallery.length-1];
-    if(!src)return html;
-    return html.replace(/(<div class="aura-stage-photo aura-close-photo"[^>]*>)(<\/div>)/,
-      (_matched,opening,closing)=>opening+'<img class="ap-closing-image" src="'+esc(String(src))+'" alt="" loading="lazy" decoding="async">'+closing);
-  };
   const run=()=>{
     // Actualizar las miniaturas originales en el catálogo visible.
     if(typeof renderThemeStrip==='function')renderThemeStrip();
