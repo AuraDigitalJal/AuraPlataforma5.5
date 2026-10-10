@@ -24,13 +24,19 @@
   };
   const motif= `<svg class="ap-craft-sprig" viewBox="0 0 185 130" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.7" opacity=".65"><path d="M-8 105 Q75 92 158 14"/><path d="M42 99 Q56 68 54 48"/><path d="M77 82 Q89 49 96 32"/><path d="M108 56 Q135 65 152 46"/><path d="M28 105 Q40 118 65 119"/></g><g fill="currentColor" opacity=".38"><ellipse cx="52" cy="64" rx="9" ry="22" transform="rotate(-21 52 64)"/><ellipse cx="97" cy="41" rx="9" ry="20" transform="rotate(29 97 41)"/><ellipse cx="135" cy="58" rx="8" ry="19" transform="rotate(65 135 58)"/><ellipse cx="62" cy="115" rx="7" ry="18" transform="rotate(112 62 115)"/></g></svg>`;
   const _cover=coverHtml;
-  coverHtml=function(params){
-    let html=_cover(params);
-    const k=params?.themeVisual;
-    if(!premium.has(k)||!html.includes('aura-story-cover'))return html;
-    const visual=`<div class="ap-cover-seam ap-${k}" aria-hidden="true">${seams[k]}</div><div class="ap-sprig-wrap" aria-hidden="true">${motif}</div>`;
-    return html.replace('<div class="hero-inner">',visual+'<div class="hero-inner">');
-  };
+  coverHtml=function pairedCoverHtml(params){
+ let html=_cover(params);
+ const k=params?.themeVisual;
+ if(!premium.has(k)||!html.includes('aura-story-cover'))return html;
+ const source='<div class="hero-media"></div><div class="hero-overlay"></div>';
+ if(!html.includes(source))return html;
+ const art='<div class="ap-cover-photo-frame" aria-hidden="true">'+
+   '<div class="hero-media"></div><div class="hero-overlay"></div>'+
+   '<div class="ap-cover-seam ap-'+k+'">'+seams[k]+'</div></div>';
+ html=html.replace(source,art);
+ const sprig='<div class="ap-sprig-wrap" aria-hidden="true">'+motif+'</div>';
+ return html.replace('<div class="hero-inner">',sprig+'<div class="hero-inner">');
+};
   function decorationCss(p){
     if(!premium.has(p?.themeVisual))return '';
     const k=p.themeVisual,C='.theme-'+k;
@@ -479,39 +485,68 @@ ${C} .page .content .aura-screen-family .aura-family-portrait{width:100%!importa
   /* Encuadre de portada Mediterránea: la curva no mueve la foto; la cubre.
      Foto, curva y remate se sincronizan desde los controles editables. */
   function mediterraneanCoverFramingCss(p){
-    if(p?.themeVisual!=='wedding_mediterranean')return '';
-    const C='.theme-wedding_mediterranean';
-    const photoX=bounded(p.auraHeroPhotoX,50,0,100);
-    const photoY=bounded(p.auraHeroPhotoY,50,0,100);
-    const curve=bounded(p.auraHeroCurveY,56,46,65);
-    const photoBottom=curve+12;
-    const copyStart=photoBottom+2;
-    const textOffset=bounded(p.heroOffset,0,-200,200);
-    return `
-/* Misma geometría en móvil y computadora: el SVG tapa, nunca desplaza, la foto. */
+ if(p?.themeVisual!=='wedding_mediterranean')return '';
+ const C='.theme-wedding_mediterranean';
+ const photoX=bounded(p.auraHeroPhotoX,50,0,100);
+ const photoY=bounded(p.auraHeroPhotoY,50,0,100);
+ const curve=bounded(p.auraHeroCurveY,56,46,65);
+ const waveDepth=12;
+ const photoBottom=curve+waveDepth;
+ const textOffset=bounded(p.heroOffset,0,-200,200);
+ return `
+/* El marco fotográfico contiene el SVG de la curva y el velo, sin medidas divergentes. */
 ${C} .hero.aura-story-cover{
-  padding-top:${copyStart}svh!important;
+ --med-photo-bottom:${photoBottom}svh;
+ --med-wave-depth:${waveDepth}svh;
+ min-height:100svh!important;
+ height:auto!important;
+ padding-top:calc(var(--med-photo-bottom) + 1svh)!important;
+ padding-bottom:clamp(12px,2svh,20px)!important;
 }
-${C} .hero.aura-story-cover .hero-media,
-${C} .hero.aura-story-cover .hero-overlay{
-  height:${photoBottom}svh!important;
+${C} .hero.aura-story-cover .ap-cover-photo-frame{
+ position:absolute!important;inset:0 0 auto 0!important;
+ width:100%!important;height:var(--med-photo-bottom)!important;
+ overflow:hidden!important;isolation:isolate!important;
+ z-index:1!important;pointer-events:none!important;
 }
-${C} .hero.aura-story-cover .hero-media{
-  background-position:${photoX}% ${photoY}%!important;
-  background-size:cover!important;
+${C} .hero.aura-story-cover .ap-cover-photo-frame .hero-media,
+${C} .hero.aura-story-cover .ap-cover-photo-frame .hero-overlay{
+ position:absolute!important;top:0!important;left:0!important;
+ right:0!important;bottom:0!important;inset:0!important;
+ display:block!important;width:100%!important;height:100%!important;
+ max-height:none!important;min-height:0!important;
+ clip-path:none!important;transform:none!important;
 }
-${C} .hero.aura-story-cover .ap-cover-seam{
-  top:${curve}svh!important;
-  height:12svh!important;
+${C} .hero.aura-story-cover .ap-cover-photo-frame .hero-media{
+ z-index:1!important;
+ background-size:cover!important;
+ background-position:${photoX}% ${photoY}%!important;
+ background-repeat:no-repeat!important;
+}
+${C} .hero.aura-story-cover .ap-cover-photo-frame .hero-overlay{
+ z-index:2!important;pointer-events:none!important;
+}
+${C} .hero.aura-story-cover .ap-cover-photo-frame .ap-cover-seam{
+ display:block!important;position:absolute!important;
+ top:auto!important;bottom:-1px!important;left:0!important;right:0!important;
+ width:100%!important;height:var(--med-wave-depth)!important;
+ z-index:3!important;pointer-events:none!important;
+ transform:none!important;
+}
+${C} .hero.aura-story-cover .ap-cover-photo-frame .ap-cover-seam svg{
+ width:100%!important;height:100%!important;display:block!important;
+ overflow:hidden!important;
 }
 ${C} .hero.aura-story-cover .ap-sprig-wrap{
-  top:${curve+4}svh!important;
+ top:calc(var(--med-photo-bottom) - 8svh)!important;
+ z-index:4!important;
 }
 ${C} .hero.aura-story-cover .hero-inner{
-  transform:translateY(${textOffset}px)!important;
+ transform:translateY(${textOffset}px)!important;
+ position:relative!important;z-index:5!important;
 }
 `;
-  }
+}
   const _getFormParamsMed=getFormParams;
   getFormParams=function(){
     const p=_getFormParamsMed();
