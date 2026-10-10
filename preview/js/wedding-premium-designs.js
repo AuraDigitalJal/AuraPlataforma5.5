@@ -73,12 +73,9 @@ ${C} .hero.aura-story-cover .ap-sprig-wrap{position:absolute;z-index:4;left:-14p
 ${C} .hero.aura-story-cover .ap-craft-sprig{width:100%;height:100%;display:block}
 ${C} .page .content .aura-screen{background:var(--ap-card)!important;${paper};min-height:0!important}
 ${C} .page .content .aura-screen::before,${C} .page .content .aura-screen::after{display:none!important;content:none!important}
-${C} .page .content .aura-gallery-ornament{display:none!important}
 ${C} .page .content .aura-screen-shell{position:relative!important;width:min(100%,660px)!important;margin:0 auto!important;padding:0 clamp(14px,4vw,28px)!important}
 ${C} .page .content .aura-stage-photo{filter:saturate(.87) contrast(1.02)!important;box-shadow:none!important;transform:none!important}
 ${C} .page .content .aura-date-panel,${C} .page .content .aura-family-panel,${C} .page .content .aura-location-panel,${C} .page .content .aura-close-panel,${C} .page .content .aura-confirm-panel,${C} .page .content .aura-transfer-panel,${C} .page .content .aura-video-panel{position:relative!important;z-index:2!important;transform:none!important;max-width:100%!important;box-sizing:border-box!important;text-align:center!important}
-${C} .page .content .aura-gallery-grid{transform:none!important}
-${C} .page .content .aura-gallery-tile{transform:none!important;box-shadow:none!important;margin-top:0!important;max-width:100%!important}
 ${C} .page .content .aura-screen .section-label{font:500 10px/1.45 var(--body)!important;letter-spacing:.24em!important;color:${accent}!important;text-transform:uppercase!important}
 ${C} .page .content .aura-screen h2{font-family:var(--display)!important;letter-spacing:-.025em!important;line-height:1.1!important}
 @media(max-width:420px){
@@ -101,9 +98,6 @@ ${C} .hero.aura-story-cover .ap-cover-seam{height:clamp(90px,14svh,145px)!import
 ${C} .page .content .aura-screen{background-image:radial-gradient(ellipse at 15% 6%,${rgba(accent,.065)},transparent 44%),repeating-linear-gradient(110deg,transparent 0 7px,${rgba(ink,.014)} 8px 9px,transparent 10px 19px)!important}
 ${C} .page .content .aura-stage-photo{border-radius:48% 48% 3px 3px / 12% 12% 0 0!important}
 ${C} .page .content .aura-date-panel,${C} .page .content .aura-family-panel,${C} .page .content .aura-location-panel,${C} .page .content .aura-video-panel,${C} .page .content .aura-transfer-panel{width:94%!important;margin:-24px auto 0!important;border:1px solid ${rgba(accent,.19)}!important;border-radius:2px!important;background:var(--ap-card)!important;box-shadow:0 12px 25px ${rgba(ink,.035)}!important}
-${C} .page .content .aura-gallery-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important}
-${C} .page .content .aura-gallery-tile{border-radius:48% 48% 2px 2px / 13% 13% 0 0!important;aspect-ratio:4/5!important;grid-column:auto!important;grid-row:auto!important;height:auto!important}
-${C} .page .content .aura-gallery-tile:first-child{grid-column:1/-1!important;aspect-ratio:4/3!important}
 `;
     }else if(k==='wedding_layers'){
       css+=`
@@ -117,9 +111,6 @@ ${C} .hero.aura-story-cover .ap-sprig-wrap{left:-8px!important;top:clamp(380px,5
 ${C} .page .content .aura-screen{background-image:linear-gradient(140deg,${rgba(ink,.03)} 0 12%,transparent 36%),linear-gradient(19deg,${rgba(accent,.04)},transparent 65%)!important}
 ${C} .page .content .aura-stage-photo{width:92%!important;margin:0 auto!important;aspect-ratio:4/5!important;border:9px solid ${rgba(base,.93)}!important;outline:1px solid ${rgba(ink,.09)}!important;border-radius:2px!important;box-shadow:0 13px 26px ${rgba(ink,.09)}!important}
 ${C} .page .content .aura-date-panel,${C} .page .content .aura-family-panel,${C} .page .content .aura-location-panel,${C} .page .content .aura-video-panel,${C} .page .content .aura-transfer-panel{width:94%!important;margin:-27px auto 0!important;border-radius:2px!important;border:1px solid ${rgba(accent,.24)}!important;background:var(--ap-card)!important;box-shadow:0 14px 24px ${rgba(ink,.06)}!important;padding:26px 22px!important}
-${C} .page .content .aura-gallery-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:11px!important;padding:12px 3px!important}
-${C} .page .content .aura-gallery-tile{border:6px solid ${rgba(base,.93)}!important;outline:1px solid ${rgba(ink,.09)}!important;border-radius:1px!important;box-shadow:0 9px 18px ${rgba(ink,.06)}!important;aspect-ratio:3/4!important;height:auto!important;grid-column:auto!important;grid-row:auto!important;width:100%!important}
-${C} .page .content .aura-gallery-tile:nth-child(1){grid-column:1/-1!important;aspect-ratio:4/3!important}
 `;
     }else{
       css+=`
@@ -134,9 +125,6 @@ ${C} .hero.aura-story-cover .enter-btn{border-radius:999px!important}
 ${C} .page .content .aura-screen{background-image:radial-gradient(ellipse at -10% 12%,${rgba(accent,.11)},transparent 52%),radial-gradient(ellipse at 112% 96%,${rgba(ink,.035)},transparent 48%)!important}
 ${C} .page .content .aura-stage-photo{border-radius:52% 48% 2px 2px / 12% 12% 0 0!important}
 ${C} .page .content .aura-date-panel,${C} .page .content .aura-family-panel,${C} .page .content .aura-location-panel,${C} .page .content .aura-video-panel,${C} .page .content .aura-transfer-panel{width:96%!important;margin:-34px auto 0!important;border-radius:42px 42px 14px 14px!important;background:var(--ap-card)!important;border:1px solid ${rgba(accent,.16)}!important;box-shadow:0 10px 29px ${rgba(ink,.04)}!important}
-${C} .page .content .aura-gallery-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;grid-auto-rows:auto!important;gap:9px!important}
-${C} .page .content .aura-gallery-tile{border-radius:48% 48% 7px 7px / 13% 13% 0 0!important;aspect-ratio:4/5!important;height:auto!important;grid-column:auto!important;grid-row:auto!important;width:100%!important}
-${C} .page .content .aura-gallery-tile:first-child{grid-column:1/-1!important;aspect-ratio:5/4!important}
 `;
     }
     return css+parameterResponsiveCss(p)+artDirectedLayoutCss(p);
