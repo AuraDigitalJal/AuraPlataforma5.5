@@ -1,4 +1,5 @@
 /* Aura Digital · Bautizo en capas · PRUEBAS. No afecta otros diseños. */
+/* Icono de WhatsApp: Font Awesome Free 6.7.2, CC BY 4.0 — https://fontawesome.com/icons/whatsapp */
 (function(){
 'use strict';
 const KEY='baptism_layers';
