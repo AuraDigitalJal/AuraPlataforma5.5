@@ -12,7 +12,42 @@
     {id:'dateKicker',label:'Fecha · frase decorativa',selector:'#fecha .section-label,.date-section > .section-label',defaults:['Save the date','Reserva la fecha','Te invito a celebrar']},
     {id:'closingKicker',label:'Cierre · frase decorativa',selector:'#cierre .section-label,.section-label.center',defaults:['Con cariño','Gracias']},
     {id:'musicKicker',label:'Música · texto «Ahora suena»',selector:'.aura-music-kicker',defaults:['Ahora suena']},
-    {id:'scrollHint',label:'Portada · indicación para deslizar',selector:'.hero .scroll-note',defaults:['Desliza para descubrir']}
+    {id:'scrollHint',label:'Portada · indicación para deslizar',selector:'.hero .scroll-note',defaults:['Desliza para descubrir']},
+    {id:"blMenuTitle",label:"Bautizo capas · Menú · encabezado",selector:".theme-baptism_layers .bl-menu-title",defaults:["DETALLES"]},
+    {id:"blMenuDateTitle",label:"Bautizo capas · Menú · Fecha",selector:".theme-baptism_layers .bl-menu-row[data-bl-go=\"date\"] .bl-row-copy strong",defaults:["Fecha"]},
+    {id:"blMenuCeremonyTitle",label:"Bautizo capas · Menú · Ceremonia",selector:".theme-baptism_layers .bl-menu-row[data-bl-go=\"ceremony\"] .bl-row-copy strong",defaults:["Ceremonia"]},
+    {id:"blMenuReceptionTitle",label:"Bautizo capas · Menú · Recepción",selector:".theme-baptism_layers .bl-menu-row[data-bl-go=\"reception\"] .bl-row-copy strong",defaults:["Recepción"]},
+    {id:"blMenuConfirmTitle",label:"Bautizo capas · Menú · Confirmación",selector:".theme-baptism_layers .bl-menu-row[data-bl-go=\"confirm\"] .bl-row-copy strong",defaults:["Confirmar asistencia"]},
+    {id:"blMenuConfirmHint",label:"Bautizo capas · Menú · subtítulo confirmación",selector:".theme-baptism_layers .bl-menu-row[data-bl-go=\"confirm\"] .bl-row-copy small",defaults:["Te esperamos"]},
+    {id:"blMenuGalleryCTA",label:"Bautizo capas · Menú · botón de galería",selector:".theme-baptism_layers .bl-gallery-label",defaults:["Ver galería"]},
+    {id:"blMenuFooter",label:"Bautizo capas · Menú · frase inferior",selector:".theme-baptism_layers .bl-menu-footer-label",defaults:["CON CARIÑO, PARA TI"]},
+    {id:"blMenuBack",label:"Bautizo capas · Navegación · Menú",selector:".theme-baptism_layers .bl-back[data-bl-go=\"menu\"] span:last-child",defaults:["Menú"]},
+    {id:"blCoverBack",label:"Bautizo capas · Navegación · Portada",selector:".theme-baptism_layers .bl-back[data-bl-go=\"cover\"] span:last-child",defaults:["Portada"]},
+    {id:"blCeremonyKicker",label:"Bautizo capas · Ceremonia · etiqueta",selector:".theme-baptism_layers .bl-screen[data-bl-screen=\"ceremony\"] .bl-kicker",defaults:["CEREMONIA"]},
+    {id:"blCeremonyTitle",label:"Bautizo capas · Ceremonia · título",selector:".theme-baptism_layers .bl-screen[data-bl-screen=\"ceremony\"] .bl-heading",defaults:["Dónde será"]},
+    {id:"blCeremonyNote",label:"Bautizo capas · Ceremonia · frase",selector:".theme-baptism_layers .bl-screen[data-bl-screen=\"ceremony\"] .bl-place p",defaults:["Nos encantará compartir este momento contigo."]},
+    {id:"blCeremonyFooter",label:"Bautizo capas · Ceremonia · frase inferior",selector:".theme-baptism_layers .bl-screen[data-bl-screen=\"ceremony\"] .bl-footer-label",defaults:["UN MOMENTO PARA RECORDAR"]},
+    {id:"blReceptionKicker",label:"Bautizo capas · Recepción · etiqueta",selector:".theme-baptism_layers .bl-screen[data-bl-screen=\"reception\"] .bl-kicker",defaults:["RECEPCIÓN"]},
+    {id:"blReceptionTitle",label:"Bautizo capas · Recepción · título",selector:".theme-baptism_layers .bl-screen[data-bl-screen=\"reception\"] .bl-heading",defaults:["Nos vemos aquí"]},
+    {id:"blReceptionNote",label:"Bautizo capas · Recepción · frase",selector:".theme-baptism_layers .bl-screen[data-bl-screen=\"reception\"] .bl-place p",defaults:["Nos encantará compartir este momento contigo."]},
+    {id:"blReceptionFooter",label:"Bautizo capas · Recepción · frase inferior",selector:".theme-baptism_layers .bl-screen[data-bl-screen=\"reception\"] .bl-footer-label",defaults:["UN MOMENTO PARA RECORDAR"]},
+    {id:"blConfirmKicker",label:"Bautizo capas · Confirmación · etiqueta",selector:".theme-baptism_layers .bl-screen[data-bl-screen=\"confirm\"] .bl-kicker",defaults:["CONFIRMACIÓN"]},
+    {id:"blConfirmTitle",label:"Bautizo capas · Confirmación · título",selector:".theme-baptism_layers .bl-screen[data-bl-screen=\"confirm\"] .bl-heading",defaults:["Te esperamos"]},
+    {id:"blConfirmQuestion",label:"Bautizo capas · Confirmación · pregunta",selector:".theme-baptism_layers .bl-confirm-body h2",defaults:["¿Nos acompañas?"]},
+    {id:"blConfirmNote",label:"Bautizo capas · Confirmación · mensaje",selector:".theme-baptism_layers .bl-confirm-body p",defaults:["Tu presencia hará este momento aún más especial. Confirma tu asistencia para ayudarnos a preparar cada detalle."]},
+    {id:"blConfirmWhatsAppCTA",label:"Bautizo capas · Confirmación · botón WhatsApp",selector:".theme-baptism_layers .bl-whatsapp-label",defaults:["Confirmar por WhatsApp"]},
+    {id:"blConfirmFooter",label:"Bautizo capas · Confirmación · frase inferior",selector:".theme-baptism_layers .bl-screen[data-bl-screen=\"confirm\"] .bl-footer-label",defaults:["UN MOMENTO PARA RECORDAR"]},
+    {id:"blGalleryHeading",label:"Bautizo capas · Galería · encabezado",selector:".theme-baptism_layers .bl-gallery-heading",defaults:["NUESTROS RECUERDOS"]},
+    {id:"blMapShow",label:"Bautizo capas · Ubicaciones · ver mapa",selector:".theme-baptism_layers .bl-map-toggle-label",defaults:["Ver mapa"]},
+    {id:"blMapLink",label:"Bautizo capas · Ubicaciones · enlace a Google Maps",selector:".theme-baptism_layers .bl-maps-link-label",defaults:["Abrir ubicación en Google Maps"]},
+    {id:"blDateDays",label:"Bautizo capas · Cuenta regresiva · días",selector:".theme-baptism_layers .bl-countdown .count-item:nth-child(1) span",defaults:["Días"]},
+    {id:"blDateHours",label:"Bautizo capas · Cuenta regresiva · horas",selector:".theme-baptism_layers .bl-countdown .count-item:nth-child(2) span",defaults:["Horas"]},
+    {id:"blDateMinutes",label:"Bautizo capas · Cuenta regresiva · minutos",selector:".theme-baptism_layers .bl-countdown .count-item:nth-child(3) span",defaults:["Min"]},
+    {id:"blDateSeconds",label:"Bautizo capas · Cuenta regresiva · segundos",selector:".theme-baptism_layers .bl-countdown .count-item:nth-child(4) span",defaults:["Seg"]},
+    {id:"blDateMissing",label:"Bautizo capas · Fecha sin configurar",selector:".theme-baptism_layers .bl-screen[data-bl-screen=\"date\"] .bl-empty",defaults:["Agrega la fecha del evento desde el editor para mostrarla aquí."]},
+    {id:"blLocationMissing",label:"Bautizo capas · Ubicación sin configurar",selector:".theme-baptism_layers .bl-screen[data-bl-screen=\"ceremony\"] .bl-empty,.theme-baptism_layers .bl-screen[data-bl-screen=\"reception\"] .bl-empty",defaults:["Activa y completa los datos de esta ubicación en el editor."]},
+    {id:"blRSVPMissing",label:"Bautizo capas · WhatsApp sin configurar",selector:".theme-baptism_layers .bl-confirm-body .bl-empty",defaults:["Agrega el número de WhatsApp en el editor para activar la confirmación."]},
+    {id:"blGalleryMissing",label:"Bautizo capas · Galería sin fotografías",selector:".theme-baptism_layers .bl-gallery-screen .bl-empty",defaults:["Selecciona fotografías en el apartado de galería del editor."]}
   ];
   let chosen='',working=false;
   const node=id=>document.getElementById(id);
@@ -191,7 +226,9 @@
     oldBinder(doc);
     if(!doc||doc.documentElement.dataset.auraFixedBound==='1')return;
     doc.documentElement.dataset.auraFixedBound='1';
-    doc.addEventListener('click',e=>{
+    // En la vista previa se captura antes de la navegación por capas.
+    // En invitaciones exportadas este listener nunca se registra.
+    doc.defaultView?.addEventListener('click',e=>{
       if(!node('previewEditMode')?.checked)return;
       const target=e.target.closest?.('[data-aura-fixed-key]');
       if(!target)return;
