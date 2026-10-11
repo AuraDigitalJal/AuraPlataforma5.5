@@ -38,8 +38,8 @@ function dateContent(p){
  // las variantes utilizan el mismo componente y CSS que el resto de Aura.
  const kind=String(p.dateCardStyle||'auto');
  const calendar=kind==='none'?'':kind==='auto'?
-  '<div class="bl-date-area"><div class="bl-date-ornament" aria-hidden="true">✧</div><div class="bl-date-main"'+sizeAttr(p.dateTextSize,'dateDay')+'>'+safe(d.day)+'</div><div class="bl-date-month">'+safe(d.month)+' · '+safe(d.year)+'</div><div class="bl-date-weekday">'+safe(d.weekday)+' · '+safe(d.time)+'</div></div>':
-  '<div class="bl-date-native">'+auraDateLockupHtml(p,d)+'</div>';
+  '<div class="bl-date-area" data-edit="eventDate" title="Editar fecha del evento"><div class="bl-date-ornament" aria-hidden="true">✧</div><div class="bl-date-main"'+sizeAttr(p.dateTextSize,'dateDay')+'>'+safe(d.day)+'</div><div class="bl-date-month">'+safe(d.month)+' · '+safe(d.year)+'</div><div class="bl-date-weekday">'+safe(d.weekday)+' · '+safe(d.time)+'</div></div>':
+  '<div class="bl-date-native" data-edit="eventDate" title="Editar fecha del evento">'+auraDateLockupHtml(p,d)+'</div>';
  return calendar+'<p class="bl-date-label" data-edit="countdownLabel"'+sizeAttr(p.countdownLabelSize,'sectionTitle')+'>'+safe(p.countdownLabel||'Falta para nuestro gran día')+'</p><div class="countdown bl-countdown '+countdownStyleClass(p)+'" data-date="'+safe(p.eventDate)+'"><div class="count-item"><b data-d'+sizeAttr(p.countdownNumbersSize,'countNumber')+'>00</b><span>Días</span></div><div class="count-item"><b data-h'+sizeAttr(p.countdownNumbersSize,'countNumber')+'>00</b><span>Horas</span></div><div class="count-item"><b data-m'+sizeAttr(p.countdownNumbersSize,'countNumber')+'>00</b><span>Min</span></div><div class="count-item"><b data-s'+sizeAttr(p.countdownNumbersSize,'countNumber')+'>00</b><span>Seg</span></div></div>';
 }
 function menuDate(p){
@@ -131,8 +131,11 @@ function layerCss(p,a){
  'body.theme-baptism_layers .bl-empty{text-align:center;font:400 14px/1.8 var(--body);max-width:32ch;margin:30px auto;color:var(--text)}',
  'body.theme-baptism_layers .bl-date-area{text-align:center;display:flex;flex-direction:column;align-items:center}',
  'body.theme-baptism_layers .bl-date-ornament{font:300 34px/1 var(--display);color:var(--accent)}',
- 'body.theme-baptism_layers .bl-date-main{font:400 clamp(96px,28vw,154px)/.94 var(--display);color:var(--heading);letter-spacing:-.045em}',
- 'body.theme-baptism_layers .bl-date-month{font:500 12px/1.5 var(--body);letter-spacing:.2em;color:var(--accent)}',
+ 'body.theme-baptism_layers .bl-date-main{font:400 clamp(84px,25vw,130px)/1.04 var(--body)!important;font-variant-numeric:lining-nums tabular-nums;color:var(--heading);letter-spacing:-.055em}',
+ 'body.theme-baptism_layers .bl-date-native .aura-date-day{font-family:var(--body)!important;font-weight:400!important;font-variant-numeric:lining-nums tabular-nums!important;letter-spacing:-.055em!important;line-height:1.06!important}',
+ 'body.theme-baptism_layers .bl-date-month{font:500 clamp(11px,3vw,13px)/1.55 var(--body);letter-spacing:.12em;color:var(--accent);max-width:100%;overflow-wrap:break-word;text-wrap:balance}',
+ 'body.theme-baptism_layers .bl-date-native .aura-date-monthyear{min-width:0;max-width:100%;letter-spacing:.11em!important;font-size:clamp(9px,2.8vw,11px)!important;line-height:1.6!important;overflow-wrap:break-word;text-wrap:balance}',
+ 'body.theme-baptism_layers .bl-date-native .aura-date-lockup.date-vertical{grid-template-columns:minmax(0,auto) minmax(0,1fr)!important;column-gap:clamp(8px,3vw,18px)!important}',
  'body.theme-baptism_layers .bl-date-weekday{margin-top:9px;font:400 11px/1.5 var(--body);letter-spacing:.08em;color:var(--muted)}',
  'body.theme-baptism_layers .bl-date-native{display:flex;justify-content:center;align-items:center;width:100%;max-width:100%;margin:4px auto 0}',
   'body.theme-baptism_layers .bl-date-native .aura-date-lockup{max-width:100%;margin-inline:auto}',
