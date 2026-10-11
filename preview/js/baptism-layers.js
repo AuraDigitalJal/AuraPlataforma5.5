@@ -31,7 +31,7 @@ function shell(id,caption,title,body){
 function dateContent(p){
  const d=eventDateParts(p.eventDate);
  if(!d)return '<div class="bl-empty">Agrega la fecha del evento desde el editor para mostrarla aquí.</div>';
- const dateCard=p.dateCardStyle==='none'?'':'<div class="bl-date-native">'+dateCardHtml(p)+'</div>';
+ const dateCard=''; // La fecha se dibuja una sola vez, sin duplicar la tarjeta tradicional.
  return '<div class="bl-date-area"><div class="bl-date-ornament" aria-hidden="true">✧</div><div class="bl-date-main">'+safe(d.day)+'</div><div class="bl-date-month">'+safe(d.month)+' · '+safe(d.year)+'</div><div class="bl-date-weekday">'+safe(d.weekday)+' · '+safe(d.time)+'</div>'+dateCard+'</div><p class="bl-date-label" data-edit="countdownLabel">'+safe(p.countdownLabel||'Falta para nuestro gran día')+'</p><div class="countdown bl-countdown" data-date="'+safe(p.eventDate)+'"><div class="count-item"><b data-d>00</b><span>Días</span></div><div class="count-item"><b data-h>00</b><span>Horas</span></div><div class="count-item"><b data-m>00</b><span>Min</span></div><div class="count-item"><b data-s>00</b><span>Seg</span></div></div>';
 }
 function locationContent(p,type){
@@ -155,9 +155,10 @@ function layerRuntime(){
   if(audio)['play','pause','ended'].forEach(name=>audio.addEventListener(name,syncMusic));
   const navigate=target=>{
    if(target==='cover'){stage.hidden=true;hero.hidden=false;audio?.pause();if(audio){try{audio.currentTime=0}catch(_){}}syncMusic();return;}
+   const fromCover=!hero.hidden;
    hero.hidden=true;stage.hidden=false;
    screens.forEach(s=>{const show=s.dataset.blScreen===target;s.hidden=!show;if(show)s.scrollTop=0});
-   if(target==='menu'&&audio&&audio.paused)audio.play().catch(()=>{});
+   if(target==='menu'&&fromCover&&audio&&audio.paused)audio.play().catch(()=>{});
    syncMusic();
   };
   document.addEventListener('click',e=>{
