@@ -38,8 +38,8 @@ function dateContent(p){
  // las variantes utilizan el mismo componente y CSS que el resto de Aura.
  const kind=String(p.dateCardStyle||'auto');
  const calendar=kind==='none'?'':kind==='auto'?
-  '<div class="bl-date-area"><div class="bl-date-ornament" aria-hidden="true">✧</div><div class="bl-date-main"'+sizeAttr(p.dateTextSize,'dateDay')+'>'+safe(d.day)+'</div><div class="bl-date-month">'+safe(d.month)+' · '+safe(d.year)+'</div><div class="bl-date-weekday">'+safe(d.weekday)+' · '+safe(d.time)+'</div></div>':
-  '<div class="bl-date-native">'+auraDateLockupHtml(p,d)+'</div>';
+  '<div class="bl-date-area"><div class="bl-date-ornament" aria-hidden="true">✧</div><div class="bl-date-main" data-bl-day-visual="1"'+sizeAttr(p.dateTextSize,'dateDay')+'>'+safe(d.day)+'</div><div class="bl-date-month">'+safe(d.month)+' · '+safe(d.year)+'</div><div class="bl-date-weekday">'+safe(d.weekday)+' · '+safe(d.time)+'</div></div>':
+  '<div class="bl-date-native">'+auraDateLockupHtml(p,d).replace('<strong class="aura-date-day"','<strong class="aura-date-day" data-bl-day-visual="1"')+'</div>';
  return calendar+'<p class="bl-date-label" data-edit="countdownLabel"'+sizeAttr(p.countdownLabelSize,'sectionTitle')+'>'+safe(p.countdownLabel||'Falta para nuestro gran día')+'</p><div class="countdown bl-countdown '+countdownStyleClass(p)+'" data-date="'+safe(p.eventDate)+'"><div class="count-item"><b data-d'+sizeAttr(p.countdownNumbersSize,'countNumber')+'>00</b><span>Días</span></div><div class="count-item"><b data-h'+sizeAttr(p.countdownNumbersSize,'countNumber')+'>00</b><span>Horas</span></div><div class="count-item"><b data-m'+sizeAttr(p.countdownNumbersSize,'countNumber')+'>00</b><span>Min</span></div><div class="count-item"><b data-s'+sizeAttr(p.countdownNumbersSize,'countNumber')+'>00</b><span>Seg</span></div></div>';
 }
 function menuDate(p){
@@ -93,6 +93,14 @@ function layerCss(p,a){
  const vertical={start:'flex-start',center:'center',end:'flex-end'}[p.heroPosition]||'flex-end';
  const horizontal={start:'flex-start',center:'center',end:'flex-end'}[p.heroBlockPosition]||'center';
  const offset=bounded(p.heroOffset,0,-200,200);
+ // La cifra siempre se deriva del evento; estos ajustes son exclusivamente visuales.
+ const dayFonts={manrope:"'Manrope',sans-serif",cormorant:"'Cormorant Garamond',serif",georgia:"Georgia,serif",system:"system-ui,sans-serif"};
+ const dayFont=dayFonts[p.blDayFont]||dayFonts.manrope;
+ const dayWeight=['300','400','500','600','700'].includes(String(p.blDayWeight))?String(p.blDayWeight):'400';
+ const daySize=p.blDaySize!==''&&p.blDaySize!=null?bounded(p.blDaySize,0,48,160):0;
+ const dayTracking=p.blDayTracking!==''&&p.blDayTracking!=null?bounded(p.blDayTracking,0,-8,8):null;
+ const dayColor=p.blDayColorMode==='custom'&&/^#[0-9a-f]{6}$/i.test(p.blDayColor||'')?p.blDayColor:'var(--heading)';
+ const dayVisualCss='font-family:'+dayFont+'!important;font-weight:'+dayWeight+'!important;color:'+dayColor+'!important;'+(daySize?'font-size:'+daySize+'px!important;':'')+(dayTracking!==null?'letter-spacing:'+dayTracking+'px!important;':'');
  return [
  '/* Bautizo en capas: aislado bajo .theme-baptism_layers */',
  'body.theme-baptism_layers{overflow:hidden!important;height:100dvh!important}',
@@ -139,6 +147,7 @@ function layerCss(p,a){
  'body.theme-baptism_layers .bl-date-weekday{margin-top:9px;font:400 11px/1.5 var(--body);letter-spacing:.08em;color:var(--muted)}',
  'body.theme-baptism_layers .bl-date-native{display:flex;justify-content:center;align-items:center;width:100%;max-width:100%;margin:4px auto 0}',
   'body.theme-baptism_layers .bl-date-native .aura-date-lockup{max-width:100%;margin-inline:auto}',
+ 'body.theme-baptism_layers .bl-date-main,body.theme-baptism_layers .bl-date-native .aura-date-day{'+dayVisualCss+'}',
  'body.theme-baptism_layers .bl-date-label{font:400 clamp(19px,5vw,23px)/1.3 var(--display);color:var(--heading);text-align:center;margin:23px auto 18px}',
  'body.theme-baptism_layers .bl-countdown{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;max-width:430px;width:100%;margin:0 auto 12px;padding:0;background:none;border:0;box-shadow:none}',
   'body.theme-baptism_layers .bl-countdown.countdown-super_minimal{gap:8px!important}',
@@ -213,7 +222,13 @@ const BL_FIELDS={
  blDateTitle:'Nuestra fecha',
  blDateFooter:'UN MOMENTO PARA RECORDAR',
  blCeremonyAddress:'',
- blReceptionAddress:''
+ blReceptionAddress:'',
+ blDayFont:'manrope',
+ blDaySize:'',
+ blDayWeight:'400',
+ blDayTracking:'',
+ blDayColorMode:'theme',
+ blDayColor:'#54493f'
 };
 const _blFormParams=getFormParams;
 getFormParams=function(){
@@ -221,6 +236,10 @@ getFormParams=function(){
  Object.keys(BL_FIELDS).forEach(id=>{p[id]=document.getElementById(id)?.value??BL_FIELDS[id]});
  const controls=document.getElementById('bl-text-editor');
  if(controls)controls.hidden=p.themeVisual!==KEY;
+ const dayEditor=document.getElementById('bl-day-editor');
+ if(dayEditor)dayEditor.hidden=p.themeVisual!==KEY;
+ const colorWrap=document.getElementById('blDayColorWrap');
+ if(colorWrap)colorWrap.hidden=p.blDayColorMode!=='custom';
  return p;
 };
 function installBlEditor(){
@@ -236,6 +255,22 @@ function installBlEditor(){
   '<label>Texto al pie de la pantalla de fecha<input type="text" id="blDateFooter" value="UN MOMENTO PARA RECORDAR"></label>'+
   '<p class="helper">El calendario y la cuenta regresiva se cambian con los selectores de arriba. El título del contador se cambia en «Título de cuenta regresiva».</p>';
  eventSection.appendChild(box);
+ // Este bloque no incluye campo para modificar el valor numérico del día.
+ const dayBox=document.createElement('div');
+ dayBox.id='bl-day-editor';dayBox.className='background-controls';
+ dayBox.style.cssText='margin-top:14px;padding:14px;border:1px solid #e4d8cb;border-radius:12px';
+ dayBox.innerHTML='<p class="helper"><strong>Apariencia del número del día</strong> — toca el número en la vista previa para abrir estos controles. La cifra se calcula de «Fecha y hora» y no se puede sustituir aquí.</p>'+
+  '<div class="field-grid"><label>Tipografía<select id="blDayFont"><option value="manrope">Manrope · limpio</option><option value="cormorant">Cormorant Garamond · editorial</option><option value="georgia">Georgia · clásica</option><option value="system">Sistema · minimalista</option></select></label>'+
+  '<label>Grosor<select id="blDayWeight"><option value="300">Delgado</option><option value="400" selected>Regular</option><option value="500">Medio</option><option value="600">Seminegrita</option><option value="700">Negrita</option></select></label></div>'+
+  '<div class="field-grid"><label>Tamaño (px)<input id="blDaySize" type="number" min="48" max="160" step="1" placeholder="Automático"></label>'+
+  '<label>Espacio entre cifras (px)<input id="blDayTracking" type="number" min="-8" max="8" step=".5" placeholder="Original"></label></div>'+
+  '<div class="field-grid"><label>Color<select id="blDayColorMode"><option value="theme">De la paleta</option><option value="custom">Personalizado</option></select></label>'+
+  '<label id="blDayColorWrap" hidden>Elegir color<input type="color" id="blDayColor" value="#54493f"></label></div>'+
+  '<p class="helper">Para cambiar la fecha real utiliza exclusivamente el campo «Fecha y hora».</p>';
+ eventSection.appendChild(dayBox);
+ document.getElementById('blDayColorMode')?.addEventListener('change',e=>{
+  const host=document.getElementById('blDayColorWrap');if(host)host.hidden=e.target.value!=='custom';
+ });
  const ceremony=document.getElementById('ceremonyText'),reception=document.getElementById('receptionText');
  function addressField(id,label,after){
   if(!after)return;
@@ -246,11 +281,38 @@ function installBlEditor(){
  }
  addressField('blCeremonyAddress','Dirección de la ceremonia',ceremony);
  addressField('blReceptionAddress','Dirección de la recepción',reception);
- document.getElementById('themeVisual')?.addEventListener('change',()=>{box.hidden=document.getElementById('themeVisual').value!==KEY});
+ document.getElementById('themeVisual')?.addEventListener('change',()=>{
+  const hide=document.getElementById('themeVisual').value!==KEY;box.hidden=hide;dayBox.hidden=hide;
+ });
  box.hidden=document.getElementById('themeVisual')?.value!==KEY;
+ dayBox.hidden=box.hidden;
  queuePreview();
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installBlEditor,{once:true});else installBlEditor();
+
+// Solo el editor tiene un comportamiento táctil; la invitación exportada no.
+const _blPreviewEditing=bindPreviewEditing52;
+bindPreviewEditing52=function(doc){
+ _blPreviewEditing(doc);
+ if(!doc||doc.documentElement.dataset.blDayVisualBound==='1')return;
+ doc.documentElement.dataset.blDayVisualBound='1';
+ const style=doc.createElement('style');
+ style.textContent='@media(hover:hover){[data-bl-day-visual]:hover{outline:1px dashed rgba(150,120,90,.75);outline-offset:5px;cursor:pointer}}';
+ doc.head.appendChild(style);
+ doc.addEventListener('click',e=>{
+  if(!document.getElementById('previewEditMode')?.checked)return;
+  const number=e.target.closest?.('[data-bl-day-visual]');
+  if(!number)return;
+  e.preventDefault();e.stopImmediatePropagation();
+  const panel=document.getElementById('bl-day-editor');
+  if(!panel)return;
+  const section=panel.closest('details.form-section');
+  if(section)section.open=true;
+  panel.hidden=false;
+  panel.scrollIntoView({behavior:'smooth',block:'center'});
+  setTimeout(()=>{try{document.getElementById('blDayFont')?.focus({preventScroll:true})}catch(_){}},230);
+ },true);
+};
 
 const original=buildInvitation;
 buildInvitation=function(p,a){
