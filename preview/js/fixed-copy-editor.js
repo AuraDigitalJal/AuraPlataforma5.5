@@ -21,6 +21,7 @@
     {id:"blMenuConfirmTitle",label:"Bautizo capas · Menú · Confirmación",selector:".theme-baptism_layers .bl-menu-confirm-label",defaults:["Confirmar asistencia"]},
     {id:"blMenuConfirmHint",label:"Bautizo capas · Menú · subtítulo confirmación",selector:".theme-baptism_layers .bl-menu-confirm-hint",defaults:["Te esperamos"]},
     {id:"blMenuGalleryCTA",label:"Bautizo capas · Menú · acceso a galería",selector:".theme-baptism_layers .bl-menu-row[data-bl-go=\"gallery\"] .bl-row-copy strong",defaults:["Ver galería","Galería"]},
+    {id:"blMenuGalleryHint",label:"Bautizo capas · Menú · subtítulo de Galería",selector:".theme-baptism_layers .bl-menu-row[data-bl-go=\"gallery\"] .bl-row-copy small",defaults:["Nuestros recuerdos"]},
     {id:"blMenuFooter",label:"Bautizo capas · Menú · frase inferior",selector:".theme-baptism_layers .bl-menu-footer-label",defaults:["CON CARIÑO, PARA TI"]},
     {id:"blMenuBack",label:"Bautizo capas · Navegación · Menú",selector:".theme-baptism_layers .bl-back[data-bl-go=\"menu\"] span:last-child",defaults:["Menú"]},
     {id:"blCoverBack",label:"Bautizo capas · Navegación · Portada",selector:".theme-baptism_layers .bl-back[data-bl-go=\"cover\"] span:last-child",defaults:["Portada"]},
