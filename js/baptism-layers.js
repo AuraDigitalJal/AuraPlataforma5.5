@@ -1,0 +1,380 @@
+/* Aura Digital · Bautizo en capas · PRUEBAS. No afecta otros diseños. */
+/* Icono de WhatsApp: Font Awesome Free 6.7.2, CC BY 4.0 — https://fontawesome.com/icons/whatsapp */
+(function(){
+'use strict';
+const KEY='baptism_layers';
+THEMES[KEY]={label:'Bautizo · Capas interactivas',palette:'baptism_beige',swatch:'linear-gradient(135deg,#faf8f3 0%,#e7d9c8 47%,#b9cdda 100%)',display:"'Cormorant Garamond',serif",body:"'Manrope',sans-serif",radius:'20px',hero:'soft',ornament:'line',section:'airy'};
+PALETTES.baptism_beige=['#b49c84','#46423e','#54493f','#89817b','#e8ddd0','#fcfaf6'];
+PALETTES.baptism_rose=['#bd919d','#4a3e42','#765963','#9e858a','#f1e3e5','#fdf8f8'];
+PALETTE_LABELS.baptism_beige='Bautizo · Beige cálido';
+PALETTE_LABELS.baptism_rose='Bautizo · Rosa empolvado';
+if(COLLECTIONS.bautizo){
+ const col=COLLECTIONS.bautizo;
+ if(!col.themes.includes(KEY))col.themes.push(KEY);
+ for(const key of ['baptism_beige','baptism_rose'])if(!col.palettes.includes(key))col.palettes.push(key);
+}
+const safe=s=>esc(String(s??''));
+const icon=(name)=>{
+ const shapes={
+ date:'<rect x="4.5" y="6.7" width="15" height="13" rx="1.2"/><path d="M7.8 4.2v4.8M16.2 4.2v4.8M4.5 10.3h15M8 14h2M13 14h2M8 17h2"/>',
+ ceremony:'<path d="M4 20h16M6.5 20V10.5L12 6.5l5.5 4V20M10 20v-5.8h4V20M12 2.7v4.1M9.5 4.6h5M9.2 11.7h5.6"/>',
+ reception:'<path d="M4 4.5h7l-1 6.5a2.7 2.7 0 0 1-5.2 0L4 4.5ZM7.5 13.5v6M4.7 20h5.6M13 4.5h7l-1 6.5a2.7 2.7 0 0 1-5.2 0L13 4.5ZM16.5 13.5v6M13.7 20h5.6"/>',
+ confirm:'<path d="M12 20s-7-4.6-8.4-8.8C2.2 7 7.3 4 12 8.1 16.7 4 21.8 7 20.4 11.2 19 15.4 12 20Z"/><path d="m8.8 12 2.1 2.1 4.4-4.3"/>',
+ gallery:'<rect x="3.8" y="5.2" width="16.4" height="13.6" rx="1.6"/><circle cx="9" cy="10" r="1.65"/><path d="m4.6 16.8 4.2-4.2 3.4 3.1 2.6-2.7 4.4 4.4"/>'
+ };
+ return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.15" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+shapes[name]+'</svg>';
+};
+const toMenu='<span aria-hidden="true">‹</span><span>Menú</span>';
+function back(target,label){return '<button class="bl-back" type="button" data-bl-go="'+target+'"><span aria-hidden="true">‹</span><span>'+label+'</span></button>';}
+function go(label,key,symbol,sub){return '<button class="bl-menu-row" type="button" data-bl-go="'+key+'"><span class="bl-icon">'+icon(symbol)+'</span><span class="bl-row-copy"><strong>'+label+'</strong><small>'+sub+'</small></span><span class="bl-row-arrow" aria-hidden="true">›</span></button>';}
+
+function shell(id,caption,title,body,footer,editable){
+ const edit=editable||{};
+ const mark=(key)=>key?' data-edit="'+key+'"':'';
+ return '<section class="bl-screen" data-bl-screen="'+id+'" hidden aria-label="'+safe(title)+'"><div class="bl-inner">'+back('menu','Menú')+'<div class="bl-panel"><span class="bl-kicker"'+mark(edit.kicker)+'>'+safe(caption)+'</span><h1 class="bl-heading"'+mark(edit.title)+'>'+safe(title)+'</h1>'+body+'</div><div class="bl-screen-footer"'+mark(edit.footer)+'><span class="bl-footer-label">'+safe(footer??'UN MOMENTO PARA RECORDAR')+'</span> <span aria-hidden="true">✦</span></div></div></section>';
+}
+function dateContent(p){
+ const d=eventDateParts(p.eventDate);
+ if(!d)return '<div class="bl-empty">Agrega la fecha del evento desde el editor para mostrarla aquí.</div>';
+ // El valor "auto" conserva la fecha editorial de esta plantilla;
+ // las variantes utilizan el mismo componente y CSS que el resto de Aura.
+ const kind=String(p.dateCardStyle||'auto');
+ const calendar=kind==='none'?'':kind==='auto'?
+  '<div class="bl-date-area"><div class="bl-date-ornament" aria-hidden="true">✧</div><div class="bl-date-main" data-bl-day-visual="1"'+sizeAttr(p.dateTextSize,'dateDay')+'>'+safe(d.day)+'</div><div class="bl-date-month">'+safe(d.month)+' · '+safe(d.year)+'</div><div class="bl-date-weekday">'+safe(d.weekday)+' · '+safe(d.time)+'</div></div>':
+  '<div class="bl-date-native">'+auraDateLockupHtml(p,d).replace('<strong class="aura-date-day"','<strong class="aura-date-day" data-bl-day-visual="1"')+'</div>';
+ return calendar+'<p class="bl-date-label" data-edit="countdownLabel"'+sizeAttr(p.countdownLabelSize,'sectionTitle')+'>'+safe(p.countdownLabel||'Falta para nuestro gran día')+'</p><div class="countdown bl-countdown '+countdownStyleClass(p)+'" data-date="'+safe(p.eventDate)+'"><div class="count-item"><b data-d'+sizeAttr(p.countdownNumbersSize,'countNumber')+'>00</b><span>Días</span></div><div class="count-item"><b data-h'+sizeAttr(p.countdownNumbersSize,'countNumber')+'>00</b><span>Horas</span></div><div class="count-item"><b data-m'+sizeAttr(p.countdownNumbersSize,'countNumber')+'>00</b><span>Min</span></div><div class="count-item"><b data-s'+sizeAttr(p.countdownNumbersSize,'countNumber')+'>00</b><span>Seg</span></div></div>';
+}
+function menuDate(p){
+ const d=eventDateParts(p.eventDate);
+ return d?d.day+' de '+d.month.toLowerCase()+' de '+d.year:'Fecha por definir';
+}
+function menuPlace(p,type){
+ const isCer=type==='ceremony',raw=isCer?p.ceremonyText:p.receptionText;
+ const explicit=String((isCer?p.blCeremonyAddress:p.blReceptionAddress)||'').trim();
+ const segments=String(raw||'').split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+ const first=splitPlace(segments[0]||'');
+ const address=explicit||segments.slice(1).join(' · ');
+ // No inventar direcciones: mostrar el nombre del lugar hasta que se configure la dirección.
+ return address||first.name||'Ubicación por definir';
+}
+function locationContent(p,type){
+ const isCer=type==='ceremony',text=isCer?p.ceremonyText:p.receptionText,url=isCer?p.ceremonyUrl:p.receptionUrl,coords=isCer?p.ceremonyCoords:p.receptionCoords;
+ const enabled=isCer?p.showCeremony:p.showReception;
+ if(!enabled||!String(text||'').trim())return '<p class="bl-empty">Activa y completa los datos de esta ubicación en el editor.</p>';
+ const place=splitPlace(text),external=safeMapLink(url),embed=mapEmbedUrl(url,coords),mode=p.mapDisplayMode||'toggle';
+ let maps='';
+ if(mode!=='hidden'&&embed){
+   maps='<div class="bl-map-box"'+(mode==='visible'?'':' hidden')+'><iframe title="Mapa de '+safe(place.name)+'" '+(mode==='visible'?'src':'data-src')+'="'+safe(embed)+'" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div>';
+ }
+ const control=mode==='toggle'&&embed?'<button class="bl-map-toggle" type="button" aria-expanded="false"><span class="bl-map-toggle-label">Ver mapa</span> <span aria-hidden="true">＋</span></button>':'';
+ const mapsLink=external?'<a class="bl-map-external" href="'+safe(external)+'" target="_blank" rel="noopener"><span class="bl-maps-link-label">Abrir ubicación en Google Maps</span> <span aria-hidden="true">↗</span></a>':'';
+ return '<div class="bl-place"><span class="bl-place-symbol">'+icon(isCer?'ceremony':'reception')+'</span><div class="bl-place-type">'+safe(place.kind)+'</div><h2 data-edit="'+(isCer?'ceremonyText':'receptionText')+'">'+safe(place.name||text)+'</h2><div class="bl-rule"></div><p>Nos encantará compartir este momento contigo.</p>'+control+maps+mapsLink+'</div>';
+}
+function confirmContent(p){
+ const n=String(p.whatsappNumber||'').replace(/\D/g,'');
+ const link=n?'<a class="bl-confirm-cta" href="https://wa.me/'+encodeURIComponent(n)+'?text='+encodeURIComponent(p.whatsappMessage||'Hola, confirmo mi asistencia.')+'" target="_blank" rel="noopener"><span class="bl-whatsapp-label">Confirmar por WhatsApp</span><span class="bl-confirm-whatsapp-icon" aria-hidden="true"><svg viewBox="0 0 448 512" focusable="false"><path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/></svg></span></a>':'<p class="bl-empty">Agrega el número de WhatsApp en el editor para activar la confirmación.</p>';
+ return '<div class="bl-confirm-body"><div class="bl-confirm-symbol">'+icon('confirm')+'</div><h2>¿Nos acompañas?</h2><p>Tu presencia hará este momento aún más especial. Confirma tu asistencia para ayudarnos a preparar cada detalle.</p>'+link+'</div>';
+}
+function galleryContent(p,a){
+ if(!a.gallery?.length)return '<div class="bl-empty">Selecciona fotografías en el apartado de galería del editor.</div>';
+ const g={...p,orderLocations:0,orderFamily:0,orderConfirm:0,orderCountdown:0,orderGallery:1,orderMusic:0,orderBannerExtra:0,orderBannerExtra2:0,orderMessage:0,orderVideo:0,orderTransfer:0};
+ return '<div class="bl-gallery-native">'+buildSections(g,a)+'</div>';
+}
+function layersMarkup(p,a){
+ const buttons=go('Fecha','date','date',safe(menuDate(p)))+go('Ceremonia','ceremony','ceremony',safe(menuPlace(p,'ceremony')))+go('Recepción','reception','reception',safe(menuPlace(p,'reception')))+go('Galería','gallery','gallery','Nuestros recuerdos');
+ const cover='<header class="hero bl-cover" data-bl-cover><div class="bl-cover-image"></div><div class="bl-cover-shade"></div><div class="bl-cover-controls"><button class="enter-btn bl-enter" type="button" data-bl-go="menu"'+sizeAttr(p.buttonTextSize,'button')+'>'+safe(p.buttonText||'Entrar')+'</button></div></header>';
+ const menu='<section class="bl-screen bl-menu" data-bl-screen="menu" hidden><div class="bl-inner">'+back('cover','Portada')+'<div class="bl-panel"><div class="bl-menu-top"><span class="bl-menu-cross" aria-hidden="true"><svg viewBox="0 0 24 28" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.5V25.5M5.5 9.5H18.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></span><span class="bl-menu-title">Detalles</span><span class="bl-menu-subtitle">TODO LO QUE NECESITAS SABER</span><span class="bl-menu-divider" aria-hidden="true"><svg viewBox="0 0 24 28" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 4V24M6 10H18" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg></span></div><p class="bl-menu-guide">TOCA UNA SECCIÓN PARA VER MÁS</p><div class="bl-rows">'+buttons+'</div><button type="button" class="bl-menu-confirm-button" data-bl-go="confirm"><span class="bl-menu-confirm-copy"><span class="bl-menu-confirm-label">Confirmar asistencia</span><small class="bl-menu-confirm-hint">Te esperamos</small></span><span class="bl-menu-confirm-whatsapp" aria-hidden="true"><svg viewBox="0 0 448 512" focusable="false"><path d="M380.9 97.1C339 55.1 283.2 32 223.9 32c-122.4 0-222 99.6-222 222 0 39.1 10.2 77.3 29.6 111L0 480l117.7-30.9c32.4 17.7 68.9 27 106.1 27h.1c122.3 0 224.1-99.6 224.1-222 0-59.3-25.2-115-67.1-157zm-157 341.6c-33.2 0-65.7-8.9-94-25.7l-6.7-4-69.8 18.3L72 359.2l-4.4-7c-18.5-29.4-28.2-63.3-28.2-98.2 0-101.7 82.8-184.5 184.6-184.5 49.3 0 95.6 19.2 130.4 54.1 34.8 34.9 56.2 81.2 56.1 130.5 0 101.8-84.9 184.6-186.6 184.6zm101.2-138.2c-5.5-2.8-32.8-16.2-37.9-18-5.1-1.9-8.8-2.8-12.5 2.8-3.7 5.6-14.3 18-17.6 21.8-3.2 3.7-6.5 4.2-12 1.4-32.6-16.3-54-29.1-75.5-66-5.7-9.8 5.7-9.1 16.3-30.3 1.8-3.7.9-6.9-.5-9.7-1.4-2.8-12.5-30.1-17.1-41.2-4.5-10.8-9.1-9.3-12.5-9.5-3.2-.2-6.9-.2-10.6-.2-3.7 0-9.7 1.4-14.8 6.9-5.1 5.6-19.4 19-19.4 46.3 0 27.3 19.9 53.7 22.6 57.4 2.8 3.7 39.1 59.7 94.8 83.8 35.2 15.2 49 16.5 66.6 13.9 10.7-1.6 32.8-13.4 37.4-26.4 4.6-13 4.6-24.1 3.2-26.4-1.3-2.5-5-3.9-10.5-6.6z"/></svg></span></button></div><div class="bl-screen-footer"><span class="bl-menu-footer-label">CON CARIÑO, PARA TI</span> <span aria-hidden="true">✦</span></div></div></section>';
+ const gallery='<section class="bl-screen bl-gallery-screen" data-bl-screen="gallery" hidden><div class="bl-gallery-head">'+back('menu','Menú')+'<div class="bl-gallery-title"><span class="bl-gallery-cross" aria-hidden="true"><svg viewBox="0 0 24 28" fill="none"><path d="M12 2.5V25.5M5.5 9.5H18.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg></span><span class="bl-gallery-heading">NUESTROS RECUERDOS</span></div></div>'+galleryContent(p,a)+'</section>';
+ const stage='<main class="page bl-stage" data-bl-stage hidden>'+menu+shell('date',p.blDateKicker??'CUENTA REGRESIVA',p.blDateTitle??'Nuestra fecha',dateContent(p),p.blDateFooter??'UN MOMENTO PARA RECORDAR',{kicker:'blDateKicker',title:'blDateTitle',footer:'blDateFooter'})+shell('ceremony','CEREMONIA','Dónde será',locationContent(p,'ceremony'))+shell('reception','RECEPCIÓN','Nos vemos aquí',locationContent(p,'reception'))+shell('confirm','CONFIRMACIÓN','Te esperamos',confirmContent(p))+gallery+(a.music?'<button class="bl-audio" type="button" aria-label="Reproducir música" aria-pressed="false">♪</button>':'')+'</main>';
+ return {cover,stage};
+}
+function layerCss(p,a){
+ const base=rgba(p.bgContentColor||'#ffffff',bounded(p.contentBgOpacity,.94,0,1));
+ const accent=rgba(p.primaryColor||'#b49c84',.42);
+ const confirmButtonAppearance='border:1px solid '+rgba(p.primaryColor||'#b49c84',.85)+';border-radius:'+(p.buttonStyle==='rounded'?'14px':p.buttonStyle==='square'?'3px':p.buttonStyle==='text_only'?'0':'999px')+';background:'+(p.buttonStyle==='outline_thin'||p.buttonStyle==='text_only'?'transparent':rgba(p.primaryColor||'#b49c84',bounded(p.buttonOpacity,.92,0,1)))+';color:'+(p.buttonStyle==='outline_thin'||p.buttonStyle==='text_only'||bounded(p.buttonOpacity,.92,0,1)<.45?'var(--heading)':'#ffffff')+';';
+ const img=a.cover?'url('+JSON.stringify(a.cover)+')':'linear-gradient(160deg,var(--bg),var(--card))';
+ const vertical={start:'flex-start',center:'center',end:'flex-end'}[p.heroPosition]||'flex-end';
+ const horizontal={start:'flex-start',center:'center',end:'flex-end'}[p.heroBlockPosition]||'center';
+ const offset=bounded(p.heroOffset,0,-200,200);
+ // La cifra siempre se deriva del evento; estos ajustes son exclusivamente visuales.
+ const dayFonts={manrope:"'Manrope',sans-serif",cormorant:"'Cormorant Garamond',serif",georgia:"Georgia,serif",system:"system-ui,sans-serif"};
+ const dayFont=dayFonts[p.blDayFont]||dayFonts.manrope;
+ const dayWeight=['300','400','500','600','700'].includes(String(p.blDayWeight))?String(p.blDayWeight):'400';
+ const daySize=p.blDaySize!==''&&p.blDaySize!=null?bounded(p.blDaySize,0,48,160):0;
+ const dayTracking=p.blDayTracking!==''&&p.blDayTracking!=null?bounded(p.blDayTracking,0,-8,8):null;
+ const dayColor=p.blDayColorMode==='custom'&&/^#[0-9a-f]{6}$/i.test(p.blDayColor||'')?p.blDayColor:'var(--heading)';
+ const dayVisualCss='font-family:'+dayFont+'!important;font-weight:'+dayWeight+'!important;color:'+dayColor+'!important;'+(daySize?'font-size:'+daySize+'px!important;':'')+(dayTracking!==null?'letter-spacing:'+dayTracking+'px!important;':'');
+ return [
+ '/* Bautizo en capas: aislado bajo .theme-baptism_layers */',
+ 'body.theme-baptism_layers{overflow:hidden!important;height:100dvh!important}',
+ 'body.theme-baptism_layers .bl-cover,body.theme-baptism_layers .bl-stage{position:fixed!important;inset:0!important;width:100%!important;height:100vh!important;height:100dvh!important;min-height:0!important;margin:0!important;padding:0!important;overflow:hidden!important}',
+ 'body.theme-baptism_layers .bl-cover{z-index:4!important;display:flex!important;flex-direction:column!important;align-items:'+horizontal+'!important;justify-content:'+vertical+'!important;background:var(--bg)!important;isolation:isolate}',
+ 'body.theme-baptism_layers .bl-cover[hidden],body.theme-baptism_layers .bl-stage[hidden],body.theme-baptism_layers .bl-screen[hidden]{display:none!important}',
+ 'body.theme-baptism_layers .bl-cover-image{position:absolute;inset:0;background-image:'+img+';background-position:center;background-size:cover;background-repeat:no-repeat;z-index:-2}',
+ 'body.theme-baptism_layers .bl-cover-shade{position:absolute;inset:0;z-index:-1;background:transparent!important;pointer-events:none}',
+ 'body.theme-baptism_layers .bl-cover-controls{position:relative;z-index:2;margin:clamp(28px,8vh,76px) 7%!important;transform:translateY('+offset+'px);width:auto!important;max-width:86%;padding:0!important;display:flex;justify-content:center}',
+ 'body.theme-baptism_layers .bl-enter{position:relative;min-width:116px;max-width:100%;width:max-content!important;margin:0!important;cursor:pointer}',
+ 'body.theme-baptism_layers .bl-stage{z-index:5!important;display:block!important;max-width:none!important;background:transparent!important}',
+ 'body.theme-baptism_layers .bl-screen{position:absolute!important;inset:0!important;overflow-y:auto!important;overscroll-behavior:contain;background:transparent!important;scrollbar-width:thin}',
+ 'body.theme-baptism_layers .bl-screen::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;background:'+base+';backdrop-filter:blur('+({'light':'5px','strong':'11px'}[p.contentBlur]||'0px')+')}',
+ 'body.theme-baptism_layers .bl-inner{position:relative;z-index:1;min-height:100vh;min-height:100dvh;max-width:600px;margin:0 auto;display:flex;flex-direction:column;padding:max(21px,env(safe-area-inset-top)) clamp(25px,7vw,54px) max(25px,env(safe-area-inset-bottom))}',
+ 'body.theme-baptism_layers .bl-back{position:relative;align-self:flex-start;display:inline-flex;align-items:center;gap:8px;padding:7px 2px;color:var(--heading);font:500 12px/1.4 var(--body);letter-spacing:.12em;border:0;background:none;cursor:pointer;z-index:3}',
+ 'body.theme-baptism_layers .bl-back>span:first-child{font-size:22px;line-height:14px;color:var(--accent);font-weight:300}',
+ 'body.theme-baptism_layers .bl-screen:not(.bl-menu) .bl-back{position:fixed!important;top:max(16px,env(safe-area-inset-top));left:max(18px,calc((100vw - 600px)/2 + 24px));z-index:21;min-height:46px;min-width:98px;padding:10px 17px;gap:9px;border:1px solid '+accent+';border-radius:999px;background:var(--card);box-shadow:0 5px 18px rgba(0,0,0,.12);font-size:13px;font-weight:600;letter-spacing:.06em;line-height:1.2;justify-content:center;white-space:nowrap;transition:box-shadow .2s ease,transform .2s ease}',
+ 'body.theme-baptism_layers .bl-screen:not(.bl-menu) .bl-back>span:first-child{font-size:27px;line-height:16px;font-weight:400}',
+ 'body.theme-baptism_layers .bl-screen:not(.bl-menu) .bl-back:hover{box-shadow:0 7px 22px rgba(0,0,0,.18)}',
+ 'body.theme-baptism_layers .bl-screen:not(.bl-menu) .bl-back:focus-visible{outline:2px solid var(--accent);outline-offset:3px}',
+ 'body.theme-baptism_layers .bl-screen:not(.bl-menu):not(.bl-gallery-screen) .bl-inner{padding-top:max(76px,calc(env(safe-area-inset-top) + 62px))}',
+ 'body.theme-baptism_layers .bl-gallery-screen .bl-gallery-head{padding-top:60px}',
+ 'body.theme-baptism_layers .bl-panel{display:flex;flex-direction:column;justify-content:center;flex:1;min-height:0}',
+ 'body.theme-baptism_layers .bl-menu-top{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:5px;margin:0 0 clamp(12px,2vh,18px)}',
+ 'body.theme-baptism_layers .bl-menu-cross{display:grid;place-items:center;width:30px;height:25px;color:var(--accent);margin-bottom:1px}',
+ 'body.theme-baptism_layers .bl-menu-cross svg{display:block;width:22px;height:25px}',
+ 'body.theme-baptism_layers .bl-menu-divider{display:flex;align-items:center;justify-content:center;gap:11px;color:var(--accent);width:95px;height:15px;margin-top:2px}',
+ 'body.theme-baptism_layers .bl-menu-divider::before,body.theme-baptism_layers .bl-menu-divider::after{content:"";flex:1;height:1px;background:currentColor;opacity:.52}',
+ 'body.theme-baptism_layers .bl-menu-divider svg{display:block;width:12px;height:16px;flex:0 0 12px}',
+ 'body.theme-baptism_layers .bl-menu-title{font:400 clamp(35px,9.3vw,46px)/1.04 var(--display);letter-spacing:-.015em;color:var(--heading)}',
+ 'body.theme-baptism_layers .bl-menu-subtitle{font:500 clamp(9px,2.7vw,11px)/1.6 var(--body);letter-spacing:.18em;color:var(--muted);max-width:100%;text-wrap:balance}',
+ 'body.theme-baptism_layers .bl-menu{--bl-gap:clamp(9px,1.55vh,15px)}',
+ 'body.theme-baptism_layers .bl-menu .bl-inner{padding-top:max(14px,env(safe-area-inset-top));padding-bottom:max(16px,env(safe-area-inset-bottom))}',
+ 'body.theme-baptism_layers .bl-menu .bl-screen-footer{margin-top:12px}',
+ 'body.theme-baptism_layers .bl-rows{display:grid;gap:var(--bl-gap)}',
+ 'body.theme-baptism_layers .bl-menu-row{appearance:none;display:grid;grid-template-columns:clamp(54px,15vw,70px) minmax(0,1fr) 27px;gap:clamp(10px,2.6vw,16px);align-items:center;text-align:left;width:100%;border:1px solid '+rgba(p.primaryColor||'#b49c84',.33)+'!important;border-radius:17px;background:color-mix(in srgb,var(--card) 91%,var(--accent) 9%)!important;box-shadow:0 3px 12px rgba(0,0,0,.045)!important;padding:clamp(4px,.8vh,6px) clamp(8px,2.3vw,12px)!important;color:var(--heading);cursor:pointer;min-height:60px;transition:transform .18s ease,box-shadow .18s ease,border-color .18s ease,background .18s ease}',
+ 'body.theme-baptism_layers .bl-icon{width:clamp(54px,15vw,70px);height:clamp(54px,15vw,70px);border-radius:50%;display:grid;place-items:center;background:color-mix(in srgb,var(--accent) 16%,var(--card));border:1px solid '+rgba(p.primaryColor||'#b49c84',.52)+';color:var(--accent)}',
+ 'body.theme-baptism_layers .bl-icon svg{width:54%;height:54%;stroke-width:1.45}',
+ 'body.theme-baptism_layers .bl-row-copy{display:grid;gap:4px}',
+ 'body.theme-baptism_layers .bl-row-copy strong{font:500 clamp(20px,5.3vw,26px)/1.1 var(--display);letter-spacing:0;color:var(--heading)}',
+ 'body.theme-baptism_layers .bl-row-copy small{font:400 clamp(10px,2.8vw,12px)/1.5 var(--body);letter-spacing:.045em;color:var(--muted)}',
+ 'body.theme-baptism_layers .bl-row-arrow{display:grid;place-items:center;width:27px;height:27px;border-radius:50%;font:500 25px/1 var(--body);color:var(--accent);background:color-mix(in srgb,var(--accent) 13%,transparent);opacity:1;transition:transform .18s ease,background .18s ease}',
+ 'body.theme-baptism_layers .bl-menu-guide{text-align:center;color:var(--accent);font:600 10px/1.4 var(--body);letter-spacing:.11em;margin:-3px 0 8px}',
+ 'body.theme-baptism_layers .bl-menu-row:hover{transform:translateY(-2px);border-color:var(--accent)!important;box-shadow:0 6px 18px rgba(0,0,0,.105)!important}',
+ 'body.theme-baptism_layers .bl-menu-row:hover .bl-row-arrow{transform:translateX(2px);background:color-mix(in srgb,var(--accent) 23%,transparent)}',
+ 'body.theme-baptism_layers .bl-menu-row:active{transform:scale(.985);box-shadow:0 1px 5px rgba(0,0,0,.06)!important}',
+ 'body.theme-baptism_layers .bl-menu-row:focus-visible{outline:2px solid var(--accent);outline-offset:2px}',
+ '@media(max-height:740px){body.theme-baptism_layers .bl-menu-guide{margin:-5px 0 8px;font-size:9px}body.theme-baptism_layers .bl-menu-row{padding:5px 8px!important}}',
+ '@media(prefers-reduced-motion:reduce){body.theme-baptism_layers .bl-menu-row,body.theme-baptism_layers .bl-row-arrow{transition:none!important}}',
+ 'body.theme-baptism_layers .bl-confirm-cta{margin:clamp(31px,6vh,48px) auto 0;display:flex;align-items:center;justify-content:center;gap:16px;min-height:48px;width:min(100%,285px);padding:13px 21px;'+confirmButtonAppearance+'font:600 11px/1.3 var(--body);letter-spacing:.11em;text-transform:uppercase;cursor:pointer;text-decoration:none}',
+ 'body.theme-baptism_layers .bl-menu-confirm-button{appearance:none;margin:clamp(12px,2vh,18px) auto 0;display:flex;align-items:center;justify-content:center;gap:14px;min-height:48px;width:min(100%,300px);padding:9px 21px;'+confirmButtonAppearance+'font:600 11px/1.3 var(--body);letter-spacing:.1em;text-transform:uppercase;cursor:pointer;text-decoration:none;transition:background .2s ease,border-color .2s ease}',
+ 'body.theme-baptism_layers .bl-menu-confirm-button:is(:hover,:focus-visible){border-color:var(--accent);outline-offset:3px}',
+ 'body.theme-baptism_layers .bl-menu-confirm-copy{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:0}',
+ 'body.theme-baptism_layers .bl-menu-confirm-hint{font:400 9px/1.2 var(--body);letter-spacing:.06em;text-transform:none;opacity:.83}',
+ 'body.theme-baptism_layers .bl-menu-confirm-whatsapp{width:22px;height:22px;flex:0 0 22px;display:grid;place-items:center}',
+ 'body.theme-baptism_layers .bl-menu-confirm-whatsapp svg{display:block;width:100%;height:100%;fill:currentColor}',
+ 'body.theme-baptism_layers .bl-confirm-whatsapp-icon{display:grid;place-items:center;flex:0 0 20px;width:20px;height:20px}',
+ 'body.theme-baptism_layers .bl-confirm-whatsapp-icon svg{display:block;width:100%;height:100%;fill:currentColor}',
+ 'body.theme-baptism_layers .bl-screen-footer{text-align:center;margin-top:18px;color:var(--muted);font:500 8px/1.4 var(--body);letter-spacing:.22em}',
+ 'body.theme-baptism_layers .bl-screen-footer span[aria-hidden="true"]{color:var(--accent);margin-left:8px}',
+ 'body.theme-baptism_layers .bl-kicker{text-align:center;font:500 10px/1.5 var(--body);letter-spacing:.23em;color:var(--accent)}',
+ 'body.theme-baptism_layers .bl-heading{text-align:center;font:400 clamp(33px,10vw,54px)/1.07 var(--display);letter-spacing:.005em;color:var(--heading);margin:16px 0 30px}',
+ 'body.theme-baptism_layers .bl-empty{text-align:center;font:400 14px/1.8 var(--body);max-width:32ch;margin:30px auto;color:var(--text)}',
+ 'body.theme-baptism_layers .bl-date-area{text-align:center;display:flex;flex-direction:column;align-items:center}',
+ 'body.theme-baptism_layers .bl-date-ornament{font:300 34px/1 var(--display);color:var(--accent)}',
+ 'body.theme-baptism_layers .bl-date-main{font:400 clamp(84px,25vw,130px)/1.04 var(--body)!important;font-variant-numeric:lining-nums tabular-nums;color:var(--heading);letter-spacing:-.055em}',
+ 'body.theme-baptism_layers .bl-date-native .aura-date-day{font-family:var(--body)!important;font-weight:400!important;font-variant-numeric:lining-nums tabular-nums!important;letter-spacing:-.055em!important;line-height:1.06!important}',
+ 'body.theme-baptism_layers .bl-date-month{font:500 clamp(11px,3vw,13px)/1.55 var(--body);letter-spacing:.12em;color:var(--accent);max-width:100%;overflow-wrap:break-word;text-wrap:balance}',
+ 'body.theme-baptism_layers .bl-date-native .aura-date-monthyear{min-width:0;max-width:100%;letter-spacing:.11em!important;font-size:clamp(9px,2.8vw,11px)!important;line-height:1.6!important;overflow-wrap:break-word;text-wrap:balance}',
+ 'body.theme-baptism_layers .bl-date-native .aura-date-lockup.date-vertical{grid-template-columns:minmax(0,auto) minmax(0,1fr)!important;column-gap:clamp(8px,3vw,18px)!important}',
+ 'body.theme-baptism_layers .bl-date-weekday{margin-top:9px;font:400 11px/1.5 var(--body);letter-spacing:.08em;color:var(--muted)}',
+ 'body.theme-baptism_layers .bl-date-native{display:flex;justify-content:center;align-items:center;width:100%;max-width:100%;margin:4px auto 0}',
+  'body.theme-baptism_layers .bl-date-native .aura-date-lockup{max-width:100%;margin-inline:auto}',
+ 'body.theme-baptism_layers .bl-date-main,body.theme-baptism_layers .bl-date-native .aura-date-day{'+dayVisualCss+'}',
+ 'body.theme-baptism_layers .bl-date-label{font:400 clamp(19px,5vw,23px)/1.3 var(--display);color:var(--heading);text-align:center;margin:23px auto 18px}',
+ 'body.theme-baptism_layers .bl-countdown{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;max-width:430px;width:100%;margin:0 auto 12px;padding:0;background:none;border:0;box-shadow:none}',
+  'body.theme-baptism_layers .bl-countdown.countdown-super_minimal{gap:8px!important}',
+ 'body.theme-baptism_layers .bl-countdown .count-item{min-width:0;display:flex;flex-direction:column;align-items:center;gap:8px}',
+  'body.theme-baptism_layers .bl-countdown.countdown-super_minimal .count-item{background:color-mix(in srgb,var(--accent) 7%,transparent);border:1px solid '+accent+';padding:11px 3px;border-radius:13px}',
+ 'body.theme-baptism_layers .bl-countdown b{font-family:var(--display);font-weight:400;color:var(--heading)}',
+  'body.theme-baptism_layers .bl-countdown.countdown-super_minimal b{font-size:clamp(21px,6.8vw,32px);line-height:1}',
+ 'body.theme-baptism_layers .bl-countdown span{font:500 9px/1 var(--body);letter-spacing:.08em;color:var(--muted)}',
+  'body.theme-baptism_layers .bl-row-copy small{overflow-wrap:anywhere;line-height:1.5}',
+ 'body.theme-baptism_layers .bl-place{text-align:center;display:flex;flex-direction:column;align-items:center;max-width:470px;margin:0 auto}',
+ 'body.theme-baptism_layers .bl-place-symbol,body.theme-baptism_layers .bl-confirm-symbol{display:grid;place-items:center;width:100px;height:100px;border:1px solid '+accent+';border-radius:50%;color:var(--accent);background:color-mix(in srgb,var(--accent) 9%,transparent);margin-bottom:30px}',
+ 'body.theme-baptism_layers .bl-place-symbol svg,body.theme-baptism_layers .bl-confirm-symbol svg{width:51px;height:51px}',
+ 'body.theme-baptism_layers .bl-place-type{font:500 10px/1.5 var(--body);letter-spacing:.22em;text-transform:uppercase;color:var(--muted)}',
+ 'body.theme-baptism_layers .bl-place h2,body.theme-baptism_layers .bl-confirm-body h2{font:400 clamp(25px,7.5vw,38px)/1.15 var(--display);color:var(--heading);margin:12px 0}',
+ 'body.theme-baptism_layers .bl-place p,body.theme-baptism_layers .bl-confirm-body p{font:400 13px/1.75 var(--body);color:var(--text);max-width:31ch;margin:18px auto}',
+ 'body.theme-baptism_layers .bl-rule{width:68px;height:1px;margin:12px auto;background:var(--accent);opacity:.58}',
+ 'body.theme-baptism_layers .bl-map-box{width:100%;height:clamp(170px,27vh,230px);border-radius:18px;overflow:hidden;margin:14px auto;background:var(--card);border:1px solid '+accent+'}',
+ 'body.theme-baptism_layers .bl-map-box[hidden]{display:none!important}',
+ 'body.theme-baptism_layers .bl-map-box iframe{border:0;width:100%;height:100%}',
+ 'body.theme-baptism_layers .bl-map-toggle{border:0;border-bottom:1px solid '+accent+';padding:11px 8px;background:none;color:var(--heading);font:500 11px var(--body);letter-spacing:.1em;cursor:pointer}',
+ 'body.theme-baptism_layers .bl-map-external{display:inline-flex;gap:12px;text-decoration:none;color:var(--heading);border-bottom:1px solid '+accent+';margin-top:16px;padding-bottom:8px;font:600 10px/1.3 var(--body);letter-spacing:.07em}',
+ 'body.theme-baptism_layers .bl-confirm-body{display:flex;flex-direction:column;align-items:center;text-align:center;margin:0 auto}',
+ 'body.theme-baptism_layers .bl-confirm-cta{margin-top:27px}',
+ 'body.theme-baptism_layers .bl-screen[data-bl-screen="confirm"] .bl-heading{margin-bottom:14px}',
+ 'body.theme-baptism_layers .bl-screen[data-bl-screen="confirm"] .bl-confirm-symbol{margin-bottom:14px}',
+ 'body.theme-baptism_layers .bl-gallery-screen{padding:max(22px,env(safe-area-inset-top)) 0 max(36px,env(safe-area-inset-bottom))}',
+ 'body.theme-baptism_layers .bl-gallery-head{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:16px;max-width:650px;margin:0 auto;padding:0 25px 16px}',
+ 'body.theme-baptism_layers .bl-gallery-head .bl-back{align-self:flex-start}',
+ 'body.theme-baptism_layers .bl-gallery-title{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;width:100%}',
+ 'body.theme-baptism_layers .bl-gallery-cross{display:grid;place-items:center;width:28px;height:28px;color:var(--accent)}',
+ 'body.theme-baptism_layers .bl-gallery-cross svg{height:26px;width:24px}',
+ 'body.theme-baptism_layers .bl-gallery-heading{font:400 clamp(29px,8vw,43px)/1.12 var(--display);letter-spacing:.015em;color:var(--heading)}',
+ 'body.theme-baptism_layers .bl-gallery-native{position:relative;z-index:1;max-width:650px;margin:0 auto;padding:14px 12px 40px}',
+ 'body.theme-baptism_layers .bl-gallery-native>.section,body.theme-baptism_layers .bl-gallery-native .gallery-section{position:relative;display:block!important;min-height:0!important;height:auto!important;margin:0!important;padding:15px!important;background:transparent!important;box-shadow:none!important}',
+ 'body.theme-baptism_layers .bl-gallery-native .gallery{max-width:100%;}',
+ '/* Visor blanco exclusivo para bautizo en capas; mantiene fotos y controles originales */',
+ 'body.theme-baptism_layers .gallery-lightbox{background:rgba(255,255,255,.89)!important;color:#393632!important}',
+ 'body.theme-baptism_layers .gallery-lightbox-top{color:#393632!important}',
+ 'body.theme-baptism_layers .gallery-lightbox-count{color:#706c66!important;opacity:1!important}',
+ 'body.theme-baptism_layers .gallery-lightbox-close,body.theme-baptism_layers .gallery-lightbox-nav{background:#f6f5f2!important;color:#393632!important;border:1px solid rgba(52,48,42,.15)!important;box-shadow:0 2px 12px rgba(0,0,0,.045)}',
+ 'body.theme-baptism_layers .gallery-lightbox-close:hover,body.theme-baptism_layers .gallery-lightbox-nav:not(:disabled):hover{background:#ece9e5!important}',
+ 'body.theme-baptism_layers .gallery-lightbox-close:focus-visible,body.theme-baptism_layers .gallery-lightbox-nav:focus-visible{outline:2px solid #55504a!important;outline-offset:3px}',
+ 'body.theme-baptism_layers .gallery-lightbox-caption{color:#77736d!important}',
+ 'body.theme-baptism_layers .bl-audio{position:fixed;z-index:20;top:max(16px,env(safe-area-inset-top));right:clamp(20px,6vw,42px);width:39px;height:39px;border-radius:50%;border:1px solid '+accent+';color:var(--heading);background:var(--card);cursor:pointer;font-size:19px}',
+ 'body.theme-baptism_layers .music-toggle{display:none!important}',
+ '@media(max-height:740px){body.theme-baptism_layers .bl-menu-top{gap:5px;margin-bottom:clamp(13px,2.5vh,23px)}body.theme-baptism_layers .bl-menu-cross{height:22px;margin-bottom:0}body.theme-baptism_layers .bl-menu-cross svg{height:22px}body.theme-baptism_layers .bl-menu-divider{height:12px;margin-top:0;width:80px}body.theme-baptism_layers .bl-menu-divider svg{height:12px}body.theme-baptism_layers .bl-menu-title{font-size:clamp(33px,9vw,42px)}body.theme-baptism_layers .bl-rows{gap:clamp(8px,1.4vh,11px)}body.theme-baptism_layers .bl-menu-row{grid-template-columns:clamp(45px,12.7vw,53px) minmax(0,1fr) 27px;gap:10px}body.theme-baptism_layers .bl-icon{width:clamp(45px,12.7vw,53px);height:clamp(45px,12.7vw,53px)}body.theme-baptism_layers .bl-row-copy strong{font-size:clamp(19px,5vw,22px)}body.theme-baptism_layers .bl-menu-confirm-button{margin-top:clamp(14px,2.5vh,22px)}}@media(max-height:650px){body.theme-baptism_layers .bl-inner{padding-top:12px;padding-bottom:12px}body.theme-baptism_layers .bl-rows{gap:9px}body.theme-baptism_layers .bl-icon{width:44px;height:44px}body.theme-baptism_layers .bl-menu-row{grid-template-columns:44px minmax(0,1fr) 27px;gap:8px}body.theme-baptism_layers .bl-menu-confirm-button{margin-top:15px;padding:7px 12px;min-height:45px}body.theme-baptism_layers .bl-menu-confirm-hint{font-size:8px}body.theme-baptism_layers .bl-heading{margin-bottom:13px}}',
+ '@media(prefers-reduced-motion:no-preference){body.theme-baptism_layers .bl-screen:not([hidden]) .bl-panel{animation:bl-fade .3s ease both}@keyframes bl-fade{from{opacity:.45;transform:translateY(7px)}to{opacity:1;transform:none}}}'
+ ].join('\n');
+}
+function layerRuntime(){
+ const init=()=>{
+  const hero=document.querySelector('[data-bl-cover]'),stage=document.querySelector('[data-bl-stage]');
+  if(!hero||!stage)return;
+  const screens=[...stage.querySelectorAll('[data-bl-screen]')];
+  const audio=document.querySelector('audio'),toggle=stage.querySelector('.bl-audio');
+  const syncMusic=()=>{if(!toggle||!audio)return;toggle.textContent=audio.paused?'♪':'Ⅱ';toggle.setAttribute('aria-label',audio.paused?'Reproducir música':'Pausar música');toggle.setAttribute('aria-pressed',String(!audio.paused))};
+  if(audio)['play','pause','ended'].forEach(name=>audio.addEventListener(name,syncMusic));
+  const navigate=target=>{
+   if(target==='cover'){stage.hidden=true;hero.hidden=false;audio?.pause();if(audio){try{audio.currentTime=0}catch(_){}}syncMusic();return;}
+   const fromCover=!hero.hidden;
+   hero.hidden=true;stage.hidden=false;
+   screens.forEach(s=>{const show=s.dataset.blScreen===target;s.hidden=!show;if(show)s.scrollTop=0});
+   if(target==='menu'&&fromCover&&audio&&audio.paused)audio.play().catch(()=>{});
+   syncMusic();
+  };
+  document.addEventListener('click',e=>{
+   const button=e.target.closest('[data-bl-go]');
+   if(button){e.preventDefault();e.stopImmediatePropagation();navigate(button.dataset.blGo);return;}
+   const mapButton=e.target.closest('.bl-map-toggle');
+   if(mapButton){
+    const box=mapButton.parentElement?.querySelector('.bl-map-box');if(!box)return;
+    const open=box.hidden;box.hidden=!open;mapButton.setAttribute('aria-expanded',String(open));const label=mapButton.querySelector('.bl-map-toggle-label');if(label){if(!mapButton.dataset.blMapShow)mapButton.dataset.blMapShow=label.textContent;label.textContent=open?'Ocultar mapa':mapButton.dataset.blMapShow;}
+    const iframe=box.querySelector('iframe[data-src]');if(open&&iframe&&!iframe.src)iframe.src=iframe.dataset.src;
+   }
+   if(e.target.closest('.bl-audio')&&audio){if(audio.paused)audio.play().catch(()=>{});else audio.pause();}
+  },true);
+  window.addEventListener('keydown',e=>{if(e.key==='Escape'&&!stage.hidden&&!document.querySelector('.gallery-lightbox.open'))navigate('menu')});
+  syncMusic();
+ };
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
+}
+
+/* Controles propios de la plantilla; se guardan en el JSON y en las invitaciones exportadas. */
+const BL_FIELDS={
+ blDateKicker:'CUENTA REGRESIVA',
+ blDateTitle:'Nuestra fecha',
+ blDateFooter:'UN MOMENTO PARA RECORDAR',
+ blCeremonyAddress:'',
+ blReceptionAddress:'',
+ blDayFont:'manrope',
+ blDaySize:'',
+ blDayWeight:'400',
+ blDayTracking:'',
+ blDayColorMode:'theme',
+ blDayColor:'#54493f'
+};
+const _blFormParams=getFormParams;
+getFormParams=function(){
+ const p=_blFormParams();
+ Object.keys(BL_FIELDS).forEach(id=>{p[id]=document.getElementById(id)?.value??BL_FIELDS[id]});
+ const controls=document.getElementById('bl-text-editor');
+ if(controls)controls.hidden=p.themeVisual!==KEY;
+ const dayEditor=document.getElementById('bl-day-editor');
+ if(dayEditor)dayEditor.hidden=p.themeVisual!==KEY;
+ const colorWrap=document.getElementById('blDayColorWrap');
+ if(colorWrap)colorWrap.hidden=p.blDayColorMode!=='custom';
+ document.querySelectorAll('.bl-address-editor').forEach(el=>{const visible=p.themeVisual===KEY;el.hidden=!visible;el.style.display=visible?'':'none';});
+ return p;
+};
+function installBlEditor(){
+ const eventSection=document.querySelector('#sec-evento .section-body');
+ const locationsSection=document.querySelector('#sec-ubicaciones .section-body');
+ if(!eventSection||!locationsSection||document.getElementById('bl-text-editor'))return;
+ const box=document.createElement('div');
+ box.id='bl-text-editor';box.className='background-controls';
+ box.style.cssText='margin-top:14px;padding:14px;border:1px solid #e4d8cb;border-radius:12px';
+ box.innerHTML='<p class="helper"><strong>Bautizo · Capas interactivas</strong> — personaliza los textos de la pantalla de fecha. También puedes tocarlos en la vista previa.</p>'+
+  '<label>Texto superior de fecha<input type="text" id="blDateKicker" value="CUENTA REGRESIVA"></label>'+
+  '<label>Título de la pantalla de fecha<input type="text" id="blDateTitle" value="Nuestra fecha"></label>'+
+  '<label>Texto al pie de la pantalla de fecha<input type="text" id="blDateFooter" value="UN MOMENTO PARA RECORDAR"></label>'+
+  '<p class="helper">El calendario y la cuenta regresiva se cambian con los selectores de arriba. El título del contador se cambia en «Título de cuenta regresiva».</p>';
+ eventSection.appendChild(box);
+ // Este bloque no incluye campo para modificar el valor numérico del día.
+ const dayBox=document.createElement('div');
+ dayBox.id='bl-day-editor';dayBox.className='background-controls';
+ dayBox.style.cssText='margin-top:14px;padding:14px;border:1px solid #e4d8cb;border-radius:12px';
+ dayBox.innerHTML='<p class="helper"><strong>Apariencia del número del día</strong> — toca el número en la vista previa para abrir estos controles. La cifra se calcula de «Fecha y hora» y no se puede sustituir aquí.</p>'+
+  '<div class="field-grid"><label>Tipografía<select id="blDayFont"><option value="manrope">Manrope · limpio</option><option value="cormorant">Cormorant Garamond · editorial</option><option value="georgia">Georgia · clásica</option><option value="system">Sistema · minimalista</option></select></label>'+
+  '<label>Grosor<select id="blDayWeight"><option value="300">Delgado</option><option value="400" selected>Regular</option><option value="500">Medio</option><option value="600">Seminegrita</option><option value="700">Negrita</option></select></label></div>'+
+  '<div class="field-grid"><label>Tamaño (px)<input id="blDaySize" type="number" min="48" max="160" step="1" placeholder="Automático"></label>'+
+  '<label>Espacio entre cifras (px)<input id="blDayTracking" type="number" min="-8" max="8" step=".5" placeholder="Original"></label></div>'+
+  '<div class="field-grid"><label>Color<select id="blDayColorMode"><option value="theme">De la paleta</option><option value="custom">Personalizado</option></select></label>'+
+  '<label id="blDayColorWrap" hidden>Elegir color<input type="color" id="blDayColor" value="#54493f"></label></div>'+
+  '<p class="helper">Para cambiar la fecha real utiliza exclusivamente el campo «Fecha y hora».</p>';
+ eventSection.appendChild(dayBox);
+ document.getElementById('blDayColorMode')?.addEventListener('change',e=>{
+  const host=document.getElementById('blDayColorWrap');if(host)host.hidden=e.target.value!=='custom';
+ });
+ const ceremony=document.getElementById('ceremonyText'),reception=document.getElementById('receptionText');
+ function addressField(id,label,after){
+  if(!after)return;
+  const wrap=document.createElement('label');
+  wrap.className='bl-address-editor';
+  wrap.innerHTML=label+' <small>(opcional, se muestra bajo el lugar en el menú)</small><textarea rows="2" id="'+id+'" placeholder="Calle, número, colonia y ciudad"></textarea>';
+  after.closest('label')?.after(wrap);
+  const visible=document.getElementById('themeVisual')?.value===KEY;
+  wrap.hidden=!visible;wrap.style.display=visible?'':'none';
+ }
+ addressField('blCeremonyAddress','Dirección de la ceremonia',ceremony);
+ addressField('blReceptionAddress','Dirección de la recepción',reception);
+ document.getElementById('themeVisual')?.addEventListener('change',()=>{
+  const hide=document.getElementById('themeVisual').value!==KEY;box.hidden=hide;dayBox.hidden=hide;
+  document.querySelectorAll('.bl-address-editor').forEach(el=>{el.hidden=hide;el.style.display=hide?'none':'';});
+ });
+ box.hidden=document.getElementById('themeVisual')?.value!==KEY;
+ dayBox.hidden=box.hidden;
+ queuePreview();
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installBlEditor,{once:true});else installBlEditor();
+
+// Solo el editor tiene un comportamiento táctil; la invitación exportada no.
+const _blPreviewEditing=bindPreviewEditing52;
+bindPreviewEditing52=function(doc){
+ _blPreviewEditing(doc);
+ if(!doc||doc.documentElement.dataset.blDayVisualBound==='1')return;
+ doc.documentElement.dataset.blDayVisualBound='1';
+ const style=doc.createElement('style');
+ style.textContent='@media(hover:hover){[data-bl-day-visual]:hover{outline:1px dashed rgba(150,120,90,.75);outline-offset:5px;cursor:pointer}}';
+ doc.head.appendChild(style);
+ doc.addEventListener('click',e=>{
+  if(!document.getElementById('previewEditMode')?.checked)return;
+  const number=e.target.closest?.('[data-bl-day-visual]');
+  if(!number)return;
+  e.preventDefault();e.stopImmediatePropagation();
+  const panel=document.getElementById('bl-day-editor');
+  if(!panel)return;
+  const section=panel.closest('details.form-section');
+  if(section)section.open=true;
+  panel.hidden=false;
+  panel.scrollIntoView({behavior:'smooth',block:'center'});
+  setTimeout(()=>{try{document.getElementById('blDayFont')?.focus({preventScroll:true})}catch(_){}},230);
+ },true);
+};
+
+const original=buildInvitation;
+buildInvitation=function(p,a){
+ if(p?.themeVisual!==KEY)return original(p,a);
+ let result=original(p,a);
+ const layer=layersMarkup(p,a);
+ // Use the existing renderer, asset pipeline, gallery and runtime; replace only its visual shell.
+ result=result.replace(/<header class="hero[\s\S]*?<\/header>/,layer.cover);
+ result=result.replace(/<main class="page">[\s\S]*?<\/main>/,layer.stage);
+ result=result.replace('</style>',layerCss(p,a)+'</style>');
+ // Existing music player and gallery handlers remain; add layer navigation logic once.
+ result=result.replace('</body>','<script>('+layerRuntime.toString()+')();<\/script></body>');
+ return result;
+};
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{if(typeof renderThemeStrip==='function')renderThemeStrip();if(typeof renderPaletteStrip==='function')renderPaletteStrip()},{once:true});
+else {if(typeof renderThemeStrip==='function')renderThemeStrip();if(typeof renderPaletteStrip==='function')renderPaletteStrip();}
+})();
