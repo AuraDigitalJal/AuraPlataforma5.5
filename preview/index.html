@@ -9,7 +9,7 @@
     // Las pruebas siempre abren la revisión más reciente, incluso desde un enlace viejo.
     (function () {
       if (window.location.protocol === 'file:') return;
-      var build = 'editoriales-lino-velo-papel-v1';
+      var build = 'bautizo-capas-pruebas-v1';
       var target = new URL(window.location.href);
       if (target.searchParams.get('v') === build) return;
       target.searchParams.set('v', build);
@@ -441,5 +441,6 @@
   <script src="preview/js/wedding-premium-designs.js?v=editoriales-lino-velo-papel-v1"></script>
   <script src="preview/js/palette-inverter.js?v=inversor-paleta-pruebas-20261010-v1"></script>
   <script src="preview/js/wedding-trial-editorials.js?v=editoriales-lino-velo-papel-v1"></script>
+  <script src="preview/js/baptism-layers.js?v=bautizo-capas-pruebas-v1"></script>
 </body>
 </html>
