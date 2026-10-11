@@ -38,8 +38,8 @@ function dateContent(p){
  // las variantes utilizan el mismo componente y CSS que el resto de Aura.
  const kind=String(p.dateCardStyle||'auto');
  const calendar=kind==='none'?'':kind==='auto'?
-  '<div class="bl-date-area" data-edit="eventDate" title="Editar fecha del evento"><div class="bl-date-ornament" aria-hidden="true">✧</div><div class="bl-date-main"'+sizeAttr(p.dateTextSize,'dateDay')+'>'+safe(d.day)+'</div><div class="bl-date-month">'+safe(d.month)+' · '+safe(d.year)+'</div><div class="bl-date-weekday">'+safe(d.weekday)+' · '+safe(d.time)+'</div></div>':
-  '<div class="bl-date-native" data-edit="eventDate" title="Editar fecha del evento">'+auraDateLockupHtml(p,d)+'</div>';
+  '<div class="bl-date-area"><div class="bl-date-ornament" aria-hidden="true">✧</div><div class="bl-date-main"'+sizeAttr(p.dateTextSize,'dateDay')+'>'+safe(d.day)+'</div><div class="bl-date-month">'+safe(d.month)+' · '+safe(d.year)+'</div><div class="bl-date-weekday">'+safe(d.weekday)+' · '+safe(d.time)+'</div></div>':
+  '<div class="bl-date-native">'+auraDateLockupHtml(p,d)+'</div>';
  return calendar+'<p class="bl-date-label" data-edit="countdownLabel"'+sizeAttr(p.countdownLabelSize,'sectionTitle')+'>'+safe(p.countdownLabel||'Falta para nuestro gran día')+'</p><div class="countdown bl-countdown '+countdownStyleClass(p)+'" data-date="'+safe(p.eventDate)+'"><div class="count-item"><b data-d'+sizeAttr(p.countdownNumbersSize,'countNumber')+'>00</b><span>Días</span></div><div class="count-item"><b data-h'+sizeAttr(p.countdownNumbersSize,'countNumber')+'>00</b><span>Horas</span></div><div class="count-item"><b data-m'+sizeAttr(p.countdownNumbersSize,'countNumber')+'>00</b><span>Min</span></div><div class="count-item"><b data-s'+sizeAttr(p.countdownNumbersSize,'countNumber')+'>00</b><span>Seg</span></div></div>';
 }
 function menuDate(p){
