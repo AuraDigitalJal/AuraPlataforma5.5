@@ -25,14 +25,35 @@ const icon=(name)=>{
 const toMenu='<span aria-hidden="true">‹</span><span>Menú</span>';
 function back(target,label){return '<button class="bl-back" type="button" data-bl-go="'+target+'"><span aria-hidden="true">‹</span><span>'+label+'</span></button>';}
 function go(label,key,symbol,sub){return '<button class="bl-menu-row" type="button" data-bl-go="'+key+'"><span class="bl-icon">'+icon(symbol)+'</span><span class="bl-row-copy"><strong>'+label+'</strong><small>'+sub+'</small></span><span class="bl-row-arrow" aria-hidden="true">›</span></button>';}
-function shell(id,caption,title,body){
- return '<section class="bl-screen" data-bl-screen="'+id+'" hidden aria-label="'+safe(title)+'"><div class="bl-inner">'+back('menu','Menú')+'<div class="bl-panel"><span class="bl-kicker">'+caption+'</span><h1 class="bl-heading">'+title+'</h1>'+body+'</div><div class="bl-screen-footer">UN MOMENTO PARA RECORDAR <span aria-hidden="true">✦</span></div></div></section>';
+
+function shell(id,caption,title,body,footer,editable){
+ const edit=editable||{};
+ const mark=(key)=>key?' data-edit="'+key+'"':'';
+ return '<section class="bl-screen" data-bl-screen="'+id+'" hidden aria-label="'+safe(title)+'"><div class="bl-inner">'+back('menu','Menú')+'<div class="bl-panel"><span class="bl-kicker"'+mark(edit.kicker)+'>'+safe(caption)+'</span><h1 class="bl-heading"'+mark(edit.title)+'>'+safe(title)+'</h1>'+body+'</div><div class="bl-screen-footer"'+mark(edit.footer)+'>'+safe(footer??'UN MOMENTO PARA RECORDAR')+' <span aria-hidden="true">✦</span></div></div></section>';
 }
 function dateContent(p){
  const d=eventDateParts(p.eventDate);
  if(!d)return '<div class="bl-empty">Agrega la fecha del evento desde el editor para mostrarla aquí.</div>';
- const dateCard=''; // La fecha se dibuja una sola vez, sin duplicar la tarjeta tradicional.
- return '<div class="bl-date-area"><div class="bl-date-ornament" aria-hidden="true">✧</div><div class="bl-date-main">'+safe(d.day)+'</div><div class="bl-date-month">'+safe(d.month)+' · '+safe(d.year)+'</div><div class="bl-date-weekday">'+safe(d.weekday)+' · '+safe(d.time)+'</div>'+dateCard+'</div><p class="bl-date-label" data-edit="countdownLabel">'+safe(p.countdownLabel||'Falta para nuestro gran día')+'</p><div class="countdown bl-countdown" data-date="'+safe(p.eventDate)+'"><div class="count-item"><b data-d>00</b><span>Días</span></div><div class="count-item"><b data-h>00</b><span>Horas</span></div><div class="count-item"><b data-m>00</b><span>Min</span></div><div class="count-item"><b data-s>00</b><span>Seg</span></div></div>';
+ // El valor "auto" conserva la fecha editorial de esta plantilla;
+ // las variantes utilizan el mismo componente y CSS que el resto de Aura.
+ const kind=String(p.dateCardStyle||'auto');
+ const calendar=kind==='none'?'':kind==='auto'?
+  '<div class="bl-date-area"><div class="bl-date-ornament" aria-hidden="true">✧</div><div class="bl-date-main"'+sizeAttr(p.dateTextSize,'dateDay')+'>'+safe(d.day)+'</div><div class="bl-date-month">'+safe(d.month)+' · '+safe(d.year)+'</div><div class="bl-date-weekday">'+safe(d.weekday)+' · '+safe(d.time)+'</div></div>':
+  '<div class="bl-date-native">'+auraDateLockupHtml(p,d)+'</div>';
+ return calendar+'<p class="bl-date-label" data-edit="countdownLabel"'+sizeAttr(p.countdownLabelSize,'sectionTitle')+'>'+safe(p.countdownLabel||'Falta para nuestro gran día')+'</p><div class="countdown bl-countdown '+countdownStyleClass(p)+'" data-date="'+safe(p.eventDate)+'"><div class="count-item"><b data-d'+sizeAttr(p.countdownNumbersSize,'countNumber')+'>00</b><span>Días</span></div><div class="count-item"><b data-h'+sizeAttr(p.countdownNumbersSize,'countNumber')+'>00</b><span>Horas</span></div><div class="count-item"><b data-m'+sizeAttr(p.countdownNumbersSize,'countNumber')+'>00</b><span>Min</span></div><div class="count-item"><b data-s'+sizeAttr(p.countdownNumbersSize,'countNumber')+'>00</b><span>Seg</span></div></div>';
+}
+function menuDate(p){
+ const d=eventDateParts(p.eventDate);
+ return d?d.day+' de '+d.month.toLowerCase()+' de '+d.year:'Fecha por definir';
+}
+function menuPlace(p,type){
+ const isCer=type==='ceremony',raw=isCer?p.ceremonyText:p.receptionText;
+ const explicit=String((isCer?p.blCeremonyAddress:p.blReceptionAddress)||'').trim();
+ const segments=String(raw||'').split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+ const first=splitPlace(segments[0]||'');
+ const address=explicit||segments.slice(1).join(' · ');
+ // No inventar direcciones: mostrar el nombre del lugar hasta que se configure la dirección.
+ return address||first.name||'Ubicación por definir';
 }
 function locationContent(p,type){
  const isCer=type==='ceremony',text=isCer?p.ceremonyText:p.receptionText,url=isCer?p.ceremonyUrl:p.receptionUrl,coords=isCer?p.ceremonyCoords:p.receptionCoords;
@@ -58,11 +79,11 @@ function galleryContent(p,a){
  return '<div class="bl-gallery-native">'+buildSections(g,a)+'</div>';
 }
 function layersMarkup(p,a){
- const buttons=go('Fecha','date','date','Cuenta regresiva')+go('Ceremonia','ceremony','ceremony','Dónde será')+go('Recepción','reception','reception','Celebremos juntos')+go('Confirmar asistencia','confirm','confirm','Te esperamos');
+ const buttons=go('Fecha','date','date',safe(menuDate(p)))+go('Ceremonia','ceremony','ceremony',safe(menuPlace(p,'ceremony')))+go('Recepción','reception','reception',safe(menuPlace(p,'reception')))+go('Confirmar asistencia','confirm','confirm','Te esperamos');
  const cover='<header class="hero bl-cover" data-bl-cover><div class="bl-cover-image"></div><div class="bl-cover-shade"></div><div class="bl-cover-controls"><button class="enter-btn bl-enter" type="button" data-bl-go="menu"'+sizeAttr(p.buttonTextSize,'button')+'>'+safe(p.buttonText||'Entrar')+'</button></div></header>';
  const menu='<section class="bl-screen bl-menu" data-bl-screen="menu" hidden><div class="bl-inner">'+back('cover','Portada')+'<div class="bl-panel"><div class="bl-menu-top"><span class="bl-top-rule"></span><span class="bl-menu-title">DETALLES</span><span class="bl-top-heart" aria-hidden="true">♡</span></div><div class="bl-rows">'+buttons+'</div><button type="button" class="bl-gallery-button" data-bl-go="gallery">Ver galería <span aria-hidden="true">↗</span></button></div><div class="bl-screen-footer">CON CARIÑO, PARA TI <span aria-hidden="true">✦</span></div></div></section>';
  const gallery='<section class="bl-screen bl-gallery-screen" data-bl-screen="gallery" hidden><div class="bl-gallery-head">'+back('menu','Menú')+'<span class="bl-gallery-heading">NUESTROS RECUERDOS</span></div>'+galleryContent(p,a)+'</section>';
- const stage='<main class="page bl-stage" data-bl-stage hidden>'+menu+shell('date','CUENTA REGRESIVA','Nuestra fecha',dateContent(p))+shell('ceremony','CEREMONIA','Dónde será',locationContent(p,'ceremony'))+shell('reception','RECEPCIÓN','Nos vemos aquí',locationContent(p,'reception'))+shell('confirm','CONFIRMACIÓN','Te esperamos',confirmContent(p))+gallery+(a.music?'<button class="bl-audio" type="button" aria-label="Reproducir música" aria-pressed="false">♪</button>':'')+'</main>';
+ const stage='<main class="page bl-stage" data-bl-stage hidden>'+menu+shell('date',p.blDateKicker??'CUENTA REGRESIVA',p.blDateTitle??'Nuestra fecha',dateContent(p),p.blDateFooter??'UN MOMENTO PARA RECORDAR',{kicker:'blDateKicker',title:'blDateTitle',footer:'blDateFooter'})+shell('ceremony','CEREMONIA','Dónde será',locationContent(p,'ceremony'))+shell('reception','RECEPCIÓN','Nos vemos aquí',locationContent(p,'reception'))+shell('confirm','CONFIRMACIÓN','Te esperamos',confirmContent(p))+gallery+(a.music?'<button class="bl-audio" type="button" aria-label="Reproducir música" aria-pressed="false">♪</button>':'')+'</main>';
  return {cover,stage};
 }
 function layerCss(p,a){
@@ -113,12 +134,17 @@ function layerCss(p,a){
  'body.theme-baptism_layers .bl-date-main{font:400 clamp(96px,28vw,154px)/.94 var(--display);color:var(--heading);letter-spacing:-.045em}',
  'body.theme-baptism_layers .bl-date-month{font:500 12px/1.5 var(--body);letter-spacing:.2em;color:var(--accent)}',
  'body.theme-baptism_layers .bl-date-weekday{margin-top:9px;font:400 11px/1.5 var(--body);letter-spacing:.08em;color:var(--muted)}',
- 'body.theme-baptism_layers .bl-date-native{margin-top:14px;transform:scale(.82);transform-origin:center}',
+ 'body.theme-baptism_layers .bl-date-native{display:flex;justify-content:center;align-items:center;width:100%;max-width:100%;margin:4px auto 0}',
+  'body.theme-baptism_layers .bl-date-native .aura-date-lockup{max-width:100%;margin-inline:auto}',
  'body.theme-baptism_layers .bl-date-label{font:400 clamp(19px,5vw,23px)/1.3 var(--display);color:var(--heading);text-align:center;margin:23px auto 18px}',
- 'body.theme-baptism_layers .bl-countdown{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;max-width:430px;margin:0 auto 12px;padding:0!important;background:none!important;border:0!important;box-shadow:none!important}',
- 'body.theme-baptism_layers .bl-countdown .count-item{min-width:0;display:flex;flex-direction:column;align-items:center;gap:8px;background:color-mix(in srgb,var(--accent) 7%,transparent);border:1px solid '+accent+';padding:11px 3px;border-radius:13px}',
- 'body.theme-baptism_layers .bl-countdown b{font:400 clamp(21px,6.8vw,32px)/1 var(--display);color:var(--heading)}',
+ 'body.theme-baptism_layers .bl-countdown{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;max-width:430px;width:100%;margin:0 auto 12px;padding:0;background:none;border:0;box-shadow:none}',
+  'body.theme-baptism_layers .bl-countdown.countdown-super_minimal{gap:8px!important}',
+ 'body.theme-baptism_layers .bl-countdown .count-item{min-width:0;display:flex;flex-direction:column;align-items:center;gap:8px}',
+  'body.theme-baptism_layers .bl-countdown.countdown-super_minimal .count-item{background:color-mix(in srgb,var(--accent) 7%,transparent);border:1px solid '+accent+';padding:11px 3px;border-radius:13px}',
+ 'body.theme-baptism_layers .bl-countdown b{font-family:var(--display);font-weight:400;color:var(--heading)}',
+  'body.theme-baptism_layers .bl-countdown.countdown-super_minimal b{font-size:clamp(21px,6.8vw,32px);line-height:1}',
  'body.theme-baptism_layers .bl-countdown span{font:500 9px/1 var(--body);letter-spacing:.08em;color:var(--muted)}',
+  'body.theme-baptism_layers .bl-row-copy small{overflow-wrap:anywhere;line-height:1.5}',
  'body.theme-baptism_layers .bl-place{text-align:center;display:flex;flex-direction:column;align-items:center;max-width:470px;margin:0 auto}',
  'body.theme-baptism_layers .bl-place-symbol,body.theme-baptism_layers .bl-confirm-symbol{display:grid;place-items:center;width:100px;height:100px;border:1px solid '+accent+';border-radius:50%;color:var(--accent);background:color-mix(in srgb,var(--accent) 9%,transparent);margin-bottom:30px}',
  'body.theme-baptism_layers .bl-place-symbol svg,body.theme-baptism_layers .bl-confirm-symbol svg{width:51px;height:51px}',
@@ -177,6 +203,52 @@ function layerRuntime(){
  };
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 }
+
+/* Controles propios de la plantilla; se guardan en el JSON y en las invitaciones exportadas. */
+const BL_FIELDS={
+ blDateKicker:'CUENTA REGRESIVA',
+ blDateTitle:'Nuestra fecha',
+ blDateFooter:'UN MOMENTO PARA RECORDAR',
+ blCeremonyAddress:'',
+ blReceptionAddress:''
+};
+const _blFormParams=getFormParams;
+getFormParams=function(){
+ const p=_blFormParams();
+ Object.keys(BL_FIELDS).forEach(id=>{p[id]=document.getElementById(id)?.value??BL_FIELDS[id]});
+ const controls=document.getElementById('bl-text-editor');
+ if(controls)controls.hidden=p.themeVisual!==KEY;
+ return p;
+};
+function installBlEditor(){
+ const eventSection=document.querySelector('#sec-evento .section-body');
+ const locationsSection=document.querySelector('#sec-ubicaciones .section-body');
+ if(!eventSection||!locationsSection||document.getElementById('bl-text-editor'))return;
+ const box=document.createElement('div');
+ box.id='bl-text-editor';box.className='background-controls';
+ box.style.cssText='margin-top:14px;padding:14px;border:1px solid #e4d8cb;border-radius:12px';
+ box.innerHTML='<p class="helper"><strong>Bautizo · Capas interactivas</strong> — personaliza los textos de la pantalla de fecha. También puedes tocarlos en la vista previa.</p>'+
+  '<label>Texto superior de fecha<input type="text" id="blDateKicker" value="CUENTA REGRESIVA"></label>'+
+  '<label>Título de la pantalla de fecha<input type="text" id="blDateTitle" value="Nuestra fecha"></label>'+
+  '<label>Texto al pie de la pantalla de fecha<input type="text" id="blDateFooter" value="UN MOMENTO PARA RECORDAR"></label>'+
+  '<p class="helper">El calendario y la cuenta regresiva se cambian con los selectores de arriba. El título del contador se cambia en «Título de cuenta regresiva».</p>';
+ eventSection.appendChild(box);
+ const ceremony=document.getElementById('ceremonyText'),reception=document.getElementById('receptionText');
+ function addressField(id,label,after){
+  if(!after)return;
+  const wrap=document.createElement('label');
+  wrap.className='bl-address-editor';
+  wrap.innerHTML=label+' <small>(opcional, se muestra bajo el lugar en el menú)</small><textarea rows="2" id="'+id+'" placeholder="Calle, número, colonia y ciudad"></textarea>';
+  after.closest('label')?.after(wrap);
+ }
+ addressField('blCeremonyAddress','Dirección de la ceremonia',ceremony);
+ addressField('blReceptionAddress','Dirección de la recepción',reception);
+ document.getElementById('themeVisual')?.addEventListener('change',()=>{box.hidden=document.getElementById('themeVisual').value!==KEY});
+ box.hidden=document.getElementById('themeVisual')?.value!==KEY;
+ queuePreview();
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installBlEditor,{once:true});else installBlEditor();
+
 const original=buildInvitation;
 buildInvitation=function(p,a){
  if(p?.themeVisual!==KEY)return original(p,a);
