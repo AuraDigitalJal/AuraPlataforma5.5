@@ -214,7 +214,7 @@ function layerCss(p,a){
  'body.theme-baptism_layers .bl-gallery-native>.section,body.theme-baptism_layers .bl-gallery-native .gallery-section{position:relative;display:block!important;min-height:0!important;height:auto!important;margin:0!important;padding:15px!important;background:transparent!important;box-shadow:none!important}',
  'body.theme-baptism_layers .bl-gallery-native .gallery{max-width:100%;}',
  '/* Visor blanco exclusivo para bautizo en capas; mantiene fotos y controles originales */',
- 'body.theme-baptism_layers .gallery-lightbox{background:#fff!important;color:#393632!important}',
+ 'body.theme-baptism_layers .gallery-lightbox{background:rgba(255,255,255,.89)!important;color:#393632!important}',
  'body.theme-baptism_layers .gallery-lightbox-top{color:#393632!important}',
  'body.theme-baptism_layers .gallery-lightbox-count{color:#706c66!important;opacity:1!important}',
  'body.theme-baptism_layers .gallery-lightbox-close,body.theme-baptism_layers .gallery-lightbox-nav{background:#f6f5f2!important;color:#393632!important;border:1px solid rgba(52,48,42,.15)!important;box-shadow:0 2px 12px rgba(0,0,0,.045)}',
