@@ -29,7 +29,7 @@ function go(label,key,symbol,sub){return '<button class="bl-menu-row" type="butt
 function shell(id,caption,title,body,footer,editable){
  const edit=editable||{};
  const mark=(key)=>key?' data-edit="'+key+'"':'';
- return '<section class="bl-screen" data-bl-screen="'+id+'" hidden aria-label="'+safe(title)+'"><div class="bl-inner">'+back('menu','Menú')+'<div class="bl-panel"><span class="bl-kicker"'+mark(edit.kicker)+'>'+safe(caption)+'</span><h1 class="bl-heading"'+mark(edit.title)+'>'+safe(title)+'</h1>'+body+'</div><div class="bl-screen-footer"'+mark(edit.footer)+'>'+safe(footer??'UN MOMENTO PARA RECORDAR')+' <span aria-hidden="true">✦</span></div></div></section>';
+ return '<section class="bl-screen" data-bl-screen="'+id+'" hidden aria-label="'+safe(title)+'"><div class="bl-inner">'+back('menu','Menú')+'<div class="bl-panel"><span class="bl-kicker"'+mark(edit.kicker)+'>'+safe(caption)+'</span><h1 class="bl-heading"'+mark(edit.title)+'>'+safe(title)+'</h1>'+body+'</div><div class="bl-screen-footer"'+mark(edit.footer)+'><span class="bl-footer-label">'+safe(footer??'UN MOMENTO PARA RECORDAR')+'</span> <span aria-hidden="true">✦</span></div></div></section>';
 }
 function dateContent(p){
  const d=eventDateParts(p.eventDate);
@@ -64,13 +64,13 @@ function locationContent(p,type){
  if(mode!=='hidden'&&embed){
    maps='<div class="bl-map-box"'+(mode==='visible'?'':' hidden')+'><iframe title="Mapa de '+safe(place.name)+'" '+(mode==='visible'?'src':'data-src')+'="'+safe(embed)+'" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe></div>';
  }
- const control=mode==='toggle'&&embed?'<button class="bl-map-toggle" type="button" aria-expanded="false">Ver mapa <span aria-hidden="true">＋</span></button>':'';
- const mapsLink=external?'<a class="bl-map-external" href="'+safe(external)+'" target="_blank" rel="noopener">Abrir ubicación en Google Maps <span aria-hidden="true">↗</span></a>':'';
+ const control=mode==='toggle'&&embed?'<button class="bl-map-toggle" type="button" aria-expanded="false"><span class="bl-map-toggle-label">Ver mapa</span> <span aria-hidden="true">＋</span></button>':'';
+ const mapsLink=external?'<a class="bl-map-external" href="'+safe(external)+'" target="_blank" rel="noopener"><span class="bl-maps-link-label">Abrir ubicación en Google Maps</span> <span aria-hidden="true">↗</span></a>':'';
  return '<div class="bl-place"><span class="bl-place-symbol">'+icon(isCer?'ceremony':'reception')+'</span><div class="bl-place-type">'+safe(place.kind)+'</div><h2 data-edit="'+(isCer?'ceremonyText':'receptionText')+'">'+safe(place.name||text)+'</h2><div class="bl-rule"></div><p>Nos encantará compartir este momento contigo.</p>'+control+maps+mapsLink+'</div>';
 }
 function confirmContent(p){
  const n=String(p.whatsappNumber||'').replace(/\D/g,'');
- const link=n?'<a class="bl-confirm-cta" href="https://wa.me/'+encodeURIComponent(n)+'?text='+encodeURIComponent(p.whatsappMessage||'Hola, confirmo mi asistencia.')+'" target="_blank" rel="noopener">Confirmar por WhatsApp <span aria-hidden="true">↗</span></a>':'<p class="bl-empty">Agrega el número de WhatsApp en el editor para activar la confirmación.</p>';
+ const link=n?'<a class="bl-confirm-cta" href="https://wa.me/'+encodeURIComponent(n)+'?text='+encodeURIComponent(p.whatsappMessage||'Hola, confirmo mi asistencia.')+'" target="_blank" rel="noopener"><span class="bl-whatsapp-label">Confirmar por WhatsApp</span> <span aria-hidden="true">↗</span></a>':'<p class="bl-empty">Agrega el número de WhatsApp en el editor para activar la confirmación.</p>';
  return '<div class="bl-confirm-body"><div class="bl-confirm-symbol">'+icon('confirm')+'</div><h2>¿Nos acompañas?</h2><p>Tu presencia hará este momento aún más especial. Confirma tu asistencia para ayudarnos a preparar cada detalle.</p>'+link+'</div>';
 }
 function galleryContent(p,a){
@@ -81,7 +81,7 @@ function galleryContent(p,a){
 function layersMarkup(p,a){
  const buttons=go('Fecha','date','date',safe(menuDate(p)))+go('Ceremonia','ceremony','ceremony',safe(menuPlace(p,'ceremony')))+go('Recepción','reception','reception',safe(menuPlace(p,'reception')))+go('Confirmar asistencia','confirm','confirm','Te esperamos');
  const cover='<header class="hero bl-cover" data-bl-cover><div class="bl-cover-image"></div><div class="bl-cover-shade"></div><div class="bl-cover-controls"><button class="enter-btn bl-enter" type="button" data-bl-go="menu"'+sizeAttr(p.buttonTextSize,'button')+'>'+safe(p.buttonText||'Entrar')+'</button></div></header>';
- const menu='<section class="bl-screen bl-menu" data-bl-screen="menu" hidden><div class="bl-inner">'+back('cover','Portada')+'<div class="bl-panel"><div class="bl-menu-top"><span class="bl-top-rule"></span><span class="bl-menu-title">DETALLES</span><span class="bl-top-heart" aria-hidden="true">♡</span></div><div class="bl-rows">'+buttons+'</div><button type="button" class="bl-gallery-button" data-bl-go="gallery">Ver galería <span aria-hidden="true">↗</span></button></div><div class="bl-screen-footer">CON CARIÑO, PARA TI <span aria-hidden="true">✦</span></div></div></section>';
+ const menu='<section class="bl-screen bl-menu" data-bl-screen="menu" hidden><div class="bl-inner">'+back('cover','Portada')+'<div class="bl-panel"><div class="bl-menu-top"><span class="bl-top-rule"></span><span class="bl-menu-title">DETALLES</span><span class="bl-top-heart" aria-hidden="true">♡</span></div><div class="bl-rows">'+buttons+'</div><button type="button" class="bl-gallery-button" data-bl-go="gallery"><span class="bl-gallery-label">Ver galería</span> <span aria-hidden="true">↗</span></button></div><div class="bl-screen-footer"><span class="bl-menu-footer-label">CON CARIÑO, PARA TI</span> <span aria-hidden="true">✦</span></div></div></section>';
  const gallery='<section class="bl-screen bl-gallery-screen" data-bl-screen="gallery" hidden><div class="bl-gallery-head">'+back('menu','Menú')+'<span class="bl-gallery-heading">NUESTROS RECUERDOS</span></div>'+galleryContent(p,a)+'</section>';
  const stage='<main class="page bl-stage" data-bl-stage hidden>'+menu+shell('date',p.blDateKicker??'CUENTA REGRESIVA',p.blDateTitle??'Nuestra fecha',dateContent(p),p.blDateFooter??'UN MOMENTO PARA RECORDAR',{kicker:'blDateKicker',title:'blDateTitle',footer:'blDateFooter'})+shell('ceremony','CEREMONIA','Dónde será',locationContent(p,'ceremony'))+shell('reception','RECEPCIÓN','Nos vemos aquí',locationContent(p,'reception'))+shell('confirm','CONFIRMACIÓN','Te esperamos',confirmContent(p))+gallery+(a.music?'<button class="bl-audio" type="button" aria-label="Reproducir música" aria-pressed="false">♪</button>':'')+'</main>';
  return {cover,stage};
@@ -133,7 +133,7 @@ function layerCss(p,a){
  'body.theme-baptism_layers .bl-row-arrow{font:300 24px/1 var(--display);color:var(--accent);opacity:.65}',
  'body.theme-baptism_layers .bl-gallery-button,body.theme-baptism_layers .bl-confirm-cta{margin:clamp(31px,6vh,48px) auto 0;display:flex;align-items:center;justify-content:center;gap:16px;min-height:48px;width:min(100%,285px);padding:13px 21px;border:1px solid '+accent+';border-radius:999px;background:color-mix(in srgb,var(--accent) 68%,white);color:var(--bg);font:600 11px/1.3 var(--body);letter-spacing:.11em;text-transform:uppercase;cursor:pointer;text-decoration:none}',
  'body.theme-baptism_layers .bl-screen-footer{text-align:center;margin-top:18px;color:var(--muted);font:500 8px/1.4 var(--body);letter-spacing:.22em}',
- 'body.theme-baptism_layers .bl-screen-footer span{color:var(--accent);margin-left:8px}',
+ 'body.theme-baptism_layers .bl-screen-footer span[aria-hidden="true"]{color:var(--accent);margin-left:8px}',
  'body.theme-baptism_layers .bl-kicker{text-align:center;font:500 10px/1.5 var(--body);letter-spacing:.23em;color:var(--accent)}',
  'body.theme-baptism_layers .bl-heading{text-align:center;font:400 clamp(33px,10vw,54px)/1.07 var(--display);letter-spacing:.005em;color:var(--heading);margin:16px 0 30px}',
  'body.theme-baptism_layers .bl-empty{text-align:center;font:400 14px/1.8 var(--body);max-width:32ch;margin:30px auto;color:var(--text)}',
@@ -205,7 +205,7 @@ function layerRuntime(){
    const mapButton=e.target.closest('.bl-map-toggle');
    if(mapButton){
     const box=mapButton.parentElement?.querySelector('.bl-map-box');if(!box)return;
-    const open=box.hidden;box.hidden=!open;mapButton.setAttribute('aria-expanded',String(open));mapButton.firstChild.textContent=open?'Ocultar mapa ':'Ver mapa ';
+    const open=box.hidden;box.hidden=!open;mapButton.setAttribute('aria-expanded',String(open));const label=mapButton.querySelector('.bl-map-toggle-label');if(label){if(!mapButton.dataset.blMapShow)mapButton.dataset.blMapShow=label.textContent;label.textContent=open?'Ocultar mapa':mapButton.dataset.blMapShow;}
     const iframe=box.querySelector('iframe[data-src]');if(open&&iframe&&!iframe.src)iframe.src=iframe.dataset.src;
    }
    if(e.target.closest('.bl-audio')&&audio){if(audio.paused)audio.play().catch(()=>{});else audio.pause();}
