@@ -81,7 +81,9 @@ function end(){
  ended=true;clearInterval(timer);
  if(channel&&sb)sb.removeChannel(channel).catch(()=>{});
  state('Sesión finalizada','offline');
- if(!first)alertScreen('Sesión terminada.','Pide al diseñador un nuevo enlace.');
+ frame.classList.remove('ready');
+ frame.style.display='none';
+ alertScreen('Sesión finalizada.','La vista temporal ha terminado. Solicita un enlace nuevo al diseñador.');
 }
 if(!valid()){
  state('Enlace incompleto','offline');
