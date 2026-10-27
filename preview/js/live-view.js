@@ -56,18 +56,16 @@
     }
     return data.attachment.url;
   }
-  // Las fotos viajan dentro de la vista HTML. Las URL blob: del editor
-  // SOLO funcionan en esta computadora y los enlaces a fotos externas
-  // pueden caducar o bloquearse en un teléfono diferente.
+  /* Fotografías Live View HQ:
+     Una imagen NO se debe dividir entre todas las fotos en un HTML gigante.
+     Se envía una vez como adjunto temporal; el HTML solo guarda su URL.
+     Para una nueva edición se reutiliza la URL previa del mismo File. */
   var photoCache = new WeakMap();
-
-  function dataUrl(blob) {
-    return new Promise(function(resolve,reject){
-      var reader=new FileReader();
-      reader.onload=function(){resolve(String(reader.result||''));};
-      reader.onerror=function(){reject(new Error('No se pudo leer la fotografía.'));};
-      reader.readAsDataURL(blob);
-    });
+  function progress(message){ if(room) say(message,false); }
+  function photoBudget(total){
+    // ntfy.sh limita la cuota total por visitante; reservar espacio para HTML,
+    // audio y sustituciones de fotografías dentro de una misma sesión.
+    return Math.min(1750000,Math.max(185000,Math.floor(11*1024*1024/Math.max(1,total))));
   }
   async function decodeImage(file){
     if(typeof createImageBitmap==='function'){
@@ -75,109 +73,119 @@
         var bitmap=await createImageBitmap(file,{imageOrientation:'from-image'});
         return {source:bitmap,width:bitmap.width,height:bitmap.height,close:function(){bitmap.close?.();}};
       }catch(_){}
+      try{
+        var plain=await createImageBitmap(file);
+        return {source:plain,width:plain.width,height:plain.height,close:function(){plain.close?.();}};
+      }catch(_){}
     }
     return await new Promise(function(resolve,reject){
-      var tmp=URL.createObjectURL(file);
-      var image=new Image();
-      image.onload=function(){URL.revokeObjectURL(tmp);resolve({source:image,width:image.naturalWidth,height:image.naturalHeight,close:function(){image.src='';}});};
-      image.onerror=function(){URL.revokeObjectURL(tmp);reject(new Error('El navegador no puede abrir este formato de foto. Convierte a JPG o PNG.'));};
-      image.src=tmp;
+      var temp=URL.createObjectURL(file),image=new Image();
+      image.onload=function(){
+        URL.revokeObjectURL(temp);
+        resolve({source:image,width:image.naturalWidth,height:image.naturalHeight,close:function(){image.src='';}});
+      };
+      image.onerror=function(){
+        URL.revokeObjectURL(temp);
+        reject(new Error('No se puede abrir la imagen; prueba con JPG, PNG o WebP.'));
+      };
+      image.src=temp;
     });
   }
-  async function encodePhoto(file,label,budget,problems){
-    if(!file)return '';
+  async function prepareImage(file,budget){
+    var cached=photoCache.get(file);
+    if(cached&&cached.blob&&cached.blob.size<=budget)return cached;
     var mime=String(file.type||'').toLowerCase();
-    var hit=photoCache.get(file);
-    if(hit && hit.budget<=budget && hit.url)return hit.url;
-    if(file.size<=budget && /^image\/(jpeg|png|webp|gif|svg\+xml)$/.test(mime)){
-      var original=await dataUrl(file);
-      photoCache.set(file,{budget:file.size,url:original});
-      return original;
+    if(mime==='image/gif'&&file.size<=budget){
+      var animated={blob:file,ext:'.gif'};
+      photoCache.set(file,animated);
+      return animated;
     }
     var decoded=await decodeImage(file);
-    try {
-      var maxSide=budget>=150000?1600:budget>=70000?1200:850;
-      var best=null;
-      for(var attempt=0;attempt<9;attempt++){
-        var dimension=maxSide*Math.pow(.83,attempt);
-        var factor=Math.min(1,dimension/Math.max(decoded.width,decoded.height));
-        var w=Math.max(1,Math.round(decoded.width*factor));
-        var h=Math.max(1,Math.round(decoded.height*factor));
+    try{
+      var sizes=[2600,2400,2200,2000,1850,1700,1550,1400,1250,1150];
+      var qualities=[.94,.93,.92,.91,.90,.88,.87,.86,.85,.84];
+      for(var attempt=0;attempt<sizes.length;attempt++){
+        var scale=Math.min(1,sizes[attempt]/Math.max(decoded.width,decoded.height));
+        var width=Math.max(1,Math.round(decoded.width*scale));
+        var height=Math.max(1,Math.round(decoded.height*scale));
         var canvas=document.createElement('canvas');
-        canvas.width=w;canvas.height=h;
+        canvas.width=width;canvas.height=height;
         var ctx=canvas.getContext('2d');
-        if(!ctx)throw new Error('No fue posible preparar la fotografía.');
-        ctx.drawImage(decoded.source,0,0,w,h);
-        var quality=Math.max(.38,.84-attempt*.057);
-        var out=await new Promise(function(resolve){
-          canvas.toBlob(resolve,'image/webp',quality);
+        if(!ctx)throw new Error('No se pudo preparar el lienzo.');
+        ctx.drawImage(decoded.source,0,0,width,height);
+        var blob=await new Promise(function(resolve){
+          canvas.toBlob(resolve,'image/webp',qualities[attempt]);
         });
         canvas.width=1;canvas.height=1;
-        if(out){
-          if(!best||out.size<best.size)best=out;
-          if(out.size<=budget){
-            var value=await dataUrl(out);
-            photoCache.set(file,{budget:out.size,url:value});
-            return value;
-          }
+        if(blob&&blob.size<=budget){
+          var ext=blob.type==='image/png'?'.png':blob.type==='image/jpeg'?'.jpg':'.webp';
+          var result={blob:blob,ext:ext};
+          photoCache.set(file,result);
+          return result;
         }
       }
-      if(best && best.size<=MAX_UPLOAD/2){
-        problems.push('Foto "'+label+'" de alta resolución: se muestra con calidad reducida.');
-        var fallback=await dataUrl(best);
-        photoCache.set(file,{budget:best.size,url:fallback});
-        return fallback;
-      }
-      throw new Error('La imagen excede el tamaño posible para esta sesión. Usa JPG o PNG.');
+      // No enviar una foto diminuta / borrosa; solicitar otro formato.
+      throw new Error('La foto necesita más espacio. Usa una versión JPG de tamaño normal o reduce la cantidad de fotografías de esta sesión.');
     }finally{decoded.close();}
   }
-  async function liveAsset(file,label,problems,activeRoom) {
-    if (!file) return '';
+  async function livePhoto(file,label,problems,activeRoom,budget){
+    if(!file)return '';
     var hit=mediaCache.get(file);
-    if(hit && hit.room===activeRoom && Date.now()-hit.time < 85*60*1000) return hit.url;
+    if(hit&&hit.room===activeRoom&&hit.type==='photo'&&Date.now()-hit.time<85*60*1000)return hit.url;
+    var payload=await prepareImage(file,budget);
+    var photoUrl=await publishFile(activeRoom,payload.blob,'aura-photo-'+label+payload.ext);
+    mediaCache.set(file,{room:activeRoom,type:'photo',url:photoUrl,time:Date.now()});
+    return photoUrl;
+  }
+  async function liveAsset(file,label,problems,activeRoom){
+    if(!file)return '';
+    var hit=mediaCache.get(file);
+    if(hit&&hit.room===activeRoom&&Date.now()-hit.time<85*60*1000)return hit.url;
     try{
       if(file.size>MAX_UPLOAD){
         problems.push('Música o video muy grande: '+file.name+' (no se transmitirá).');
         return '';
       }
       var url=await publishFile(activeRoom,file,'aura-asset-'+fileLabel(file,label));
-      mediaCache.set(file,{room:activeRoom,url:url,time:Date.now()});
+      mediaCache.set(file,{room:activeRoom,type:'media',url:url,time:Date.now()});
       return url;
     }catch(error){
-      problems.push('No se pudo enviar el audio '+file.name+': '+error.message);
+      problems.push('No se pudo enviar la música '+file.name+': '+error.message);
       return '';
     }
   }
-  async function makeSnapshot(activeRoom) {
+  async function makeSnapshot(activeRoom){
     var p=getFormParams();
     var assets=previewAssets(p);
     var notes=[];
-    var fileByKey={cover:p.portadaFile,banner:p.bannerFile,extra:p.bannerExtraFile,extra2:p.bannerExtra2File,bg:p.bgFile,poster:p.videoPosterFile,transferPhoto:p.transferPhotoFile};
-    var names=Object.keys(fileByKey);
+    var byKey={cover:p.portadaFile,banner:p.bannerFile,extra:p.bannerExtraFile,extra2:p.bannerExtra2File,bg:p.bgFile,poster:p.videoPosterFile,transferPhoto:p.transferPhotoFile};
+    var names=Object.keys(byKey);
     var gallery=p.galleryFiles||[];
-    var photoCount=gallery.length+names.filter(function(key){return Boolean(fileByKey[key]);}).length;
-    var budget=Math.min(300000,Math.max(10000,Math.floor(1100000/Math.max(1,photoCount))));
+    var photoCount=gallery.length+names.filter(function(key){return Boolean(byKey[key]);}).length;
+    var budget=photoBudget(photoCount);
+    var transferred=0;
     for(var i=0;i<names.length;i++){
       var key=names[i];
-      if(fileByKey[key]){
-        try{assets[key]=await encodePhoto(fileByKey[key],key,budget,notes);}
-        catch(error){assets[key]='';notes.push('Foto "'+key+'": '+error.message);}
-      }
+      if(!byKey[key])continue;
+      progress('Enviando fotografía '+(transferred+1)+' de '+photoCount+' en alta calidad…');
+      try{assets[key]=await livePhoto(byKey[key],key,notes,activeRoom,budget);}
+      catch(error){throw new Error('Foto "'+key+'": '+error.message);}
+      transferred++;
     }
     assets.gallery=[];
     for(var k=0;k<gallery.length;k++){
-      try{assets.gallery.push(await encodePhoto(gallery[k],'galería '+(k+1),budget,notes));}
-      catch(error){assets.gallery.push('');notes.push('Foto de galería '+(k+1)+': '+error.message);}
+      progress('Enviando fotografía '+(transferred+1)+' de '+photoCount+' en alta calidad…');
+      try{assets.gallery.push(await livePhoto(gallery[k],'gallery-'+k,notes,activeRoom,budget));}
+      catch(error){throw new Error('Foto de galería '+(k+1)+': '+error.message);}
+      transferred++;
     }
-    // No se requiere el arte de miniatura de WhatsApp en la vista del invitado.
-    // Asegurar que no quede ninguna URL blob: interna en el HTML remoto.
-    if(assets.sharePreview && /^blob:/.test(assets.sharePreview))assets.sharePreview='';
+    if(assets.sharePreview&&/^blob:/.test(assets.sharePreview))assets.sharePreview='';
     assets.music=p.musicFile?await liveAsset(p.musicFile,'music',notes,activeRoom):'';
-    var photoTotal=names.filter(function(key){return /^data:image\//.test(assets[key]||'');}).length+
-      assets.gallery.filter(function(url){return /^data:image\//.test(url||'');}).length;
     var html=buildInvitation(p,assets);
-    if(/(?:src|href)=["']blob:/i.test(html))notes.push('Algunos elementos del editor usan archivos locales no transferibles.');
-    return {html:html,notes:notes,photoTotal:photoTotal};
+    if(/(?:src|href)=["']blob:/i.test(html)){
+      notes.push('Hay elementos locales que no se pueden compartir en vivo.');
+    }
+    return {html:html,notes:notes,photoTotal:transferred};
   }
   async function compressHtml(html) {
     var bytes = new TextEncoder().encode(html);
@@ -191,7 +199,7 @@
     var activeRoom=room;
     var myRevision=revision;
     var serial=++sequence;
-    say('Sincronizando la invitación con el cliente…');
+    say('Preparando invitación en alta calidad…');
     try {
       var snapshot=await makeSnapshot(activeRoom);
       if(room!==activeRoom || myRevision!==revision) return;
@@ -203,7 +211,7 @@
       await publishFile(activeRoom, compressed.file, 'aura-live-'+String(serial).padStart(6,'0')+compressed.ext);
       if(room===activeRoom){
         lastSentAt=Date.now();
-        say(snapshot.notes.length ? 'Actualizado, con avisos: '+snapshot.notes.slice(0,2).join(' · ') : 'Vista actualizada ✓ · '+snapshot.photoTotal+' foto(s) incluidas', snapshot.notes.length>0);
+        say(snapshot.notes.length ? 'Actualizado, con avisos: '+snapshot.notes.slice(0,2).join(' · ') : 'Vista actualizada ✓ · '+snapshot.photoTotal+' foto(s) en alta calidad', snapshot.notes.length>0);
       }
     } catch(error) {
       if(room===activeRoom) say('No se pudo sincronizar: '+error.message,true);
