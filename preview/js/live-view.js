@@ -137,22 +137,41 @@
     mediaCache.set(file,{room:activeRoom,type:'photo',url:photoUrl,time:Date.now()});
     return photoUrl;
   }
-  async function liveAsset(file,label,problems,activeRoom){
-    if(!file)return '';
+  /* Audio Live View: las canciones grandes se envían en fragmentos de menos
+     de 2 MB. En el teléfono se reconstruye un Blob sin recomprimir el audio. */
+  var AUDIO_CHUNK_BYTES=1500000;
+  var AUDIO_MAX_BYTES=12*1024*1024;
+  function musicMime(file){
+    var mime=String(file.type||'').toLowerCase();
+    if(/^audio\/[a-z0-9.+-]+$/.test(mime))return mime;
+    var ext=(file.name||'').split('.').pop().toLowerCase();
+    return ({mp3:'audio/mpeg',m4a:'audio/mp4',aac:'audio/aac',wav:'audio/wav',ogg:'audio/ogg',webm:'audio/webm',flac:'audio/flac'})[ext]||'audio/mpeg';
+  }
+  async function liveMusic(file,problems,activeRoom){
+    if(!file)return null;
     var hit=mediaCache.get(file);
-    if(hit&&hit.room===activeRoom&&Date.now()-hit.time<85*60*1000)return hit.url;
-    try{
-      if(file.size>MAX_UPLOAD){
-        problems.push('Música o video muy grande: '+file.name+' (no se transmitirá).');
-        return '';
-      }
-      var url=await publishFile(activeRoom,file,'aura-asset-'+fileLabel(file,label));
-      mediaCache.set(file,{room:activeRoom,type:'media',url:url,time:Date.now()});
-      return url;
-    }catch(error){
-      problems.push('No se pudo enviar la música '+file.name+': '+error.message);
-      return '';
+    if(hit&&hit.room===activeRoom&&hit.type==='music'&&Date.now()-hit.time<85*60*1000){
+      return hit.manifest;
     }
+    if(file.size>AUDIO_MAX_BYTES){
+      problems.push('La canción pesa '+(file.size/1048576).toFixed(1)+' MB; el máximo temporal de Live View es 12 MB. Para verla en vivo usa MP3 o M4A de menor tamaño. Tu original no se modificó.');
+      return null;
+    }
+    var n=Math.ceil(file.size/AUDIO_CHUNK_BYTES);
+    if(!n)return null;
+    var urls=[];
+    for(var i=0;i<n;i++){
+      progress('Enviando música sin pérdida de calidad · parte '+(i+1)+' de '+n+'…');
+      var start=i*AUDIO_CHUNK_BYTES;
+      var part=file.slice(start,Math.min(file.size,start+AUDIO_CHUNK_BYTES),'application/octet-stream');
+      // Un nuevo cambio puede cancelar la sesión mientras se envían partes.
+      if(room!==activeRoom)throw new Error('La sesión de Live View terminó.');
+      var url=await publishFile(activeRoom,part,'aura-audio-'+String(i+1).padStart(3,'0')+'-'+n+'.bin');
+      urls.push(url);
+    }
+    var manifest={version:1,urls:urls,mime:musicMime(file),size:file.size};
+    mediaCache.set(file,{room:activeRoom,type:'music',manifest:manifest,time:Date.now()});
+    return manifest;
   }
   async function makeSnapshot(activeRoom){
     var p=getFormParams();
@@ -180,8 +199,19 @@
       transferred++;
     }
     if(assets.sharePreview&&/^blob:/.test(assets.sharePreview))assets.sharePreview='';
-    assets.music=p.musicFile?await liveAsset(p.musicFile,'music',notes,activeRoom):'';
+    var manifest=null;
+    if(p.musicFile){
+      try{manifest=await liveMusic(p.musicFile,notes,activeRoom);}
+      catch(error){notes.push('No se transmitió la música: '+error.message);}
+    }
+    // El reproductor se crea en la invitación sin cargar todavía el archivo;
+    // el visor construirá una única URL local con los fragmentos recibidos.
+    assets.music=manifest?'__AURA_LIVE_MUSIC_PENDING__':'';
     var html=buildInvitation(p,assets);
+    if(manifest){
+      var manifestTag='<script id="aura-live-audio-manifest" type="application/json">'+JSON.stringify(manifest)+'</script>';
+      html=html.replace('</head>',manifestTag+'</head>');
+    }
     if(/(?:src|href)=["']blob:/i.test(html)){
       notes.push('Hay elementos locales que no se pueden compartir en vivo.');
     }
