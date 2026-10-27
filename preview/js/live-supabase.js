@@ -120,7 +120,7 @@ function schedule(delay=750){
 async function sync(){
  if(!room||sending)return;
  sending=true;
- const activeRoom=room;queued=false;
+ const activeRoom=room,startedAtRevision=revision;queued=false;
  try{
   const seq=revision;
   let html=await snapshot();
@@ -142,7 +142,7 @@ async function sync(){
  }catch(error){tell('Error: '+error.message,true);console.warn('Aura Live View Supabase:',error);}
  finally{
   sending=false;
-  if(room===activeRoom&&(queued||revision!==syncedRevision)){queued=false;clearTimeout(timer);timer=setTimeout(sync,650);}
+  if(room===activeRoom&&(queued||revision!==startedAtRevision)){queued=false;clearTimeout(timer);timer=setTimeout(sync,650);}
  }
 }
 async function begin(){
@@ -168,7 +168,7 @@ async function begin(){
   u.searchParams.set('owner',owner);u.hash=room;
   input.value=u.toString();
   const broadcast='aura:'+room;
-  channel=sb.channel(broadcast,{config:{broadcast:{ack:true}}});
+  channel=sb.channel(broadcast,{config:{private:false,broadcast:{ack:true}}});
   channel.subscribe(st=>{if(st==='SUBSCRIBED')tell('Conectado a Supabase. Sincronizando invitación…');});
   btn.textContent='Live View activo';btn.setAttribute('aria-pressed','true');
   setOpen(false);schedule(50);
