@@ -14,7 +14,7 @@ const settings=document.createElement('div');
 settings.id='aura-sb-settings';
 settings.innerHTML='<div style="border-top:1px solid #e5d9cf;padding-top:12px;margin-top:11px">'+
  '<strong style="font-size:12px">Conectar proyecto Supabase</strong>'+
- '<p style="font:11px/1.5 system-ui;color:#74675e">1. Habilita <b>Authentication → Anonymous Sign-Ins</b>. 2. Ejecuta <a href="https://github.com/AuraDigitalJal/AuraPlataforma5.5/blob/main/preview/SUPABASE-LIVE-SETUP.sql" target="_blank" rel="noopener">este SQL de configuración</a> en SQL Editor. 3. Pega Project URL y la clave pública del proyecto.</p>'+
+ '<p style="font:11px/1.5 system-ui;color:#74675e">Proyecto Aura visoraura cargado automáticamente. Si falla el acceso, comprueba que esté activado <b>Authentication → Anonymous Sign-Ins</b>. 2. Ejecuta <a href="https://github.com/AuraDigitalJal/AuraPlataforma5.5/blob/main/preview/SUPABASE-LIVE-SETUP.sql" target="_blank" rel="noopener">este SQL de configuración</a> en SQL Editor. 3. Pega Project URL y la clave pública del proyecto.</p>'+
  '<label style="font:11px system-ui;display:block;margin:8px 0">Project URL<input type="url" id="aura-sb-url" autocomplete="off" placeholder="https://xxxx.supabase.co" style="box-sizing:border-box;width:100%;padding:8px;margin-top:4px"></label>'+
  '<label style="font:11px system-ui;display:block;margin:8px 0">Publishable key<input type="password" id="aura-sb-key" autocomplete="off" placeholder="sb_publishable_..." style="box-sizing:border-box;width:100%;padding:8px;margin-top:4px"></label>'+
  '<button type="button" id="aura-sb-connect" style="width:100%;border:1px solid #705847;background:#705847;color:white;border-radius:8px;padding:10px;cursor:pointer">Guardar y conectar</button>'+
@@ -33,7 +33,7 @@ function settingsLoad(){
  try{const c=JSON.parse(localStorage.getItem(KEY)||'null');if(c&&valid(c.url,c.key))return c;}catch(_){}
  return null;
 }
-config=settingsLoad();
+config=settingsLoad()||{url:'https://rcstxomjsmvqtpxoekyk.supabase.co/',key:'sb_publishable_SjoI6W6WmBqCTjDDdYgVJA_oKMgxVzO'};
 if(config){urlEl.value=config.url;keyEl.value=config.key;}
 function setOpen(open){
  panel.hidden=false;
@@ -180,7 +180,7 @@ async function sync(){
 async function begin(){
  if(room){setOpen(false);return;}
  setOpen(true);
- if(!config){tell('Configura primero el proyecto de Supabase.');return;}
+ if(!config){tell('No se pudieron cargar los datos públicos del proyecto Supabase.',true);return;}
  if(!valid(config.url,config.key)){tell('URL o clave pública no válidas.',true);return;}
  btn.disabled=true;
  try{
