@@ -5,8 +5,8 @@ Versión de prueba: **aura-live-supabase-v12**. No modifica Aura Pro.
 ## Cómo activarlo en un proyecto Supabase existente
 
 1. En el proyecto **visoraura**, confirma que en Supabase Dashboard → Authentication están activados **Anonymous Sign-Ins**. Al pasar a producción se debe usar autenticación de administrador más estricta y controles antiabuso (CAPTCHA, límites).
-2. En Supabase Dashboard → SQL Editor, crea una consulta y ejecuta completo el archivo [SUPABASE-LIVE-SETUP.sql](SUPABASE-LIVE-SETUP.sql). Crea el bucket \`aura-live\` con políticas RLS para que un usuario autenticado solo suba/borré archivos dentro de su carpeta.
-3. En Supabase → Project Settings / Connect localiza la **Project URL** (\`https://xxx.supabase.co\`) y la **Publishable key** (\`sb_publishable_...\`). Son los **únicos** dos datos que debes introducir en el editor. **Jamás** incluyas \`sb_secret_\`, \`service_role\` ni credenciales de administrador.
+2. El bucket `aura-live` y las políticas de acceso ya se configuraron en el proyecto **visoraura**. El archivo [SUPABASE-LIVE-SETUP.sql](SUPABASE-LIVE-SETUP.sql) queda solo como referencia.
+3. Los datos públicos del proyecto **visoraura** ya vienen configurados en el editor de pruebas. No es necesario pegar una clave ni una URL. **Jamás** uses claves secret o `service_role` en código público.
 4. Abre [Aura Digital · Editor Pruebas](https://auradigitaljal.com/AuraPlataforma5.5/preview/?v=aura-live-supabase-v12) y pulsa **Compartir Live View**.
 5. Cuando muestre "Live View activo", toca **Copiar enlace** y ábrelo en otro móvil. Mantén el editor abierto mientras haces cambios.
 
@@ -24,7 +24,7 @@ Versión de prueba: **aura-live-supabase-v12**. No modifica Aura Pro.
 - El bucket SQL es **público para lectura**. Una persona que conoce un URL de archivo puede acceder a él. Solo usar fotos/datos de prueba, nunca documentos confidenciales.
 - Las subidas requieren Supabase Auth y las políticas RLS comprueban la carpeta con UUID del usuario.
 - La URL de sesión tiene 160 bits de aleatoriedad. No la publiques en redes sociales.
-- **No hay borrado automático** de las sesiones de Storage. El administrador del proyecto debe eliminar objetos de prueba antiguos del bucket \`aura-live\`. Las sesiones cerradas dejan de actualizarse, pero los archivos públicos persisten hasta su eliminación.
+- **Limpieza temporal:** al pulsar **Terminar sesión** se borran fotografías, música y HTML de la sesión mediante Supabase Storage API, quedando `latest.json` como aviso de cierre. Si se abandona una sesión cerrando la pestaña, se intentan borrar sus archivos tras 24 horas **la próxima vez que ese mismo usuario inicie Live View**. Mientras el editor sigue abierto, renueva la actividad cada 5 minutos. No es un cron de servidor ni se borran datos sin fecha verificable.
 - Las conexiones anónimas necesitan controles antiabuso antes de producción.
 - Si se eliminan datos de navegador, la sesión anónima del editor puede cambiar; las sesiones anteriores de Storage no se reasignan automáticamente.
 - El costo y el consumo dependen del número de clientes, número/peso de fotos, audio y transferencias. Consulta límites del plan Supabase.
