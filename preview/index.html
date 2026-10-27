@@ -9,7 +9,7 @@
     // Las pruebas siempre abren la revisión más reciente, incluso desde un enlace viejo.
     (function () {
       if (window.location.protocol === 'file:') return;
-      var build = 'bautizo-lightbox-blanco-89-v20';
+      var build = 'aura-live-view-pruebas-v1';
       var target = new URL(window.location.href);
       if (target.searchParams.get('v') === build) return;
       target.searchParams.set('v', build);
@@ -17,6 +17,22 @@
     })();
   </script>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<style id="aura-live-view-style">
+#aura-live-panel[hidden]{display:none!important}
+#aura-live-panel{position:fixed;z-index:10005;right:17px;bottom:17px;width:min(355px,calc(100vw - 34px));background:#fffdf9;color:#322b27;border:1px solid #d9c9bb;border-radius:16px;box-shadow:0 18px 55px rgba(37,29,21,.20);padding:18px;font-family:system-ui,sans-serif;line-height:1.45}
+#aura-live-panel .aura-live-title{display:flex;align-items:center;gap:8px;font-weight:750;letter-spacing:.02em;font-size:15px}
+#aura-live-panel .aura-live-dot{width:9px;height:9px;border-radius:50%;background:#43885d;box-shadow:0 0 0 4px #43885d1a}
+#aura-live-panel .aura-live-help{font-size:12px;color:#75665b;margin:8px 0 12px}
+#aura-live-panel #aura-live-link{box-sizing:border-box;width:100%;background:#f7f1ea;border:1px solid #ddd0c4;border-radius:7px;padding:10px;font-size:11px;color:#57453a}
+#aura-live-panel .aura-live-actions{display:flex;gap:9px;margin:10px 0 4px}
+#aura-live-panel .aura-live-actions button{flex:1;cursor:pointer;border:1px solid #ac9c8e;border-radius:8px;padding:10px 8px;font:600 12px system-ui,sans-serif;color:#4b4039;background:#fff}
+#aura-live-panel #aura-live-copy{background:#554235;border-color:#554235;color:white}
+#aura-live-panel #aura-live-status{min-height:31px;margin:10px 0 0;font-size:11px;color:#526b53;overflow-wrap:anywhere}
+#aura-live-panel .aura-live-notice{font-size:10px;line-height:1.4;color:#8a8078;margin:8px 0 0}
+#aura-live-toggle[aria-pressed="true"]{border-color:#6f987c!important;background:#e7f2e9!important;color:#275339!important}
+</style>
+
   <meta name="theme-color" content="#f2eee8" />
   <title>Aura Digital · Pruebas · Lino, Velo y Papel</title>
   <link rel="stylesheet" href="css/style.css?v=editoriales-lino-velo-papel-v1" />
@@ -53,6 +69,7 @@
         <span class="save-indicator"><i></i> Vista en vivo</span>
         <button type="button" id="open-preview-window" class="btn secondary">Abrir preview ↗</button>
         <button type="button" id="update-preview" class="btn secondary">Actualizar</button>
+        <button type="button" id="aura-live-toggle" class="btn secondary" aria-pressed="false">Compartir Live View</button>
         <button type="button" id="open-github" class="btn secondary">Publicar en GitHub</button>
         <button type="button" id="generate-zip" class="btn primary">Generar ZIP</button>
       </div>
@@ -435,6 +452,20 @@
     </section>
   </dialog>
 
+
+  <aside id="aura-live-panel" hidden aria-label="Compartir vista en vivo">
+    <div class="aura-live-title"><span class="aura-live-dot"></span>Live View · Cliente</div>
+    <p class="aura-live-help">El cliente puede ver tu invitación mientras la editas. No necesita entrar al editor.</p>
+    <label for="aura-live-link" style="display:block;font-size:11px;font-weight:650;margin-bottom:6px">Enlace para compartir</label>
+    <input id="aura-live-link" readonly aria-label="Enlace de Live View del cliente" spellcheck="false">
+    <div class="aura-live-actions">
+      <button id="aura-live-copy" type="button">Copiar enlace</button>
+      <button id="aura-live-stop" type="button">Terminar sesión</button>
+    </div>
+    <p id="aura-live-status" role="status" aria-live="polite">Preparando conexión…</p>
+    <p class="aura-live-notice">Prueba experimental: usa un canal temporal no listado. No envíes información confidencial. Las fotos grandes se optimizan para la vista remota y la música pesada podría omitirse.</p>
+  </aside>
+
   <script src="js/font-data.js?v=5.6.17"></script>
   <script src="preview/js/script.js?v=editoriales-lino-velo-papel-v1"></script>
   <script src="preview/js/fixed-copy-editor.js?v=bautizo-galeria-subtitulo-editable-v15"></script>
@@ -443,5 +474,6 @@
   <script src="preview/js/palette-inverter.js?v=inversor-paleta-pruebas-20261010-v1"></script>
   <script src="preview/js/wedding-trial-editorials.js?v=editoriales-lino-velo-papel-v1"></script>
   <script src="preview/js/baptism-layers.js?v=bautizo-lightbox-blanco-89-v20"></script>
+  <script src="preview/js/live-view.js?v=aura-live-view-pruebas-v1"></script>
 </body>
 </html>
