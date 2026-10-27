@@ -5,7 +5,7 @@
 */
 (function(){
 'use strict';
-const $=id=>document.getElementById(id),BUCKET='aura-live',KEY='aura-live-supabase-config-v1',VERS='aura-live-supabase-v9r2';
+const $=id=>document.getElementById(id),BUCKET='aura-live',KEY='aura-live-supabase-config-v1',VERS='aura-live-supabase-v10';
 const btn=$('aura-live-toggle'),panel=$('aura-live-panel'),input=$('aura-live-link'),copy=$('aura-live-copy'),stop=$('aura-live-stop'),status=$('aura-live-status');
 if(!btn||!panel||!input||!copy||!stop||!status)return;
 let sb=null,owner='',room='',channel=null,sending=false,queued=false,timer=0,revision=0,syncedRevision=0;
@@ -33,7 +33,7 @@ function settingsLoad(){
  try{const c=JSON.parse(localStorage.getItem(KEY)||'null');if(c&&valid(c.url,c.key))return c;}catch(_){}
  return null;
 }
-config=settingsLoad()||{url:'https://rcstxomjsmvqtpxoekyk.supabase.co/',key:'sb_publishable_SjoI6W6WmBqCTjDDdYgVJA_oKMgxVzO'};
+config={url:'https://rcstxomjsmvqtpxoekyk.supabase.co/',key:'sb_publishable_SjoI6W6WmBqCTjDDdYgVJA_oKMgxVzO'};
 if(config){urlEl.value=config.url;keyEl.value=config.key;}
 function setOpen(open){
  panel.hidden=false;
@@ -188,9 +188,9 @@ async function begin(){
   let session=await sb.auth.getSession();
   let user=session.data?.session?.user;
   if(!user){
-   tell('Iniciando sesión anónima de pruebas en Supabase…');
+   tell('Conectando con Supabase visoraura…');
    const result=await sb.auth.signInAnonymously();
-   if(result.error)throw Error('Activa Anonymous Sign-Ins en Supabase Auth: '+result.error.message);
+   if(result.error)throw Error('Supabase Auth rechazó el acceso ('+result.error.message+'). En Supabase abre Authentication → Sign In / Providers y activa Anonymous Sign-Ins.');
    user=result.data.user;
   }
   if(!user?.id)throw Error('No se pudo obtener identidad de Supabase.');
