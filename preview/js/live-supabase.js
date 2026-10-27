@@ -5,7 +5,7 @@
 */
 (function(){
 'use strict';
-const $=id=>document.getElementById(id),BUCKET='aura-live',KEY='aura-live-supabase-config-v1',VERS='aura-live-supabase-v12';
+const $=id=>document.getElementById(id),BUCKET='aura-live',KEY='aura-live-supabase-config-v1',VERS='aura-live-supabase-v13';
 const btn=$('aura-live-toggle'),panel=$('aura-live-panel'),input=$('aura-live-link'),copy=$('aura-live-copy'),stop=$('aura-live-stop'),status=$('aura-live-status');
 if(!btn||!panel||!input||!copy||!stop||!status)return;
 let sb=null,owner='',room='',channel=null,sending=false,queued=false,timer=0,revision=0,syncedRevision=0;
