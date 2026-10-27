@@ -9,7 +9,7 @@ const $=id=>document.getElementById(id),s=$('status'),dot=$('dot'),frame=$('invi
 const qs=new URLSearchParams(location.search);
 const project=qs.get('sb')||'',key=qs.get('pk')||'',owner=qs.get('owner')||'',
  room=decodeURIComponent((location.hash||'').slice(1));
-let sb=null,channel=null,timer=0,ended=false,lastVersion=-1,loading=false,queued=null,failures=0,first=false;
+let sb=null,channel=null,timer=0,ended=false,lastVersion=-1,loading=false,queued=null,failures=0,first=false,frameReady=false,baseline=null;
 function state(message,cls=''){s.textContent=message;dot.className='dot '+cls;}
 function alertScreen(title,message){
  placeholder.style.display='flex';spinner.style.display='none';heading.textContent=title;desc.textContent=message;
@@ -36,23 +36,84 @@ function trustedPreview(url){
 function latestUrl(){
  return new URL('/storage/v1/object/public/aura-live/'+owner+'/'+room+'/latest.json',project).toString();
 }
+/* Audio en Live View: sólo obtenerlo cuando el cliente reproduce la música.
+   La invitación final publicada no pasa por este visor. */
+function lazyAudio(html){
+ return html.replace(/<audio\b[^>]*>/gi,tag=>{
+  if(/\bpreload\s*=/i.test(tag))
+   return tag.replace(/\bpreload\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/i,'preload="none"');
+  return tag.replace(/>$/,' preload="none">');
+ });
+}
+function afterFrameLoad(position){
+ frameReady=true;
+ try{frame.contentWindow.scrollTo(0,position);}catch(_){}
+ if(queued&&queued.version>lastVersion){
+  const next=queued;queued=null;openPreview(next);
+ }
+}
+function fullFrame(html,version){
+ const normalized=lazyAudio(html);
+ // DOMParser NO ejecuta los scripts de la invitación. La primera carga sí los inicia.
+ baseline=window.AuraLiveDelta?.parse(normalized)||null;
+ let position=0;
+ try{if(first)position=frame.contentWindow.scrollY||0;}catch(_){}
+ frameReady=false;
+ frame.onload=()=>afterFrameLoad(position);
+ frame.srcdoc=normalized;
+ frame.classList.add('ready');placeholder.style.display='none';
+ first=true;lastVersion=version;failures=0;
+}
+function tryChanges(ops){
+ if(!frameReady||!baseline||!window.AuraLiveDelta)return false;
+ try{
+  const live=frame.contentDocument;
+  // Validar todo antes de modificar un solo elemento; si falta algo,
+  // recargar el HTML de respaldo para no dejar la invitación a medias.
+  return !!live&&window.AuraLiveDelta.applyBoth(live,baseline,ops);
+ }catch(error){
+  console.warn('Live View: el cambio incremental requiere actualización de respaldo:',error);
+  return false;
+ }
+}
 async function openPreview(pointer){
  if(ended||!pointer)return;
  if(pointer.ended){end();return;}
  if(!Number.isInteger(pointer.version)||pointer.version<=lastVersion||!trustedPreview(pointer.url))return;
- if(loading){if(!queued||pointer.version>queued.version)queued=pointer;return;}
+ if(loading||first&&!frameReady){
+  if(!queued||pointer.version>queued.version)queued=pointer;
+  return;
+ }
  loading=true;
- const revision=pointer.version;
+ const version=pointer.version;
  state('Recibiendo cambios del diseñador…');
  try{
+  const patch=pointer.patch;
+  if(first&&frameReady&&patch&&patch.baseVersion===lastVersion&&
+     Array.isArray(patch.ops)&&JSON.stringify(patch).length<=20000&&
+     tryChanges(patch.ops)){
+   lastVersion=version;failures=0;
+   state('En vivo · actualizado','live');
+   return;
+  }
+  // Respaldo: obtener sólo el HTML. Si la estructura sigue igual,
+  // reconciliar nodos en el iframe existente, sin recrear audio, fotos ni JS.
   const response=await fetch(pointer.url,{cache:'no-store'});
   if(!response.ok)throw Error('No se pudo recuperar la invitación (HTTP '+response.status+').');
   const html=await response.text();
-  if(ended||revision<=lastVersion)return;
-  let position=0;try{if(first)position=frame.contentWindow.scrollY||0;}catch(_){}
-  frame.onload=function(){try{frame.contentWindow.scrollTo(0,position);}catch(_){}};
-  frame.srcdoc=html;frame.classList.add('ready');placeholder.style.display='none';
-  first=true;lastVersion=revision;failures=0;
+  if(ended||version<=lastVersion)return;
+  const normalized=lazyAudio(html);
+  if(first&&frameReady&&baseline&&window.AuraLiveDelta){
+   const next=window.AuraLiveDelta.parse(normalized);
+   const changes=window.AuraLiveDelta.diff(baseline,next);
+   if(changes!==null&&tryChanges(changes)){
+    lastVersion=version;failures=0;
+    state('En vivo · actualizado','live');
+    return;
+   }
+  }
+  // Únicamente diseños con estructura o scripts distintos reinician la vista.
+  fullFrame(html,version);
   state('En vivo · actualizado','live');
  }catch(error){
   failures++;
@@ -60,8 +121,9 @@ async function openPreview(pointer){
   if(!first&&failures>=3)alertScreen('No se pudo cargar Live View.',error.message);
  }finally{
   loading=false;
-  if(queued&&queued.version>lastVersion){const next=queued;queued=null;openPreview(next);}
-  else queued=null;
+  if(queued&&queued.version>lastVersion&&frameReady){
+   const next=queued;queued=null;openPreview(next);
+  }else if(queued&&queued.version<=lastVersion)queued=null;
  }
 }
 async function poll(){
