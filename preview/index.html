@@ -9,7 +9,7 @@
     // Las pruebas siempre abren la revisión más reciente, incluso desde un enlace viejo.
     (function () {
       if (window.location.protocol === 'file:') return;
-      var build = 'aura-live-supabase-v9r2';
+      var build = 'aura-live-supabase-v10';
       var target = new URL(window.location.href);
       if (target.searchParams.get('v') === build) return;
       target.searchParams.set('v', build);
@@ -476,6 +476,6 @@
   <script src="preview/js/baptism-layers.js?v=bautizo-lightbox-blanco-89-v20"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/tus-js-client@4/dist/tus.min.js"></script>
-  <script src="preview/js/live-supabase.js?v=aura-live-supabase-v9r2"></script>
+  <script src="preview/js/live-supabase.js?v=aura-live-supabase-v10"></script>
 </body>
 </html>
