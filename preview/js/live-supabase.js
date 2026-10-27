@@ -5,13 +5,13 @@
 */
 (function(){
 'use strict';
-const $=id=>document.getElementById(id),BUCKET='aura-live',KEY='aura-live-supabase-config-v1',VERS='aura-live-supabase-v15';
+const $=id=>document.getElementById(id),BUCKET='aura-live',KEY='aura-live-supabase-config-v1',VERS='aura-live-supabase-v16';
 const btn=$('aura-live-toggle'),panel=$('aura-live-panel'),input=$('aura-live-link'),copy=$('aura-live-copy'),stop=$('aura-live-stop'),status=$('aura-live-status');
 const triggerLabel=$('aura-live-trigger-label');
 const extras=$('aura-live-extras'),extrasToggle=$('aura-live-extras-toggle');
 if(!btn||!panel||!input||!copy||!stop||!status||!extras||!extrasToggle||!triggerLabel)return;
 let sb=null,owner='',room='',channel=null,sending=false,queued=false,timer=0,revision=0,syncedRevision=0;
-let assets=new WeakMap(),assetFingerprints=new Map(),serial=0,config=null,paths=[],lastError='',activePointer=null,heartbeatTimer=null;
+let assets=new WeakMap(),assetFingerprints=new Map(),audioFailures=new WeakMap(),serial=0,config=null,paths=[],lastError='',activePointer=null,heartbeatTimer=null,musicWarning='';
 const settings=document.createElement('div');
 settings.id='aura-sb-settings';
 settings.innerHTML='<div style="border-top:1px solid #e5d9cf;padding-top:12px;margin-top:11px">'+
@@ -181,15 +181,46 @@ async function uploadAsset(file,label){
  assets.set(file,url);assetFingerprints.set(fingerprint,url);
  return url;
 }
+/* La canción es opcional para Live View. Un archivo rechazado o un error de
+   subida no debe impedir que se compartan fotografías y cambios de texto.
+   Se permite un reintento posterior; reemplazar el archivo prueba de inmediato. */
+async function optionalLiveMusic(file){
+ if(!file)return '';
+ const past=audioFailures.get(file);
+ if(past&&Date.now()<past.retryAt){
+  musicWarning=past.message;
+  return '';
+ }
+ try{
+  const url=await uploadAsset(file,'música');
+  audioFailures.delete(file);
+  return url;
+ }catch(error){
+  const attempts=(past?.attempts||0)+1;
+  const delay=Math.min(180000,30000*Math.pow(2,Math.min(3,attempts-1)));
+  const message='Audio no disponible en Live View ('+String(file.name||'archivo').slice(0,60)+'). Puedes cambiar el archivo; las fotos siguen sincronizando.';
+  audioFailures.set(file,{attempts,retryAt:Date.now()+delay,message});
+  musicWarning=message;
+  console.warn('Live View: se omitió la canción por un error de subida, pero la invitación continuará:',error);
+  return '';
+ }
+}
 async function snapshot(){
  const p=getFormParams(),a=previewAssets(p);
- const fields={cover:p.portadaFile,banner:p.bannerFile,extra:p.bannerExtraFile,extra2:p.bannerExtra2File,bg:p.bgFile,
-  poster:p.videoPosterFile,transferPhoto:p.transferPhotoFile,music:p.musicFile};
- for(const [key,file] of Object.entries(fields))a[key]=file?await uploadAsset(file,key==='music'?'música':'fotografía '+key):'';
+ musicWarning='';
+ // Fotos primero: la música no puede interrumpir la transferencia de imágenes.
+ const images={cover:p.portadaFile,banner:p.bannerFile,extra:p.bannerExtraFile,
+  extra2:p.bannerExtra2File,bg:p.bgFile,poster:p.videoPosterFile,
+  transferPhoto:p.transferPhotoFile};
+ for(const [key,file] of Object.entries(images))a[key]=file?await uploadAsset(file,'fotografía '+key):'';
  a.gallery=[];
  for(let i=0;i<(p.galleryFiles||[]).length;i++)a.gallery.push(await uploadAsset(p.galleryFiles[i],'galería '+(i+1)));
+ // La música va al final y sus fallos no rompen la actualización.
+ a.music=await optionalLiveMusic(p.musicFile);
  if(a.sharePreview?.startsWith('blob:'))a.sharePreview='';
- return buildInvitation(p,a);
+ // No producir controles musicales sin archivo válido en la copia temporal.
+ const viewParams=p.musicFile&&!a.music?{...p,musicFile:null}:p;
+ return buildInvitation(viewParams,a);
 }
 /* Limpieza segura: solo sesiones del mismo usuario Supabase, nunca Pro.
    Se ejecuta al empezar una nueva sesión; evita borrar una prueba abierta.
@@ -270,7 +301,7 @@ async function sync(){
    try{await channel.send({type:'broadcast',event:'update',payload:pointer});}
    catch(error){console.warn('Supabase Broadcast no disponible; el visor recuperará las actualizaciones.',error);}
   }
-  tell('En vivo · invitación actualizada ✓');
+  tell(musicWarning?'En vivo · actualizado sin música. '+musicWarning:'En vivo · invitación actualizada ✓',!!musicWarning);
  }catch(error){tell('Error: '+error.message,true);console.warn('Aura Live View Supabase:',error);}
  finally{
   sending=false;
@@ -294,7 +325,7 @@ async function begin(){
    user=result.data.user;
   }
   if(!user?.id)throw Error('No se pudo obtener identidad de Supabase.');
-  owner=user.id;room='aura-live-'+hex(20);assets=new WeakMap();assetFingerprints=new Map();serial=0;revision=0;syncedRevision=0;paths=[];activePointer=null;clearInterval(heartbeatTimer);heartbeatTimer=setInterval(heartbeat,5*60*1000);
+  owner=user.id;room='aura-live-'+hex(20);assets=new WeakMap();assetFingerprints=new Map();audioFailures=new WeakMap();musicWarning='';serial=0;revision=0;syncedRevision=0;paths=[];activePointer=null;clearInterval(heartbeatTimer);heartbeatTimer=setInterval(heartbeat,5*60*1000);
   const u=new URL('live.html',location.href);
   u.searchParams.set('v',VERS);u.searchParams.set('sb',config.url);u.searchParams.set('pk',config.key);
   u.searchParams.set('owner',owner);u.hash=room;
