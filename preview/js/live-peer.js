@@ -174,7 +174,7 @@ function start(){
  link.value=linkTo(room);
  panel.hidden=false;
  button.setAttribute('aria-pressed','true');
- button.textContent='Live View conectado';
+ button.textContent='Live View activo';
  message('Enlace listo. Esperando a que el cliente lo abra…');
  source=new EventSource(SIGNAL+room+'/sse?since=now');
  source.onmessage=e=>{try{signalMessage(JSON.parse(e.data));}catch(_){}};
