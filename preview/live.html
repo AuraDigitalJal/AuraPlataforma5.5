@@ -15,24 +15,25 @@ body{position:relative;overflow:hidden}
 main{position:fixed;inset:0;width:100%;height:100%;height:100dvh;background:white;overflow:hidden}
 #invitation{position:absolute;inset:0;width:100%;height:100%;border:0;display:none;background:white}
 #invitation.ready{display:block}
-/* Barras ligeras flotantes sobre la invitación, sin ocupar espacio del visor. */
+/* Los paneles se eliminan: únicamente flotan el estado y la nota.
+   Ninguna barra, fondo, filtro, borde o desenfoque tapa la invitación. */
 header,footer{position:fixed;left:0;right:0;z-index:30;pointer-events:none;
-  -webkit-backdrop-filter:blur(12px) saturate(120%);
-  backdrop-filter:blur(12px) saturate(120%)}
-header{top:0;display:flex;align-items:center;justify-content:space-between;gap:10px;
-  min-height:50px;padding:calc(9px + env(safe-area-inset-top)) 15px 9px;
-  background:rgba(252,250,247,.66);border-bottom:1px solid rgba(215,204,192,.38)}
-.logo{font-weight:800;letter-spacing:.15em;font-size:11px;white-space:nowrap}
-.logo small{display:block;font-weight:500;letter-spacing:.08em;font-size:8px;margin-top:2px;color:#625b53}
-.state{display:flex;gap:6px;align-items:center;justify-content:flex-end;font-size:10px;
-  line-height:1.25;text-align:right;color:#544e48;max-width:52%}
-.dot{height:7px;width:7px;border-radius:50%;background:#bbaea1;flex:none}
-.dot.live{background:#47855e;box-shadow:0 0 0 3px #47855e1f}
-.dot.offline{background:#b94c48}
-footer{bottom:0;text-align:center;font-size:10px;line-height:1.3;
-  padding:8px 12px calc(8px + env(safe-area-inset-bottom));
-  background:rgba(252,250,247,.52);color:#645d55;
-  border-top:1px solid rgba(215,204,192,.33)}
+  background:transparent;border:0;box-shadow:none;
+  -webkit-backdrop-filter:none;backdrop-filter:none}
+header{top:0;display:flex;align-items:flex-start;justify-content:flex-end;
+  width:100%;padding:calc(14px + env(safe-area-inset-top)) 16px 0;
+  min-height:0;height:auto}
+.state{display:inline-flex;align-items:center;justify-content:flex-end;gap:7px;
+  font-size:11px;font-weight:600;line-height:1.3;text-align:right;
+  color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.9),0 0 8px rgba(0,0,0,.75);
+  max-width:min(270px,90vw)}
+.dot{height:8px;width:8px;border-radius:50%;background:#bbaea1;flex:none;
+  box-shadow:0 0 0 2px rgba(0,0,0,.35)}
+.dot.live{background:#42d27b;box-shadow:0 0 0 2px rgba(0,0,0,.4),0 0 5px rgba(66,210,123,.45)}
+.dot.offline{background:#ff7676}
+footer{bottom:0;padding:0 14px calc(14px + env(safe-area-inset-bottom));
+  text-align:center;font-size:10px;font-weight:500;line-height:1.4;
+  color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.9),0 0 8px rgba(0,0,0,.7)}
 /* Solo se muestra antes de recibir la primera invitación. */
 .placeholder{position:absolute;inset:0;display:flex;flex-direction:column;
   justify-content:center;align-items:center;text-align:center;gap:12px;
@@ -43,19 +44,17 @@ footer{bottom:0;text-align:center;font-size:10px;line-height:1.3;
   border-radius:50%;animation:sp 1s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
 @media(max-width:400px){
-  header{padding-right:10px;padding-left:10px;gap:5px}
-  .logo{font-size:10px;letter-spacing:.12em}
-  .logo small{font-size:7px}
-  .state{font-size:9px}
-  footer{font-size:9px}
+  header{padding-right:12px;padding-left:12px}
+  .state{font-size:10px}
+  footer{font-size:9px;padding-right:12px;padding-left:12px}
 }
 </style>
 </head>
 <body>
-<header><div class="logo">AURA DIGITAL<small>LIVE VIEW · VISTA DEL CLIENTE</small></div><div class="state"><span id="dot" class="dot"></span><span id="status" aria-live="polite">Conectando…</span></div></header>
+<header aria-label="Estado de Live View"><div class="state"><span id="dot" class="dot" aria-hidden="true"></span><span id="status" aria-live="polite">Conectando…</span></div></header>
 <main><div class="placeholder" id="placeholder"><div class="spin" id="spin"></div><strong id="heading">Tu invitación cobra vida.</strong><p id="description">En cuanto el diseñador comparta la primera actualización, verás aquí la invitación.</p></div><iframe id="invitation" title="Invitación en vivo" referrerpolicy="no-referrer" allow="autoplay; fullscreen"></iframe></main>
 <footer>Vista de trabajo · Los cambios aparecerán automáticamente</footer>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/live-supabase-client.js?v=aura-live-supabase-v12"></script>
+<script src="js/live-supabase-client.js?v=aura-live-supabase-v13"></script>
 </body>
 </html>
