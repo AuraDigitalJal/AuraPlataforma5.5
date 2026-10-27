@@ -1,20 +1,20 @@
 # Aura Digital · Live View con Supabase (PRUEBAS)
 
-Versión de prueba: **aura-live-supabase-v9r2**. No modifica Aura Pro.
+Versión de prueba: **aura-live-supabase-v12**. No modifica Aura Pro.
 
 ## Cómo activarlo en un proyecto Supabase existente
 
-1. En Supabase Dashboard → Authentication → Providers habilita **Anonymous Sign-Ins**. Al pasar a producción se debe usar autenticación de administrador más estricta y controles antiabuso (CAPTCHA, límites).
+1. En el proyecto **visoraura**, confirma que en Supabase Dashboard → Authentication están activados **Anonymous Sign-Ins**. Al pasar a producción se debe usar autenticación de administrador más estricta y controles antiabuso (CAPTCHA, límites).
 2. En Supabase Dashboard → SQL Editor, crea una consulta y ejecuta completo el archivo [SUPABASE-LIVE-SETUP.sql](SUPABASE-LIVE-SETUP.sql). Crea el bucket \`aura-live\` con políticas RLS para que un usuario autenticado solo suba/borré archivos dentro de su carpeta.
 3. En Supabase → Project Settings / Connect localiza la **Project URL** (\`https://xxx.supabase.co\`) y la **Publishable key** (\`sb_publishable_...\`). Son los **únicos** dos datos que debes introducir en el editor. **Jamás** incluyas \`sb_secret_\`, \`service_role\` ni credenciales de administrador.
-4. Abre [Aura Digital · Editor Pruebas](https://auradigitaljal.com/AuraPlataforma5.5/preview/?v=aura-live-supabase-v9r2), pulsa **Compartir Live View**, completa los datos y elige **Guardar y conectar**.
+4. Abre [Aura Digital · Editor Pruebas](https://auradigitaljal.com/AuraPlataforma5.5/preview/?v=aura-live-supabase-v12) y pulsa **Compartir Live View**.
 5. Cuando muestre "Live View activo", toca **Copiar enlace** y ábrelo en otro móvil. Mantén el editor abierto mientras haces cambios.
 
 ## Cómo funciona
 
-- **Fotos, música y HTML** → Supabase Storage. El archivo original permanece intacto; solo las fotos de más de 6 MB se optimizan en una copia temporal para Live View.
+- **Fotos, música y HTML** → Supabase Storage. El archivo original permanece intacto; las fotografías JPG/PNG/WebP superiores a 500 KB se optimizan en copias temporales WebP (objetivo 500 KB, margen recomendado hasta 800 KB sin forzar pérdida excesiva). Los GIF animados y archivos de música mantienen su formato.
 - **Archivos grandes** → TUS resumable upload.
-- **Cambio inmediato** → Supabase Realtime Broadcast.
+- **Cambio inmediato** → Supabase Realtime Broadcast. Solo existe una versión HTML activa (`previews/current.html`) por sesión; cada actualización la sustituye.
 - **Si falla WebSocket** → el cliente consulta \`latest.json\` cada 3 segundos y recupera la versión vigente.
 - **Vista del cliente** → altura completa del navegador; header/footer superpuestos y semitransparentes.
 - **Sin ntfy.sh**, sin la cuota de adjuntos de ntfy.sh y sin dependencia de conexiones WebRTC P2P.
@@ -28,7 +28,7 @@ Versión de prueba: **aura-live-supabase-v9r2**. No modifica Aura Pro.
 - Las conexiones anónimas necesitan controles antiabuso antes de producción.
 - Si se eliminan datos de navegador, la sesión anónima del editor puede cambiar; las sesiones anteriores de Storage no se reasignan automáticamente.
 - El costo y el consumo dependen del número de clientes, número/peso de fotos, audio y transferencias. Consulta límites del plan Supabase.
-- La integración se ha validado sintácticamente y mediante simulación. **Sin proyecto configurado no se puede afirmar una prueba real entre dispositivos**.
+- La integración de compresión y limpieza se ha validado por simulaciones. **Falta comprobar el flujo real en computadora y celular**; la implementación no modifica Aura Pro.
 
 ## Comprobación rápida
 
