@@ -66,7 +66,7 @@ async function openPreview(pointer){
 async function poll(){
  if(ended)return;
  try{
-  const response=await fetch(latestUrl()+'?t='+Date.now(),{cache:'no-store'});
+  const response=await fetch(latestUrl()+'?cacheNonce='+Date.now(),{cache:'no-store'});
   if(response.status===404){state('Esperando primera actualización…');return;}
   if(!response.ok)throw Error('HTTP '+response.status);
   const pointer=await response.json();
