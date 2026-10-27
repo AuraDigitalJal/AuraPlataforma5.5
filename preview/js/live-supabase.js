@@ -301,7 +301,8 @@ async function sync(){
    try{await channel.send({type:'broadcast',event:'update',payload:pointer});}
    catch(error){console.warn('Supabase Broadcast no disponible; el visor recuperará las actualizaciones.',error);}
   }
-  tell(musicWarning?'En vivo · actualizado sin música. '+musicWarning:'En vivo · invitación actualizada ✓',!!musicWarning);
+  tell(musicWarning?'En vivo · actualizado sin música. '+musicWarning:'En vivo · invitación actualizada ✓');
+  if(musicWarning)status.style.color='#95602a';
  }catch(error){tell('Error: '+error.message,true);console.warn('Aura Live View Supabase:',error);}
  finally{
   sending=false;
