@@ -5,7 +5,7 @@
 */
 (function(){
 'use strict';
-const $=id=>document.getElementById(id),BUCKET='aura-live',KEY='aura-live-supabase-config-v1',VERS='aura-live-supabase-v10';
+const $=id=>document.getElementById(id),BUCKET='aura-live',KEY='aura-live-supabase-config-v1',VERS='aura-live-supabase-v11';
 const btn=$('aura-live-toggle'),panel=$('aura-live-panel'),input=$('aura-live-link'),copy=$('aura-live-copy'),stop=$('aura-live-stop'),status=$('aura-live-status');
 if(!btn||!panel||!input||!copy||!stop||!status)return;
 let sb=null,owner='',room='',channel=null,sending=false,queued=false,timer=0,revision=0,syncedRevision=0;
@@ -97,29 +97,56 @@ async function put(path,file,mime,overwrite=false){
  if(!overwrite)paths.push(path);
  return publicUrl(path);
 }
+/* La compresión se aplica SOLO al archivo temporal del Live View:
+   los originales del editor y la publicación final conservan su calidad.
+   Un teléfono muestra bien fotos de 1800–2400 px; evitar bajar a miniaturas. */
 async function prepareAsset(file){
  const mime=contentType(file);
  if(!/^(image\/(jpeg|png|webp|gif)|audio\/(mpeg|mp4|wav|ogg|webm|aac|flac)|video\/mp4)$/.test(mime)){
   throw Error('Formato no admitido: '+file.name+'. Usa JPG, PNG, WebP, MP3 o M4A.');
  }
  if(file.size>40*1024*1024)throw Error('El archivo '+file.name+' supera 40 MB.');
- if(file.size<=6*1024*1024||!mime.startsWith('image/'))return {blob:file,mime};
- // Reducir únicamente la copia temporal para Live View, sin modificar original.
- let bitmap;
- try{bitmap=await createImageBitmap(file,{imageOrientation:'from-image'});}
- catch(_){throw Error('No se pudo abrir '+file.name+'. Guarda una versión JPG y vuelve a intentar.');}
+ if(!mime.startsWith('image/')||mime==='image/gif')return {blob:file,mime};
+ const ALREADY_SMALL=900*1024;
+ if(file.size<=ALREADY_SMALL)return {blob:file,mime};
+ let decoded=null;
  try{
-  const max=Math.max(bitmap.width,bitmap.height);
-  for(const [side,quality] of [[3200,.94],[2800,.92],[2500,.9],[2200,.87],[1900,.85]]){
-   const scale=Math.min(1,side/max),can=document.createElement('canvas');
-   can.width=Math.round(bitmap.width*scale);can.height=Math.round(bitmap.height*scale);
-   can.getContext('2d').drawImage(bitmap,0,0,can.width,can.height);
-   const result=await new Promise(resolve=>can.toBlob(resolve,'image/jpeg',quality));
-   can.width=1;can.height=1;
-   if(result&&result.size<=6*1024*1024)return {blob:result,mime:'image/jpeg'};
+  if(typeof createImageBitmap==='function'){
+   try{const bitmap=await createImageBitmap(file,{imageOrientation:'from-image'});
+       decoded={src:bitmap,width:bitmap.width,height:bitmap.height,release:()=>bitmap.close?.()};}
+   catch(_){}
   }
-  throw Error('La foto no pudo optimizarse; usa JPG de menos de 6 MB.');
- }finally{bitmap.close?.();}
+  if(!decoded){
+   decoded=await new Promise((resolve,reject)=>{
+    const url=URL.createObjectURL(file),img=new Image();
+    img.onload=()=>{URL.revokeObjectURL(url);resolve({src:img,width:img.naturalWidth,height:img.naturalHeight,release:()=>{img.src='';}});};
+    img.onerror=()=>{URL.revokeObjectURL(url);reject(Error('No se pudo leer la fotografía '+file.name));};
+    img.src=url;
+   });
+  }
+  const width=decoded.width,height=decoded.height,largest=Math.max(width,height);
+  if(!largest)throw Error('La fotografía no tiene dimensiones válidas.');
+  const candidates=[[2400,.91],[2200,.89],[2000,.87],[1850,.85],[1700,.84],[1600,.82]];
+  let fallback=null;
+  for(const [side,quality] of candidates){
+   const scale=Math.min(1,side/largest);
+   const can=document.createElement('canvas');
+   can.width=Math.max(1,Math.round(width*scale));can.height=Math.max(1,Math.round(height*scale));
+   const ctx=can.getContext('2d');
+   if(!ctx)throw Error('No se pudo preparar una versión ligera de la foto.');
+   ctx.drawImage(decoded.src,0,0,can.width,can.height);
+   const blob=await new Promise(resolve=>can.toBlob(resolve,'image/webp',quality));
+   can.width=1;can.height=1;
+   if(!blob)continue;
+   const optimizedMime=blob.type||'image/webp';
+   if(blob.size<file.size&&(!fallback||blob.size<fallback.blob.size))fallback={blob,mime:optimizedMime};
+   if(blob.size<=1200*1024&&blob.size<file.size)return {blob,mime:optimizedMime};
+  }
+  // No pixelar la invitación por cumplir una cifra arbitraria:
+  // preservar la versión más nítida que realmente ahorre espacio.
+  if(fallback&&fallback.blob.size<file.size)return fallback;
+  return {blob:file,mime};
+ }finally{decoded?.release?.();}
 }
 async function uploadAsset(file,label){
  if(!file)return '';
@@ -157,11 +184,12 @@ async function sync(){
   let html=await snapshot();
   if(room!==activeRoom)return;
   if(seq!==revision){queued=true;return;}
-  const filename='previews/revision-'+String(seq).padStart(7,'0')+'-'+hex(5)+'.html';
-  const path=owner+'/'+activeRoom+'/'+filename;
-  const publicHtml=await put(path,new Blob([html],{type:'text/html;charset=utf-8'}),'text/html');
+  // Sólo existe una vista HTML por sesión. La query ?v impide
+  // caché del navegador/CDN al sobrescribirla.
+  const path=owner+'/'+activeRoom+'/previews/current.html';
+  const publicHtml=await put(path,new Blob([html],{type:'text/html;charset=utf-8'}),'text/html',true);
   if(room!==activeRoom)return;
-  const pointer={version:seq,url:publicHtml,updatedAt:Date.now(),ended:false};
+  const pointer={version:seq,url:publicHtml+'?v='+seq,updatedAt:Date.now(),ended:false};
   const latestPath=owner+'/'+activeRoom+'/latest.json';
   await put(latestPath,new Blob([JSON.stringify(pointer)],{type:'application/json'}),'application/json',true);
   if(room!==activeRoom)return;
@@ -170,7 +198,7 @@ async function sync(){
    try{await channel.send({type:'broadcast',event:'update',payload:pointer});}
    catch(error){console.warn('Supabase Broadcast no disponible; el visor recuperará las actualizaciones.',error);}
   }
-  tell('Live View actualizado ✓ · Fotos y música en Supabase');
+  tell('Live View actualizado ✓ · fotos optimizadas, una sola vista activa');
  }catch(error){tell('Error: '+error.message,true);console.warn('Aura Live View Supabase:',error);}
  finally{
   sending=false;
