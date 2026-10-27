@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta name="referrer" content="no-referrer">
+<title>Aura Digital · Live View</title>
+<style>
+:root{color-scheme:light;--ink:#34302c;--linen:#f5f0e9;--brand:#877160}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;background:var(--linen);color:var(--ink)}
+body{display:flex;flex-direction:column;overflow:hidden}
+header{height:54px;min-height:54px;display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:#fcfaf7;border-bottom:1px solid #e9e0d6;gap:10px;z-index:3}
+.logo{font-weight:800;letter-spacing:.17em;font-size:11px;white-space:nowrap}.logo small{display:block;font-weight:500;letter-spacing:.09em;font-size:8px;margin-top:2px;color:#81766b}
+.state{display:flex;gap:6px;align-items:center;font-size:10px;line-height:1.2;text-align:right;color:#73685d;max-width:49%}.dot{height:7px;width:7px;border-radius:50%;background:#bbaea1;flex:none}.dot.live{background:#47855e;box-shadow:0 0 0 3px #47855e1f}.dot.offline{background:#b94c48}
+main{position:relative;flex:1;min-height:0;background:white}.placeholder{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:12px;padding:24px;background:#f8f4ee;color:#514439;z-index:1}
+.placeholder strong{font-family:Georgia,serif;font-weight:400;font-size:clamp(27px,7vw,41px);line-height:1.16}.placeholder p{font-size:13px;line-height:1.5;max-width:300px;margin:0;color:#81776b}
+.spin{width:31px;height:31px;border:2px solid #d5c9bc;border-top-color:#8e7666;border-radius:50%;animation:sp 1s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}
+iframe{width:100%;height:100%;border:0;display:none;background:white}iframe.ready{display:block}
+footer{font-size:10px;text-align:center;padding:7px 12px calc(7px + env(safe-area-inset-bottom));background:#fcfaf7;color:#938579;border-top:1px solid #eee5d9}
+@media(min-width:650px){main{display:flex;justify-content:center;align-items:stretch;background:#eee7de}iframe{max-width:470px;box-shadow:0 0 25px #00000012}.placeholder{left:50%;right:auto;transform:translateX(-50%);max-width:470px;width:100%}}
+</style>
+</head>
+<body>
+<header><div class="logo">AURA DIGITAL<small>LIVE VIEW · VISTA DEL CLIENTE</small></div><div class="state"><span id="dot" class="dot"></span><span id="status" aria-live="polite">Conectando…</span></div></header>
+<main><div class="placeholder" id="placeholder"><div class="spin" id="spin"></div><strong id="heading">Tu invitación cobra vida.</strong><p id="description">En cuanto el diseñador comparta la primera actualización, verás aquí la invitación.</p></div><iframe id="invitation" title="Invitación en vivo" referrerpolicy="no-referrer" allow="autoplay; fullscreen"></iframe></main>
+<footer>Vista de trabajo · Los cambios aparecerán automáticamente</footer>
+<script>
+(function(){
+'use strict';
+var topic=decodeURIComponent((location.hash||'').slice(1));
+var valid=/^aura-live-[a-f0-9]{40}$/.test(topic);
+var status=document.getElementById('status');
+var dot=document.getElementById('dot');
+var frame=document.getElementById('invitation');
+var placeholder=document.getElementById('placeholder');
+var heading=document.getElementById('heading');
+var description=document.getElementById('description');
+var spin=document.getElementById('spin');
+var bestSeq=0;
+var pending=null;
+var renderTimer=null;
+var ended=false;
+var source=null;
+var pollTimer=null;
+var receivedOnce=false;
+function setStatus(message,state){status.textContent=message;dot.className='dot '+(state||'');}
+function showError(title,copy){placeholder.hidden=false;placeholder.style.display='flex';spin.style.display='none';heading.textContent=title;description.textContent=copy;}
+function end(){ended=true;setStatus('Sesión finalizada','offline');if(source)source.close();clearInterval(pollTimer);if(!receivedOnce)showError('Sesión finalizada.','Solicita un nuevo enlace al diseñador.');}
+function accept(packet){
+ if(!packet||packet.event!=='message'||ended)return;
+ if(packet.message){
+   try{var control=JSON.parse(packet.message);if(control.type==='aura-live-ended'){end();return;}}
+   catch(_){/* Aviso de archivo de ntfy */}
+ }
+ var asset=packet.attachment;
+ if(!asset||!/^https:\/\/ntfy\.sh\//.test(asset.url||''))return;
+ var m=String(asset.name||'').match(/^aura-live-(\d+)\.html(\.gz)?$/);
+ if(!m)return;
+ var n=parseInt(m[1],10);
+ if(n<=bestSeq)return;
+ bestSeq=n;pending={url:asset.url,gzip:Boolean(m[2]),n:n};
+ clearTimeout(renderTimer);renderTimer=setTimeout(render,180);
+}
+async function render(){
+ if(!pending||ended)return;
+ var item=pending;pending=null;
+ setStatus(receivedOnce?'Actualizando…':'Recibiendo invitación…','');
+ try{
+   var response=await fetch(item.url,{cache:'no-store'});
+   if(!response.ok)throw new Error('HTTP '+response.status);
+   var html='';
+   if(item.gzip){
+     if(typeof DecompressionStream!=='function')throw new Error('El navegador necesita actualización para abrir esta vista.');
+     html=await new Response(response.body.pipeThrough(new DecompressionStream('gzip'))).text();
+   } else html=await response.text();
+   if(ended||item.n!==bestSeq)return;
+   var y=0;try{if(receivedOnce)y=frame.contentWindow.scrollY||0;}catch(_){}
+   frame.onload=function(){try{frame.contentWindow.scrollTo(0,y);}catch(_){}};
+   frame.srcdoc=html;
+   frame.classList.add('ready');
+   placeholder.hidden=true;placeholder.style.display='none';
+   receivedOnce=true;
+   setStatus('En vivo · actualizado','live');
+ }catch(error){if(!ended){setStatus('Error de actualización','offline');if(!receivedOnce)showError('No se pudo cargar la vista.',error.message);}}
+}
+async function poll(){
+ if(ended)return;
+ try{
+   var reply=await fetch('https://ntfy.sh/'+topic+'/json?poll=1&since=all',{cache:'no-store'});
+   if(!reply.ok)return;
+   var lines=(await reply.text()).split('\n');
+   lines.forEach(function(row){if(!row.trim())return;try{accept(JSON.parse(row));}catch(_){}});
+ }catch(_){}
+}
+if(!valid){setStatus('Enlace no válido','offline');showError('Enlace no válido.','Solicita a Aura Digital el enlace actual de Live View.');return;}
+try{
+  source=new EventSource('https://ntfy.sh/'+topic+'/sse?since=all');
+  source.onopen=function(){if(!ended)setStatus(receivedOnce?'En vivo · conectado':'Esperando la primera vista…',receivedOnce?'live':'');};
+  source.onmessage=function(e){try{accept(JSON.parse(e.data));}catch(_){}};
+  source.onerror=function(){if(!ended){setStatus(receivedOnce?'Reconectando…':'Conectando…','');if(!pollTimer){pollTimer=setInterval(poll,10000);poll();}}};
+}catch(_){pollTimer=setInterval(poll,10000);poll();}
+})();
+</script>
+</body>
+</html>
