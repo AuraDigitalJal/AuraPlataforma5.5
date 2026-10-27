@@ -61,10 +61,38 @@ function extension(mime){
 }
 function publicUrl(path){return sb.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;}
 async function put(path,file,mime,overwrite=false){
- const {error}=await sb.storage.from(BUCKET).upload(path,file,{
-  cacheControl:overwrite?'0':'3600',upsert:overwrite,contentType:mime
- });
- if(error)throw new Error('Supabase Storage: '+error.message);
+ if(file.size>6*1024*1024&&!overwrite){
+  if(!window.tus?.Upload)throw Error('No se cargó TUS para subir archivos mayores de 6 MB. Revisa tu conexión.');
+  const session=await sb.auth.getSession();
+  const token=session.data?.session?.access_token;
+  if(!token)throw Error('La sesión de Supabase caducó; vuelve a conectar Live View.');
+  const host=config.url.replace('.supabase.co/','.storage.supabase.co');
+  await new Promise(function(resolve,reject){
+   const upload=new window.tus.Upload(file,{
+    endpoint:host+'/storage/v1/upload/resumable',
+    retryDelays:[0,3000,5000,10000,20000],
+    uploadDataDuringCreation:true,
+    removeFingerprintOnSuccess:true,
+    chunkSize:6*1024*1024,
+    headers:{authorization:'Bearer '+token},
+    metadata:{bucketName:BUCKET,objectName:path,contentType:mime,cacheControl:'3600'},
+    onError:error=>reject(Error('Carga grande: '+error.message)),
+    onSuccess:()=>resolve(),
+    onProgress:(uploaded,total)=>{
+     if(total>0)tell('Subiendo archivo grande '+Math.floor(uploaded/total*100)+' %…');
+    }
+   });
+   upload.findPreviousUploads().then(prior=>{
+    if(prior.length)upload.resumeFromPreviousUpload(prior[0]);
+    upload.start();
+   }).catch(reject);
+  });
+ }else{
+  const {error}=await sb.storage.from(BUCKET).upload(path,file,{
+   cacheControl:overwrite?'0':'3600',upsert:overwrite,contentType:mime
+  });
+  if(error)throw new Error('Supabase Storage: '+error.message);
+ }
  if(!overwrite)paths.push(path);
  return publicUrl(path);
 }
