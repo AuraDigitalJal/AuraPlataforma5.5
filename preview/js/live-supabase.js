@@ -5,10 +5,11 @@
 */
 (function(){
 'use strict';
-const $=id=>document.getElementById(id),BUCKET='aura-live',KEY='aura-live-supabase-config-v1',VERS='aura-live-supabase-v14';
+const $=id=>document.getElementById(id),BUCKET='aura-live',KEY='aura-live-supabase-config-v1',VERS='aura-live-supabase-v15';
 const btn=$('aura-live-toggle'),panel=$('aura-live-panel'),input=$('aura-live-link'),copy=$('aura-live-copy'),stop=$('aura-live-stop'),status=$('aura-live-status');
+const triggerLabel=$('aura-live-trigger-label');
 const extras=$('aura-live-extras'),extrasToggle=$('aura-live-extras-toggle');
-if(!btn||!panel||!input||!copy||!stop||!status||!extras||!extrasToggle)return;
+if(!btn||!panel||!input||!copy||!stop||!status||!extras||!extrasToggle||!triggerLabel)return;
 let sb=null,owner='',room='',channel=null,sending=false,queued=false,timer=0,revision=0,syncedRevision=0;
 let assets=new WeakMap(),assetFingerprints=new Map(),serial=0,config=null,paths=[],lastError='',activePointer=null,heartbeatTimer=null;
 const settings=document.createElement('div');
@@ -41,14 +42,18 @@ function showExtras(open){
  extrasToggle.setAttribute('aria-expanded',open?'true':'false');
  extrasToggle.textContent=open?'Ocultar detalles':'Ver detalles';
 }
+function showMenu(open){
+ panel.hidden=!open;
+ btn.setAttribute('aria-expanded',open?'true':'false');
+}
 function setOpen(open){
- panel.hidden=false;
  settings.hidden=!open;
  input.hidden=open;copy.hidden=open;stop.hidden=open;
  extrasToggle.hidden=open;
  showExtras(false);
  const directLabel=panel.querySelector('label[for="aura-live-link"]');
  if(directLabel)directLabel.hidden=open;
+ showMenu(true);
 }
 function closeChannel(){
  if(channel&&sb)sb.removeChannel(channel).catch(()=>{});
@@ -273,7 +278,7 @@ async function sync(){
  }
 }
 async function begin(){
- if(room){setOpen(false);return;}
+ if(room){showMenu(panel.hidden);return;}
  setOpen(!config);
  if(!config){tell('No se pudieron cargar los datos públicos del proyecto Supabase.',true);return;}
  if(!valid(config.url,config.key)){tell('URL o clave pública no válidas.',true);return;}
@@ -297,7 +302,7 @@ async function begin(){
   const broadcast='aura:'+room;
   channel=sb.channel(broadcast,{config:{private:false,broadcast:{ack:true}}});
   channel.subscribe(st=>{if(st==='SUBSCRIBED')tell('Conectado · sincronizando invitación…');});
-  btn.textContent='Live View activo';btn.setAttribute('aria-pressed','true');
+  triggerLabel.textContent='En vivo';btn.setAttribute('aria-pressed','true');
   setOpen(false);schedule(50);
   cleanAbandonedSessions(room).catch(error=>console.warn('Limpieza de sesiones antiguas no completada:',error));
  }catch(error){
@@ -311,8 +316,8 @@ async function finish(){
  const sessionFiles=Array.from(new Set([...paths,owner+'/'+old+'/previews/current.html']));
  clearInterval(heartbeatTimer);heartbeatTimer=null;activePointer=null;
  clearTimeout(timer);room='';revision=oldRevision;
- btn.textContent='Compartir Live View';btn.setAttribute('aria-pressed','false');
- input.value='';panel.hidden=true;stop.hidden=true;copy.hidden=true;
+ triggerLabel.textContent='Live View';btn.setAttribute('aria-pressed','false');
+ input.value='';showMenu(false);stop.hidden=true;copy.hidden=true;
  try{
   const path=owner+'/'+old+'/latest.json';
   const payload={version:oldRevision,ended:true,updatedAt:Date.now()};
@@ -333,6 +338,12 @@ async function finish(){
 }
 extrasToggle.addEventListener('click',()=>showExtras(extras.hidden));
 btn.addEventListener('click',()=>{begin();});
+document.addEventListener('pointerdown',event=>{
+ if(!panel.hidden&&!btn.parentElement.contains(event.target))showMenu(false);
+});
+document.addEventListener('keydown',event=>{
+ if(event.key==='Escape'&&!panel.hidden){showMenu(false);btn.focus();}
+});
 connect.addEventListener('click',async()=>{
  const url=urlEl.value.trim().replace(/\/+$/,'')+'/',key=keyEl.value.trim();
  if(!valid(url,key)){tell('Revisa la URL y utiliza solo una clave publishable/anon de Supabase.',true);return;}
@@ -343,7 +354,7 @@ connect.addEventListener('click',async()=>{
 });
 stop.addEventListener('click',finish);
 copy.addEventListener('click',async()=>{
- try{await navigator.clipboard.writeText(input.value);tell('Enlace del cliente copiado.');}
+ try{await navigator.clipboard.writeText(input.value);tell('Enlace del cliente copiado.');showMenu(false);}
  catch(_){showExtras(true);input.hidden=false;input.focus();input.select();tell('Copia manualmente el enlace seleccionado.');}
 });
 if(typeof updatePreview==='function'){
