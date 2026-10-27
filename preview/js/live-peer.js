@@ -36,7 +36,7 @@ function collectSDP(peer,m){
  if(!peer.chunks)peer.chunks={};
  const key='answer-'+m.batch;
  let item=peer.chunks[key];
- if(!item||item.n!==m.n)item=peer.chunks[key]={n:m.n,parts:new Array(m.n)};
+ if(!item||item.n!==m.n)item=peer.chunks[key]={n:m.n,parts:new Array(m.n).fill(null)};
  item.parts[m.i]=m.chunk;
  if(item.parts.every(x=>typeof x==='string')){
    delete peer.chunks[key];
