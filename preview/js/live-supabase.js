@@ -9,7 +9,7 @@ const $=id=>document.getElementById(id),BUCKET='aura-live',KEY='aura-live-supaba
 const btn=$('aura-live-toggle'),panel=$('aura-live-panel'),input=$('aura-live-link'),copy=$('aura-live-copy'),stop=$('aura-live-stop'),status=$('aura-live-status');
 if(!btn||!panel||!input||!copy||!stop||!status)return;
 let sb=null,owner='',room='',channel=null,sending=false,queued=false,timer=0,revision=0,syncedRevision=0;
-let assets=new WeakMap(),assetFingerprints=new Map(),serial=0,config=null,paths=[],lastError='';
+let assets=new WeakMap(),assetFingerprints=new Map(),serial=0,config=null,paths=[],lastError='',activePointer=null,heartbeatTimer=null;
 const settings=document.createElement('div');
 settings.id='aura-sb-settings';
 settings.innerHTML='<div style="border-top:1px solid #e5d9cf;padding-top:12px;margin-top:11px">'+
@@ -177,6 +177,55 @@ async function snapshot(){
  if(a.sharePreview?.startsWith('blob:'))a.sharePreview='';
  return buildInvitation(p,a);
 }
+/* Limpieza segura: solo sesiones del mismo usuario Supabase, nunca Pro.
+   Se ejecuta al empezar una nueva sesión; evita borrar una prueba abierta.
+   Una sesión activa renueva latest.json cada 5 min. */
+async function listFolder(prefix){
+ const storage=sb.storage.from(BUCKET),all=[];
+ for(let offset=0;offset<1000;offset+=100){
+  const {data,error}=await storage.list(prefix,{limit:100,offset});
+  if(error)throw error;
+  all.push(...(data||[]));
+  if(!data||data.length<100)break;
+ }
+ return all;
+}
+async function cleanAbandonedSessions(myRoom){
+ const storage=sb.storage.from(BUCKET);
+ const folders=await listFolder(owner);
+ for(const folder of folders){
+  const other=folder?.name||'';
+  if(!/^aura-live-[a-f0-9]{40}$/.test(other)||other===myRoom)continue;
+  const prefix=owner+'/'+other;
+  const root=await listFolder(prefix);
+  const latest=root.find(f=>f.name==='latest.json'&&f.id);
+  // No eliminar carpetas sin una marca de tiempo verificable.
+  if(!latest)continue;
+  const age=Date.now()-new Date(latest.updated_at||latest.created_at||0).getTime();
+  if(!Number.isFinite(age)||age<24*60*60*1000)continue;
+  const all=[prefix+'/latest.json'];
+  for(const dir of ['assets','previews']){
+   const items=await listFolder(prefix+'/'+dir);
+   for(const entry of items){
+    // Borrar solo archivos reconocibles bajo esa sesión.
+    if(entry.id&&entry.name&&!entry.name.includes('/'))all.push(prefix+'/'+dir+'/'+entry.name);
+   }
+  }
+  for(let i=0;i<all.length;i+=100){
+   const {error}=await storage.remove(all.slice(i,i+100));
+   if(error)throw error;
+  }
+ }
+}
+async function heartbeat(){
+ if(!room||!activePointer||sending||activePointer.room!==room)return;
+ const currentRoom=room,pointer={...activePointer,updatedAt:Date.now()};
+ try{
+  const path=owner+'/'+currentRoom+'/latest.json';
+  await put(path,new Blob([JSON.stringify(pointer)],{type:'application/json'}),'application/json',true);
+  if(room===currentRoom)activePointer=pointer;
+ }catch(error){console.warn('No se pudo renovar la vigencia de la sesión Live View:',error);}
+}
 function schedule(delay=750){
  if(!room)return;
  revision++;queued=true;clearTimeout(timer);
@@ -196,11 +245,11 @@ async function sync(){
   const path=owner+'/'+activeRoom+'/previews/current.html';
   const publicHtml=await put(path,new Blob([html],{type:'text/html;charset=utf-8'}),'text/html',true);
   if(room!==activeRoom)return;
-  const pointer={version:seq,url:publicHtml+'?v='+seq,updatedAt:Date.now(),ended:false};
+  const pointer={version:seq,url:publicHtml+'?v='+seq,room:activeRoom,updatedAt:Date.now(),ended:false};
   const latestPath=owner+'/'+activeRoom+'/latest.json';
   await put(latestPath,new Blob([JSON.stringify(pointer)],{type:'application/json'}),'application/json',true);
   if(room!==activeRoom)return;
-  syncedRevision=seq;
+  syncedRevision=seq;activePointer=pointer;
   if(channel){
    try{await channel.send({type:'broadcast',event:'update',payload:pointer});}
    catch(error){console.warn('Supabase Broadcast no disponible; el visor recuperará las actualizaciones.',error);}
@@ -229,7 +278,7 @@ async function begin(){
    user=result.data.user;
   }
   if(!user?.id)throw Error('No se pudo obtener identidad de Supabase.');
-  owner=user.id;room='aura-live-'+hex(20);assets=new WeakMap();assetFingerprints=new Map();serial=0;revision=0;syncedRevision=0;paths=[];
+  owner=user.id;room='aura-live-'+hex(20);assets=new WeakMap();assetFingerprints=new Map();serial=0;revision=0;syncedRevision=0;paths=[];activePointer=null;clearInterval(heartbeatTimer);heartbeatTimer=setInterval(heartbeat,5*60*1000);
   const u=new URL('live.html',location.href);
   u.searchParams.set('v',VERS);u.searchParams.set('sb',config.url);u.searchParams.set('pk',config.key);
   u.searchParams.set('owner',owner);u.hash=room;
@@ -239,6 +288,7 @@ async function begin(){
   channel.subscribe(st=>{if(st==='SUBSCRIBED')tell('Conectado a Supabase. Sincronizando invitación…');});
   btn.textContent='Live View activo';btn.setAttribute('aria-pressed','true');
   setOpen(false);schedule(50);
+  cleanAbandonedSessions(room).catch(error=>console.warn('Limpieza de sesiones antiguas no completada:',error));
  }catch(error){
   tell('No se pudo activar: '+error.message,true);
   room='';setOpen(true);
@@ -248,6 +298,7 @@ async function finish(){
  if(!room){panel.hidden=true;return;}
  const old=room,formerChannel=channel,oldRevision=revision+1;
  const sessionFiles=Array.from(new Set([...paths,owner+'/'+old+'/previews/current.html']));
+ clearInterval(heartbeatTimer);heartbeatTimer=null;activePointer=null;
  clearTimeout(timer);room='';revision=oldRevision;
  btn.textContent='Compartir Live View';btn.setAttribute('aria-pressed','false');
  input.value='';panel.hidden=true;stop.hidden=true;copy.hidden=true;
@@ -287,5 +338,5 @@ if(typeof updatePreview==='function'){
  const old=updatePreview;
  updatePreview=function(){const output=old.apply(this,arguments);schedule();return output;};
 }
-window.addEventListener('pagehide',()=>{clearTimeout(timer);closeChannel();});
+window.addEventListener('pagehide',()=>{clearTimeout(timer);clearInterval(heartbeatTimer);closeChannel();});
 })();
