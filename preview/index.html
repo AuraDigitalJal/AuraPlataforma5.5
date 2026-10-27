@@ -9,7 +9,7 @@
     // Las pruebas siempre abren la revisión más reciente, incluso desde un enlace viejo.
     (function () {
       if (window.location.protocol === 'file:') return;
-      var build = 'aura-live-view-pruebas-v1';
+      var build = 'aura-live-fotos-v2';
       var target = new URL(window.location.href);
       if (target.searchParams.get('v') === build) return;
       target.searchParams.set('v', build);
@@ -463,7 +463,7 @@
       <button id="aura-live-stop" type="button">Terminar sesión</button>
     </div>
     <p id="aura-live-status" role="status" aria-live="polite">Preparando conexión…</p>
-    <p class="aura-live-notice">Prueba experimental: usa un canal temporal no listado. No envíes información confidencial. Las fotos grandes se optimizan para la vista remota y la música pesada podría omitirse.</p>
+    <p class="aura-live-notice">Prueba experimental: las fotografías se comprimen solo para la vista remota; los originales no cambian. La música muy pesada puede omitirse. Usa un canal temporal no listado: no compartas información confidencial.</p>
   </aside>
 
   <script src="js/font-data.js?v=5.6.17"></script>
@@ -474,6 +474,6 @@
   <script src="preview/js/palette-inverter.js?v=inversor-paleta-pruebas-20261010-v1"></script>
   <script src="preview/js/wedding-trial-editorials.js?v=editoriales-lino-velo-papel-v1"></script>
   <script src="preview/js/baptism-layers.js?v=bautizo-lightbox-blanco-89-v20"></script>
-  <script src="preview/js/live-view.js?v=aura-live-view-pruebas-v1"></script>
+  <script src="preview/js/live-view.js?v=aura-live-fotos-v2"></script>
 </body>
 </html>
