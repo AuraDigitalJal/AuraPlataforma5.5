@@ -138,7 +138,10 @@ function reconcile(live,baseline,next){
     }
    }
    if(!current){
-    if(wanted.nodeType===1&&wanted.tagName==='SCRIPT')return false;
+    // No inventar controles o secciones nuevas sin inicializar sus eventos.
+    // Si cambia la estructura de verdad, el visor usa su reconstrucción
+    // segura, alimentada por la caché de fotos locales.
+    if(wanted.nodeType===1)return false;
     current=doc.importNode(wanted,false);
    }
    if(current!==anchor)parent.insertBefore(current,anchor);
