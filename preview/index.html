@@ -9,7 +9,7 @@
     // Las pruebas siempre abren la revisión más reciente, incluso desde un enlace viejo.
     (function () {
       if (window.location.protocol === 'file:') return;
-      var build = 'aura-live-supabase-v11';
+      var build = 'aura-live-supabase-v12';
       var target = new URL(window.location.href);
       if (target.searchParams.get('v') === build) return;
       target.searchParams.set('v', build);
@@ -463,7 +463,7 @@
       <button id="aura-live-stop" type="button">Terminar sesión</button>
     </div>
     <p id="aura-live-status" role="status" aria-live="polite">Preparando conexión…</p>
-    <p class="aura-live-notice">Live View Supabase: fotos optimizadas solo para visualización (sin alterar originales), una vista HTML activa y limpieza de multimedia al terminar sesión. El bucket de pruebas es público: usa material de demostración, no datos confidenciales.</p>
+    <p class="aura-live-notice">Live View de pruebas: fotos WebP con objetivo de 500 KB (hasta 800 KB si requieren detalle), sin tocar originales. Los archivos temporales se eliminan al terminar; sesiones abandonadas se limpian al iniciar otra prueba después de 24 horas. Solo usa imágenes de demostración.</p>
   </aside>
 
   <script src="js/font-data.js?v=5.6.17"></script>
@@ -476,6 +476,6 @@
   <script src="preview/js/baptism-layers.js?v=bautizo-lightbox-blanco-89-v20"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="https://cdn.jsdelivr.net/npm/tus-js-client@4/dist/tus.min.js"></script>
-  <script src="preview/js/live-supabase.js?v=aura-live-supabase-v11"></script>
+  <script src="preview/js/live-supabase.js?v=aura-live-supabase-v12"></script>
 </body>
 </html>
