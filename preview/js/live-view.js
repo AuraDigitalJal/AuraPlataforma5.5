@@ -3,6 +3,7 @@
   'use strict';
   var CHANNEL_HOST = 'https://ntfy.sh/';
   var MAX_UPLOAD = 1900000;
+  var MAX_IMAGE_UPLOAD = 650000;
   var ROOM_PREFIX = 'aura-live-';
   var room = '';
   var sending = false;
@@ -56,7 +57,7 @@
     return data.attachment.url;
   }
   async function shrinkImage(file) {
-    if (file.size <= MAX_UPLOAD) return file;
+    if (file.size <= MAX_IMAGE_UPLOAD) return file;
     var bitmap;
     try { bitmap = await createImageBitmap(file); }
     catch (_) { return file; }
@@ -72,7 +73,7 @@
           canvas.toBlob(resolve, 'image/webp', Math.max(.55,.85-attempt*.075));
         });
         canvas.width=1; canvas.height=1;
-        if (output && output.size<=MAX_UPLOAD) return output;
+        if (output && output.size<=MAX_IMAGE_UPLOAD) return output;
         limit=Math.round(limit*.80);
       }
       throw new Error('Fotografía demasiado grande para la vista remota.');
