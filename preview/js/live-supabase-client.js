@@ -52,8 +52,7 @@ function afterFrameLoad(position){
   const next=queued;queued=null;openPreview(next);
  }
 }
-function fullFrame(html,version){
- const normalized=lazyAudio(html);
+function fullFrame(normalized,version){
  // DOMParser NO ejecuta los scripts de la invitación. La primera carga sí los inicia.
  baseline=window.AuraLiveDelta?.parse(normalized)||null;
  let position=0;
@@ -63,6 +62,19 @@ function fullFrame(html,version){
  frame.srcdoc=normalized;
  frame.classList.add('ready');placeholder.style.display='none';
  first=true;lastVersion=version;failures=0;
+}
+/* Actualizar reordenamientos manteniendo las mismas fotos y sus controladores. */
+function tryReconcile(next){
+ if(!frameReady||!baseline||!window.AuraLiveDelta?.reconcile)return false;
+ try{
+  const live=frame.contentDocument;
+  if(!live||!window.AuraLiveDelta.reconcile(live,baseline,next))return false;
+  baseline=next;
+  return true;
+ }catch(error){
+  console.warn('Live View: el reacomodo necesita reconstrucción segura:',error);
+  return false;
+ }
 }
 function tryChanges(ops){
  if(!frameReady||!baseline||!window.AuraLiveDelta)return false;
@@ -102,7 +114,12 @@ async function openPreview(pointer){
   if(!response.ok)throw Error('No se pudo recuperar la invitación (HTTP '+response.status+').');
   const html=await response.text();
   if(ended||version<=lastVersion)return;
-  const normalized=lazyAudio(html);
+  // Fotografía ya recibida: convertirla en un blob estable del navegador.
+  // Incluso si un cambio estructural obliga a regenerar el iframe,
+  // esa foto se reutiliza de memoria sin pedirla de nuevo a Supabase.
+  const normalized=window.AuraLiveMedia?
+   await window.AuraLiveMedia.rewrite(lazyAudio(html)):lazyAudio(html);
+  if(ended||version<=lastVersion)return;
   if(first&&frameReady&&baseline&&window.AuraLiveDelta){
    const next=window.AuraLiveDelta.parse(normalized);
    const changes=window.AuraLiveDelta.diff(baseline,next);
@@ -111,9 +128,16 @@ async function openPreview(pointer){
     state('En vivo · actualizado','live');
     return;
    }
+   // La estructura pudo cambiar sin cambiar las fotos: mover sus nodos.
+   if(tryReconcile(next)){
+    lastVersion=version;failures=0;
+    state('En vivo · actualizado','live');
+    return;
+   }
   }
-  // Únicamente diseños con estructura o scripts distintos reinician la vista.
-  fullFrame(html,version);
+  // Respaldo seguro: las imágenes siguen apuntando a los mismos blobs
+  // locales aunque el HTML tenga que reconstruirse.
+  fullFrame(normalized,version);
   state('En vivo · actualizado','live');
  }catch(error){
   failures++;
@@ -141,6 +165,7 @@ async function poll(){
 }
 function end(){
  ended=true;clearInterval(timer);
+ window.AuraLiveMedia?.clear();
  if(channel&&sb)sb.removeChannel(channel).catch(()=>{});
  state('Sesión finalizada','offline');
  frame.classList.remove('ready');
@@ -158,6 +183,9 @@ if(!window.supabase?.createClient){
  return;
 }
 try{
+ // Sólo acepta las fotografías públicas bajo el propietario y sesión de
+ // este enlace; nunca conserva otros archivos de Supabase.
+ window.AuraLiveMedia?.configure(project,owner,room);
  sb=window.supabase.createClient(project,key,{
   auth:{persistSession:false,autoRefreshToken:false,detectSessionInUrl:false}
  });
@@ -177,6 +205,7 @@ try{
  alertScreen('No se pudo conectar Supabase.',error.message);
 }
 window.addEventListener('pagehide',()=>{
+ window.AuraLiveMedia?.clear();
  clearInterval(timer);
  if(channel&&sb)sb.removeChannel(channel).catch(()=>{});
 });
