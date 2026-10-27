@@ -201,7 +201,9 @@ async function cleanAbandonedSessions(myRoom){
   const latest=root.find(f=>f.name==='latest.json'&&f.id);
   // No eliminar carpetas sin una marca de tiempo verificable.
   if(!latest)continue;
-  const age=Date.now()-new Date(latest.updated_at||latest.created_at||0).getTime();
+  const lastTouched=latest.updated_at||latest.created_at;
+  if(!lastTouched)continue;
+  const age=Date.now()-new Date(lastTouched).getTime();
   if(!Number.isFinite(age)||age<24*60*60*1000)continue;
   const all=[prefix+'/latest.json'];
   for(const dir of ['assets','previews']){
