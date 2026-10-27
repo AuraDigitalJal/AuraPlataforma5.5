@@ -179,16 +179,18 @@ async function begin(){
 }
 async function finish(){
  if(!room){panel.hidden=true;return;}
- let old=room,formerChannel=channel;
- clearTimeout(timer);room='';revision++;closeChannel();
+ const old=room,formerChannel=channel,oldRevision=revision+1;
+ clearTimeout(timer);room='';revision=oldRevision;
  btn.textContent='Compartir Live View';btn.setAttribute('aria-pressed','false');
  input.value='';panel.hidden=true;stop.hidden=true;copy.hidden=true;
  try{
-  // No borra fotografías automáticamente para evitar cortes instantáneos.
-  const path=owner+'/'+old+'/latest.json',payload={version:revision,ended:true,updatedAt:Date.now()};
-  await sb.storage.from(BUCKET).upload(path,new Blob([JSON.stringify(payload)],{type:'application/json'}),{upsert:true,contentType:'application/json',cacheControl:'0'});
+  const path=owner+'/'+old+'/latest.json';
+  const payload={version:oldRevision,ended:true,updatedAt:Date.now()};
+  const result=await sb.storage.from(BUCKET).upload(path,new Blob([JSON.stringify(payload)],{type:'application/json'}),{upsert:true,contentType:'application/json',cacheControl:'0'});
+  if(result.error)throw result.error;
   if(formerChannel)await formerChannel.send({type:'broadcast',event:'update',payload});
  }catch(error){console.warn('No se pudo avisar fin de sesión:',error);}
+ finally{closeChannel();}
 }
 btn.addEventListener('click',()=>{begin();});
 connect.addEventListener('click',async()=>{
