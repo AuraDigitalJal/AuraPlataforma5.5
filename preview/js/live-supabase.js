@@ -144,7 +144,8 @@ async function prepareAsset(file){
    const blob=await new Promise(resolve=>can.toBlob(resolve,'image/webp',quality));
    can.width=1;can.height=1;
    if(!blob||blob.size>=file.size)continue;
-   const result={blob,mime:'image/webp'};
+   const actualMime=/^image\/(webp|png|jpeg)$/.test(blob.type||'')?blob.type:'image/webp';
+   const result={blob,mime:actualMime};
    if(!smallest||blob.size<smallest.blob.size)smallest=result;
    if(blob.size<=TARGET)return result;
    // La primera copia <=800 KB conserva mayor resolución/calidad.
