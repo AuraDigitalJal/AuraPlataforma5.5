@@ -39,7 +39,8 @@ function setOpen(open){
  panel.hidden=false;
  settings.hidden=!open;
  input.hidden=open;copy.hidden=open;stop.hidden=open;
- if(input.closest('label'))input.closest('label').hidden=open;
+ const directLabel=document.querySelector('label[for="aura-live-link"]');
+ if(directLabel)directLabel.hidden=open;
 }
 function closeChannel(){
  if(channel&&sb)sb.removeChannel(channel).catch(()=>{});
@@ -159,6 +160,7 @@ async function sync(){
   const filename='previews/revision-'+String(seq).padStart(7,'0')+'-'+hex(5)+'.html';
   const path=owner+'/'+activeRoom+'/'+filename;
   const publicHtml=await put(path,new Blob([html],{type:'text/html;charset=utf-8'}),'text/html');
+  if(room!==activeRoom)return;
   const pointer={version:seq,url:publicHtml,updatedAt:Date.now(),ended:false};
   const latestPath=owner+'/'+activeRoom+'/latest.json';
   await put(latestPath,new Blob([JSON.stringify(pointer)],{type:'application/json'}),'application/json',true);
