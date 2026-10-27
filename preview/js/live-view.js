@@ -31,7 +31,7 @@
   }
   function viewerLink(channel) {
     return new URL('live.html', window.location.href).origin +
-      new URL('live.html', window.location.href).pathname + '?v=aura-live-fotos-chunks-v6#'+ channel;
+      new URL('live.html', window.location.href).pathname + '?v=aura-live-overlay-v7#'+ channel;
   }
   function schedule(delay) {
     if (!room) return;
