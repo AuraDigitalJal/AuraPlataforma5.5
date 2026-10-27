@@ -28,8 +28,9 @@ function expectedPrefix(){
 function trustedPreview(url){
  try{
   const item=new URL(url);
-  return item.protocol==='https:'&&item.toString().startsWith(expectedPrefix())&&/\.html$/.test(item.pathname)&&
-     item.search.length===0&&item.hash.length===0;
+  // Sólo aceptar la vista activa de la sesión, con ?v=num para evadir caché.
+  return item.protocol==='https:'&&item.pathname===new URL(expectedPrefix()).pathname+'current.html'&&
+    item.origin===new URL(project).origin&&/^\?v=\d+$/.test(item.search)&&item.hash.length===0;
  }catch(_){return false;}
 }
 function latestUrl(){
