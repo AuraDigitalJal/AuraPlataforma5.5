@@ -5,13 +5,13 @@
 */
 (function(){
 'use strict';
-const $=id=>document.getElementById(id),BUCKET='aura-live',KEY='aura-live-supabase-config-v1',VERS='aura-live-supabase-v16';
+const $=id=>document.getElementById(id),BUCKET='aura-live',KEY='aura-live-supabase-config-v1',VERS='aura-live-supabase-v17';
 const btn=$('aura-live-toggle'),panel=$('aura-live-panel'),input=$('aura-live-link'),copy=$('aura-live-copy'),stop=$('aura-live-stop'),status=$('aura-live-status');
 const triggerLabel=$('aura-live-trigger-label');
 const extras=$('aura-live-extras'),extrasToggle=$('aura-live-extras-toggle');
 if(!btn||!panel||!input||!copy||!stop||!status||!extras||!extrasToggle||!triggerLabel)return;
 let sb=null,owner='',room='',channel=null,sending=false,queued=false,timer=0,revision=0,syncedRevision=0;
-let assets=new WeakMap(),assetFingerprints=new Map(),audioFailures=new WeakMap(),serial=0,config=null,paths=[],lastError='',activePointer=null,heartbeatTimer=null,musicWarning='';
+let assets=new WeakMap(),assetFingerprints=new Map(),audioFailures=new WeakMap(),serial=0,config=null,paths=[],lastError='',activePointer=null,heartbeatTimer=null,musicWarning='',lastSyncedHtml='',lastSyncedVersion=-1;
 const settings=document.createElement('div');
 settings.id='aura-sb-settings';
 settings.innerHTML='<div style="border-top:1px solid #e5d9cf;padding-top:12px;margin-top:11px">'+
@@ -293,10 +293,23 @@ async function sync(){
   const publicHtml=await put(path,new Blob([html],{type:'text/html;charset=utf-8'}),'text/html',true);
   if(room!==activeRoom)return;
   const pointer={version:seq,url:publicHtml+'?v='+seq,room:activeRoom,updatedAt:Date.now(),ended:false};
+  // Si solo cambió el contenido de nodos existentes, mandar un parche ligero:
+  // el cliente no necesita descargar de nuevo HTML ni multimedia.
+  if(lastSyncedHtml&&window.AuraLiveDelta){
+   try{
+    const previous=window.AuraLiveDelta.parse(lastSyncedHtml);
+    const next=window.AuraLiveDelta.parse(html);
+    const ops=window.AuraLiveDelta.diff(previous,next);
+    if(ops!==null){
+     const delta={baseVersion:lastSyncedVersion,ops};
+     if(JSON.stringify(delta).length<=16000)pointer.patch=delta;
+    }
+   }catch(error){console.warn('Live View: se usará HTML completo para este cambio:',error);}
+  }
   const latestPath=owner+'/'+activeRoom+'/latest.json';
   await put(latestPath,new Blob([JSON.stringify(pointer)],{type:'application/json'}),'application/json',true);
   if(room!==activeRoom)return;
-  syncedRevision=seq;activePointer=pointer;
+  syncedRevision=seq;lastSyncedVersion=seq;lastSyncedHtml=html;activePointer=pointer;
   if(channel){
    try{await channel.send({type:'broadcast',event:'update',payload:pointer});}
    catch(error){console.warn('Supabase Broadcast no disponible; el visor recuperará las actualizaciones.',error);}
@@ -326,7 +339,7 @@ async function begin(){
    user=result.data.user;
   }
   if(!user?.id)throw Error('No se pudo obtener identidad de Supabase.');
-  owner=user.id;room='aura-live-'+hex(20);assets=new WeakMap();assetFingerprints=new Map();audioFailures=new WeakMap();musicWarning='';serial=0;revision=0;syncedRevision=0;paths=[];activePointer=null;clearInterval(heartbeatTimer);heartbeatTimer=setInterval(heartbeat,5*60*1000);
+  owner=user.id;room='aura-live-'+hex(20);assets=new WeakMap();assetFingerprints=new Map();audioFailures=new WeakMap();musicWarning='';lastSyncedHtml='';lastSyncedVersion=-1;serial=0;revision=0;syncedRevision=0;paths=[];activePointer=null;clearInterval(heartbeatTimer);heartbeatTimer=setInterval(heartbeat,5*60*1000);
   const u=new URL('live.html',location.href);
   u.searchParams.set('v',VERS);u.searchParams.set('sb',config.url);u.searchParams.set('pk',config.key);
   u.searchParams.set('owner',owner);u.hash=room;
@@ -346,7 +359,7 @@ async function finish(){
  if(!room){panel.hidden=true;return;}
  const old=room,formerChannel=channel,oldRevision=revision+1;
  const sessionFiles=Array.from(new Set([...paths,owner+'/'+old+'/previews/current.html']));
- clearInterval(heartbeatTimer);heartbeatTimer=null;activePointer=null;
+ clearInterval(heartbeatTimer);heartbeatTimer=null;activePointer=null;lastSyncedHtml='';lastSyncedVersion=-1;
  clearTimeout(timer);room='';revision=oldRevision;
  triggerLabel.textContent='Live View';btn.setAttribute('aria-pressed','false');
  input.value='';showMenu(false);stop.hidden=true;copy.hidden=true;
