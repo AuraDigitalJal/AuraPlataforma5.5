@@ -108,6 +108,65 @@ async function mountAudio(manifest,snapshot,doc){
     console.warn('Aura Live View: música:',error);
   }
 }
+/* Reensambla imágenes multipartes de ntfy en el navegador del cliente.
+   Las fotos permanecen en memoria de esta sesión y no se vuelven a bajar
+   al cambiar nombres, colores, textos o el orden de las secciones. */
+var imageCache=new Map();
+var imagePending=new Map();
+function takePhotoManifest(html){
+  var match=html.match(/<script id="aura-live-photo-manifest" type="application\/json">([\s\S]*?)<\/script>/);
+  if(!match)return {html:html,photos:[]};
+  var result={html:html.replace(match[0],''),photos:[]};
+  try{
+    var data=JSON.parse(match[1]);
+    if(data.version!==1||!Array.isArray(data.photos)||data.photos.length>100)throw Error('Formato incorrecto');
+    for(var p of data.photos){
+      if(!p||!/^__AURA_LIVE_PHOTO_\d+__$/.test(p.token)||!Array.isArray(p.urls)||!p.urls.length||p.urls.length>10||
+         !p.urls.every(function(url){return typeof url==='string'&&/^https:\/\/ntfy\.sh\//.test(url);})||
+         !/^image\/(jpeg|png|webp|gif)$/.test(p.mime)||!Number.isFinite(p.size)||p.size<1||p.size>8000000)throw Error('Fotografía inválida');
+      result.photos.push(p);
+    }
+  }catch(error){throw new Error('Error en la lista de imágenes: '+error.message);}
+  return result;
+}
+async function fetchImage(photo){
+  var key=photo.urls.join('|');
+  if(imageCache.has(key))return imageCache.get(key);
+  if(imagePending.has(key))return imagePending.get(key);
+  var loading=(async function(){
+    var parts=new Array(photo.urls.length),cursor=0;
+    async function download(){
+      while(cursor<photo.urls.length){
+        var pos=cursor++,response=await fetch(photo.urls[pos],{cache:'no-store'});
+        if(!response.ok)throw new Error('Parte '+(pos+1)+' de una fotografía no disponible (HTTP '+response.status+').');
+        parts[pos]=await response.blob();
+      }
+    }
+    await Promise.all(Array.from({length:Math.min(3,parts.length)},download));
+    var size=parts.reduce(function(n,p){return n+p.size;},0);
+    if(size!==photo.size)throw new Error('La fotografía llegó incompleta ('+size+' de '+photo.size+' bytes).');
+    var url=URL.createObjectURL(new Blob(parts,{type:photo.mime}));
+    imageCache.set(key,url);
+    return url;
+  })();
+  imagePending.set(key,loading);
+  try{return await loading;}finally{imagePending.delete(key);}
+}
+async function hydratePhotos(html,photos){
+  if(!photos.length)return html;
+  var results=new Array(photos.length);
+  var cursor=0;
+  async function worker(){
+    while(cursor<photos.length){
+      var pos=cursor++,photo=photos[pos];
+      setStatus('Recibiendo foto '+(pos+1)+' de '+photos.length+'…','');
+      results[pos]=await fetchImage(photo);
+    }
+  }
+  await Promise.all(Array.from({length:Math.min(3,photos.length)},worker));
+  photos.forEach(function(photo,i){html=html.split(photo.token).join(results[i]);});
+  return html;
+}
 function setStatus(message,state){status.textContent=message;dot.className='dot '+(state||'');}
 function showError(title,copy){placeholder.hidden=false;placeholder.style.display='flex';spin.style.display='none';heading.textContent=title;description.textContent=copy;}
 function end(){ended=true;setStatus('Sesión finalizada','offline');if(source)source.close();clearInterval(pollTimer);if(!receivedOnce)showError('Sesión finalizada.','Solicita un nuevo enlace al diseñador.');}
@@ -140,7 +199,10 @@ async function render(){
    } else html=await response.text();
    if(ended||item.n!==bestSeq)return;
    var media=takeMusicManifest(html);
-   html=media.html.replace(/__AURA_LIVE_MUSIC_PENDING__/g,'');
+   var photos=takePhotoManifest(media.html);
+   html=await hydratePhotos(photos.html,photos.photos);
+   if(ended||item.n!==bestSeq)return;
+   html=html.replace(/__AURA_LIVE_MUSIC_PENDING__/g,'');
    var y=0;try{if(receivedOnce)y=frame.contentWindow.scrollY||0;}catch(_){}
    frame.onload=function(){
      try{frame.contentWindow.scrollTo(0,y);}catch(_){}
@@ -151,7 +213,7 @@ async function render(){
    placeholder.hidden=true;placeholder.style.display='none';
    receivedOnce=true;
    setStatus(media.manifest?'En vivo · preparando música…':'En vivo · actualizado','live');
- }catch(error){if(!ended){setStatus('Error de actualización','offline');if(!receivedOnce)showError('No se pudo cargar la vista.',error.message);}}
+ }catch(error){if(!ended){setStatus('Error de fotografía o actualización','offline');if(!receivedOnce)showError('No se pudo cargar la invitación.',error.message);console.warn('Aura Live View:',error);}}
 }
 async function poll(){
  if(ended)return;
