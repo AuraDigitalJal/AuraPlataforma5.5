@@ -240,6 +240,7 @@ async function begin(){
 async function finish(){
  if(!room){panel.hidden=true;return;}
  const old=room,formerChannel=channel,oldRevision=revision+1;
+ const sessionFiles=Array.from(new Set([...paths,owner+'/'+old+'/previews/current.html']));
  clearTimeout(timer);room='';revision=oldRevision;
  btn.textContent='Compartir Live View';btn.setAttribute('aria-pressed','false');
  input.value='';panel.hidden=true;stop.hidden=true;copy.hidden=true;
@@ -251,6 +252,15 @@ async function finish(){
   if(formerChannel)await formerChannel.send({type:'broadcast',event:'update',payload});
  }catch(error){console.warn('No se pudo avisar fin de sesión:',error);}
  finally{closeChannel();}
+ // Este Live View es temporal: al pulsar terminar, liberar fotos, música
+ // y vista de esta sesión. Conservar solo latest.json (fin de sesión).
+ try{
+  for(let i=0;i<sessionFiles.length;i+=100){
+   const result=await sb.storage.from(BUCKET).remove(sessionFiles.slice(i,i+100));
+   if(result.error)throw result.error;
+  }
+  paths=[];
+ }catch(error){console.warn('No se pudo liberar toda la sesión temporal:',error);}
 }
 btn.addEventListener('click',()=>{begin();});
 connect.addEventListener('click',async()=>{
