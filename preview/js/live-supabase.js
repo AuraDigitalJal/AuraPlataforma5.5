@@ -9,7 +9,7 @@ const $=id=>document.getElementById(id),BUCKET='aura-live',KEY='aura-live-supaba
 const btn=$('aura-live-toggle'),panel=$('aura-live-panel'),input=$('aura-live-link'),copy=$('aura-live-copy'),stop=$('aura-live-stop'),status=$('aura-live-status');
 if(!btn||!panel||!input||!copy||!stop||!status)return;
 let sb=null,owner='',room='',channel=null,sending=false,queued=false,timer=0,revision=0,syncedRevision=0;
-let assets=new WeakMap(),serial=0,config=null,paths=[],lastError='';
+let assets=new WeakMap(),assetFingerprints=new Map(),serial=0,config=null,paths=[],lastError='';
 const settings=document.createElement('div');
 settings.id='aura-sb-settings';
 settings.innerHTML='<div style="border-top:1px solid #e5d9cf;padding-top:12px;margin-top:11px">'+
@@ -95,11 +95,13 @@ async function prepareAsset(file){
 async function uploadAsset(file,label){
  if(!file)return '';
  let cached=assets.get(file);if(cached)return cached;
+ const fingerprint=[file.name,file.type,file.size,file.lastModified||0].join('|');
+ if(assetFingerprints.has(fingerprint))return assetFingerprints.get(fingerprint);
  tell('Subiendo '+label+' a Supabase ('+(file.size/1048576).toFixed(1)+' MB)…');
  const payload=await prepareAsset(file);
  const path=owner+'/'+room+'/assets/'+(++serial)+'-'+hex(5)+extension(payload.mime);
  let url=await put(path,payload.blob,payload.mime);
- assets.set(file,url);
+ assets.set(file,url);assetFingerprints.set(fingerprint,url);
  return url;
 }
 async function snapshot(){
@@ -162,7 +164,7 @@ async function begin(){
    user=result.data.user;
   }
   if(!user?.id)throw Error('No se pudo obtener identidad de Supabase.');
-  owner=user.id;room='aura-live-'+hex(20);assets=new WeakMap();serial=0;revision=0;syncedRevision=0;paths=[];
+  owner=user.id;room='aura-live-'+hex(20);assets=new WeakMap();assetFingerprints=new Map();serial=0;revision=0;syncedRevision=0;paths=[];
   const u=new URL('live.html',location.href);
   u.searchParams.set('v',VERS);u.searchParams.set('sb',config.url);u.searchParams.set('pk',config.key);
   u.searchParams.set('owner',owner);u.hash=room;
