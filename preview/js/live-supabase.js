@@ -5,9 +5,10 @@
 */
 (function(){
 'use strict';
-const $=id=>document.getElementById(id),BUCKET='aura-live',KEY='aura-live-supabase-config-v1',VERS='aura-live-supabase-v13';
+const $=id=>document.getElementById(id),BUCKET='aura-live',KEY='aura-live-supabase-config-v1',VERS='aura-live-supabase-v14';
 const btn=$('aura-live-toggle'),panel=$('aura-live-panel'),input=$('aura-live-link'),copy=$('aura-live-copy'),stop=$('aura-live-stop'),status=$('aura-live-status');
-if(!btn||!panel||!input||!copy||!stop||!status)return;
+const extras=$('aura-live-extras'),extrasToggle=$('aura-live-extras-toggle');
+if(!btn||!panel||!input||!copy||!stop||!status||!extras||!extrasToggle)return;
 let sb=null,owner='',room='',channel=null,sending=false,queued=false,timer=0,revision=0,syncedRevision=0;
 let assets=new WeakMap(),assetFingerprints=new Map(),serial=0,config=null,paths=[],lastError='',activePointer=null,heartbeatTimer=null;
 const settings=document.createElement('div');
@@ -35,11 +36,18 @@ function settingsLoad(){
 }
 config={url:'https://rcstxomjsmvqtpxoekyk.supabase.co/',key:'sb_publishable_SjoI6W6WmBqCTjDDdYgVJA_oKMgxVzO'};
 if(config){urlEl.value=config.url;keyEl.value=config.key;}
+function showExtras(open){
+ extras.hidden=!open;
+ extrasToggle.setAttribute('aria-expanded',open?'true':'false');
+ extrasToggle.textContent=open?'Ocultar detalles':'Ver detalles';
+}
 function setOpen(open){
  panel.hidden=false;
  settings.hidden=!open;
  input.hidden=open;copy.hidden=open;stop.hidden=open;
- const directLabel=document.querySelector('label[for="aura-live-link"]');
+ extrasToggle.hidden=open;
+ showExtras(false);
+ const directLabel=panel.querySelector('label[for="aura-live-link"]');
  if(directLabel)directLabel.hidden=open;
 }
 function closeChannel(){
@@ -257,7 +265,7 @@ async function sync(){
    try{await channel.send({type:'broadcast',event:'update',payload:pointer});}
    catch(error){console.warn('Supabase Broadcast no disponible; el visor recuperará las actualizaciones.',error);}
   }
-  tell('Live View actualizado ✓ · fotos optimizadas, una sola vista activa');
+  tell('En vivo · invitación actualizada ✓');
  }catch(error){tell('Error: '+error.message,true);console.warn('Aura Live View Supabase:',error);}
  finally{
   sending=false;
@@ -288,7 +296,7 @@ async function begin(){
   input.value=u.toString();
   const broadcast='aura:'+room;
   channel=sb.channel(broadcast,{config:{private:false,broadcast:{ack:true}}});
-  channel.subscribe(st=>{if(st==='SUBSCRIBED')tell('Conectado a Supabase. Sincronizando invitación…');});
+  channel.subscribe(st=>{if(st==='SUBSCRIBED')tell('Conectado · sincronizando invitación…');});
   btn.textContent='Live View activo';btn.setAttribute('aria-pressed','true');
   setOpen(false);schedule(50);
   cleanAbandonedSessions(room).catch(error=>console.warn('Limpieza de sesiones antiguas no completada:',error));
@@ -323,6 +331,7 @@ async function finish(){
   paths=[];
  }catch(error){console.warn('No se pudo liberar toda la sesión temporal:',error);}
 }
+extrasToggle.addEventListener('click',()=>showExtras(extras.hidden));
 btn.addEventListener('click',()=>{begin();});
 connect.addEventListener('click',async()=>{
  const url=urlEl.value.trim().replace(/\/+$/,'')+'/',key=keyEl.value.trim();
@@ -335,7 +344,7 @@ connect.addEventListener('click',async()=>{
 stop.addEventListener('click',finish);
 copy.addEventListener('click',async()=>{
  try{await navigator.clipboard.writeText(input.value);tell('Enlace del cliente copiado.');}
- catch(_){input.focus();input.select();tell('Copia manualmente el enlace seleccionado.');}
+ catch(_){showExtras(true);input.hidden=false;input.focus();input.select();tell('Copia manualmente el enlace seleccionado.');}
 });
 if(typeof updatePreview==='function'){
  const old=updatePreview;
