@@ -8,17 +8,47 @@
 <title>Aura Digital · Live View</title>
 <style>
 :root{color-scheme:light;--ink:#34302c;--linen:#f5f0e9;--brand:#877160}
-*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;font-family:system-ui,-apple-system,'Segoe UI',sans-serif;background:var(--linen);color:var(--ink)}
-body{display:flex;flex-direction:column;overflow:hidden}
-header{height:54px;min-height:54px;display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:#fcfaf7;border-bottom:1px solid #e9e0d6;gap:10px;z-index:3}
-.logo{font-weight:800;letter-spacing:.17em;font-size:11px;white-space:nowrap}.logo small{display:block;font-weight:500;letter-spacing:.09em;font-size:8px;margin-top:2px;color:#81766b}
-.state{display:flex;gap:6px;align-items:center;font-size:10px;line-height:1.2;text-align:right;color:#73685d;max-width:49%}.dot{height:7px;width:7px;border-radius:50%;background:#bbaea1;flex:none}.dot.live{background:#47855e;box-shadow:0 0 0 3px #47855e1f}.dot.offline{background:#b94c48}
-main{position:relative;flex:1;min-height:0;background:white}.placeholder{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;gap:12px;padding:24px;background:#f8f4ee;color:#514439;z-index:1}
-.placeholder strong{font-family:Georgia,serif;font-weight:400;font-size:clamp(27px,7vw,41px);line-height:1.16}.placeholder p{font-size:13px;line-height:1.5;max-width:300px;margin:0;color:#81776b}
-.spin{width:31px;height:31px;border:2px solid #d5c9bc;border-top-color:#8e7666;border-radius:50%;animation:sp 1s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}
-iframe{width:100%;height:100%;border:0;display:none;background:white}iframe.ready{display:block}
-footer{font-size:10px;text-align:center;padding:7px 12px calc(7px + env(safe-area-inset-bottom));background:#fcfaf7;color:#938579;border-top:1px solid #eee5d9}
-@media(min-width:650px){main{display:flex;justify-content:center;align-items:stretch;background:#eee7de}iframe{max-width:470px;box-shadow:0 0 25px #00000012}.placeholder{left:50%;right:auto;transform:translateX(-50%);max-width:470px;width:100%}}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;min-height:100%;background:var(--linen);color:var(--ink);font-family:system-ui,-apple-system,'Segoe UI',sans-serif}
+body{position:relative;overflow:hidden}
+/* El visor ocupa el viewport COMPLETO; ninguna barra resta altura a la invitación. */
+main{position:fixed;inset:0;width:100%;height:100%;height:100dvh;background:white;overflow:hidden}
+#invitation{position:absolute;inset:0;width:100%;height:100%;border:0;display:none;background:white}
+#invitation.ready{display:block}
+/* Barras ligeras flotantes sobre la invitación, sin ocupar espacio del visor. */
+header,footer{position:fixed;left:0;right:0;z-index:30;pointer-events:none;
+  -webkit-backdrop-filter:blur(12px) saturate(120%);
+  backdrop-filter:blur(12px) saturate(120%)}
+header{top:0;display:flex;align-items:center;justify-content:space-between;gap:10px;
+  min-height:50px;padding:calc(9px + env(safe-area-inset-top)) 15px 9px;
+  background:rgba(252,250,247,.66);border-bottom:1px solid rgba(215,204,192,.38)}
+.logo{font-weight:800;letter-spacing:.15em;font-size:11px;white-space:nowrap}
+.logo small{display:block;font-weight:500;letter-spacing:.08em;font-size:8px;margin-top:2px;color:#625b53}
+.state{display:flex;gap:6px;align-items:center;justify-content:flex-end;font-size:10px;
+  line-height:1.25;text-align:right;color:#544e48;max-width:52%}
+.dot{height:7px;width:7px;border-radius:50%;background:#bbaea1;flex:none}
+.dot.live{background:#47855e;box-shadow:0 0 0 3px #47855e1f}
+.dot.offline{background:#b94c48}
+footer{bottom:0;text-align:center;font-size:10px;line-height:1.3;
+  padding:8px 12px calc(8px + env(safe-area-inset-bottom));
+  background:rgba(252,250,247,.52);color:#645d55;
+  border-top:1px solid rgba(215,204,192,.33)}
+/* Solo se muestra antes de recibir la primera invitación. */
+.placeholder{position:absolute;inset:0;display:flex;flex-direction:column;
+  justify-content:center;align-items:center;text-align:center;gap:12px;
+  padding:24px;background:#f8f4ee;color:#514439;z-index:1}
+.placeholder strong{font-family:Georgia,serif;font-weight:400;font-size:clamp(27px,7vw,41px);line-height:1.16}
+.placeholder p{font-size:13px;line-height:1.5;max-width:300px;margin:0;color:#81776b}
+.spin{width:31px;height:31px;border:2px solid #d5c9bc;border-top-color:#8e7666;
+  border-radius:50%;animation:sp 1s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+@media(max-width:400px){
+  header{padding-right:10px;padding-left:10px;gap:5px}
+  .logo{font-size:10px;letter-spacing:.12em}
+  .logo small{font-size:7px}
+  .state{font-size:9px}
+  footer{font-size:9px}
+}
 </style>
 </head>
 <body>
