@@ -173,9 +173,11 @@
     // Asegurar que no quede ninguna URL blob: interna en el HTML remoto.
     if(assets.sharePreview && /^blob:/.test(assets.sharePreview))assets.sharePreview='';
     assets.music=p.musicFile?await liveAsset(p.musicFile,'music',notes,activeRoom):'';
+    var photoTotal=names.filter(function(key){return /^data:image\//.test(assets[key]||'');}).length+
+      assets.gallery.filter(function(url){return /^data:image\//.test(url||'');}).length;
     var html=buildInvitation(p,assets);
     if(/(?:src|href)=["']blob:/i.test(html))notes.push('Algunos elementos del editor usan archivos locales no transferibles.');
-    return {html:html,notes:notes};
+    return {html:html,notes:notes,photoTotal:photoTotal};
   }
   async function compressHtml(html) {
     var bytes = new TextEncoder().encode(html);
@@ -201,7 +203,7 @@
       await publishFile(activeRoom, compressed.file, 'aura-live-'+String(serial).padStart(6,'0')+compressed.ext);
       if(room===activeRoom){
         lastSentAt=Date.now();
-        say(snapshot.notes.length ? 'Actualizado, con avisos: '+snapshot.notes.slice(0,2).join(' · ') : 'Vista del cliente actualizada ✓', snapshot.notes.length>0);
+        say(snapshot.notes.length ? 'Actualizado, con avisos: '+snapshot.notes.slice(0,2).join(' · ') : 'Vista actualizada ✓ · '+snapshot.photoTotal+' foto(s) incluidas', snapshot.notes.length>0);
       }
     } catch(error) {
       if(room===activeRoom) say('No se pudo sincronizar: '+error.message,true);
