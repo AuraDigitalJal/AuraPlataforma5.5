@@ -49,23 +49,30 @@
     if (blob.size > MAX_UPLOAD) throw new Error('Archivo de Live View supera el límite de tamaño (' + Math.round(blob.size / 1024) + ' KB).');
     var address = CHANNEL_HOST + encodeURIComponent(topic) + '?f=' + encodeURIComponent(filename);
     var response = await fetch(address, {method:'POST', body:blob, cache:'no-store'});
-    if (!response.ok) throw new Error('Servicio Live View: HTTP ' + response.status);
+    if(!response.ok){
+      var diagnostic='';
+      try{diagnostic=String((await response.text()).slice(0,220)).replace(/[\r\n]+/g,' ');}catch(_){}
+      if(response.status===429)throw new Error('HTTP 429: límite de transferencias temporal de ntfy.sh agotado. '+diagnostic);
+      if(response.status===413||response.status===507)throw new Error('HTTP '+response.status+': cuota de archivos agotada. '+diagnostic);
+      throw new Error('Servicio Live View HTTP '+response.status+(diagnostic?': '+diagnostic:''));
+    }
     var data = await response.json();
     if (!data.attachment || !/^https:\/\/ntfy\.sh\//.test(data.attachment.url || '')) {
       throw new Error('No se recibió el enlace del archivo compartido.');
     }
     return data.attachment.url;
   }
-  /* Fotografías Live View HQ:
-     Una imagen NO se debe dividir entre todas las fotos en un HTML gigante.
-     Se envía una vez como adjunto temporal; el HTML solo guarda su URL.
-     Para una nueva edición se reutiliza la URL previa del mismo File. */
-  var photoCache = new WeakMap();
-  function progress(message){ if(room) say(message,false); }
-  function photoBudget(total){
-    // ntfy.sh limita la cuota total por visitante; reservar espacio para HTML,
-    // audio y sustituciones de fotografías dentro de una misma sesión.
-    return Math.min(1750000,Math.max(185000,Math.floor(11*1024*1024/Math.max(1,total))));
+  /* Las fotos se transmiten como partes binarias independientes (<2MB).
+     El visor del cliente reconstruye la imagen completa antes de mostrarla.
+     No se usan URLs blob: del editor ni imágenes JPEG minúsculas. */
+  var photoCache=new WeakMap();
+  var PHOTO_CHUNK_BYTES=1450000;
+  function progress(message){if(room)say(message,false);}
+  function photoBudget(p,total){
+    var audio=p.musicFile?Math.min(p.musicFile.size||0,12*1024*1024):0;
+    // ntfy.sh: 20 MB acumulados por visitante; dejar margen para HTML.
+    var available=Math.max(3000000,16*1024*1024-audio);
+    return Math.min(8000000,Math.max(900000,Math.floor(available/Math.max(1,total))));
   }
   async function decodeImage(file){
     if(typeof createImageBitmap==='function'){
@@ -80,14 +87,8 @@
     }
     return await new Promise(function(resolve,reject){
       var temp=URL.createObjectURL(file),image=new Image();
-      image.onload=function(){
-        URL.revokeObjectURL(temp);
-        resolve({source:image,width:image.naturalWidth,height:image.naturalHeight,close:function(){image.src='';}});
-      };
-      image.onerror=function(){
-        URL.revokeObjectURL(temp);
-        reject(new Error('No se puede abrir la imagen; prueba con JPG, PNG o WebP.'));
-      };
+      image.onload=function(){URL.revokeObjectURL(temp);resolve({source:image,width:image.naturalWidth,height:image.naturalHeight,close:function(){image.src='';}});};
+      image.onerror=function(){URL.revokeObjectURL(temp);reject(new Error('No se pudo abrir la foto. Usa JPG, PNG o WebP.'));};
       image.src=temp;
     });
   }
@@ -95,47 +96,58 @@
     var cached=photoCache.get(file);
     if(cached&&cached.blob&&cached.blob.size<=budget)return cached;
     var mime=String(file.type||'').toLowerCase();
-    if(mime==='image/gif'&&file.size<=budget){
-      var animated={blob:file,ext:'.gif'};
-      photoCache.set(file,animated);
-      return animated;
+    var ext=String(file.name||'').split('.').pop().toLowerCase();
+    var types={jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/png',webp:'image/webp',gif:'image/gif'};
+    var known=/^image\/(jpeg|png|webp|gif)$/.test(mime)||(!mime&&Boolean(types[ext]));
+    if(known&&file.size<=budget){
+      var original={blob:file,mime:mime||types[ext]};
+      photoCache.set(file,original);
+      return original;
     }
     var decoded=await decodeImage(file);
     try{
-      var sizes=[2600,2400,2200,2000,1850,1700,1550,1400,1250,1150];
-      var qualities=[.94,.93,.92,.91,.90,.88,.87,.86,.85,.84];
+      var sizes=[3200,3000,2800,2600,2400,2200,2000,1850,1700,1550,1400,1250,1150,1050];
+      var quality=[.95,.94,.93,.92,.91,.90,.89,.88,.87,.86,.85,.84,.82,.80];
       for(var attempt=0;attempt<sizes.length;attempt++){
-        var scale=Math.min(1,sizes[attempt]/Math.max(decoded.width,decoded.height));
-        var width=Math.max(1,Math.round(decoded.width*scale));
-        var height=Math.max(1,Math.round(decoded.height*scale));
+        var ratio=Math.min(1,sizes[attempt]/Math.max(decoded.width,decoded.height));
+        var w=Math.max(1,Math.round(decoded.width*ratio));
+        var h=Math.max(1,Math.round(decoded.height*ratio));
         var canvas=document.createElement('canvas');
-        canvas.width=width;canvas.height=height;
+        canvas.width=w;canvas.height=h;
         var ctx=canvas.getContext('2d');
-        if(!ctx)throw new Error('No se pudo preparar el lienzo.');
-        ctx.drawImage(decoded.source,0,0,width,height);
-        var blob=await new Promise(function(resolve){
-          canvas.toBlob(resolve,'image/webp',qualities[attempt]);
-        });
+        if(!ctx)throw new Error('No se pudo procesar la fotografía.');
+        ctx.fillStyle='#fff';ctx.fillRect(0,0,w,h);
+        ctx.drawImage(decoded.source,0,0,w,h);
+        var output=await new Promise(function(resolve){canvas.toBlob(resolve,'image/jpeg',quality[attempt]);});
         canvas.width=1;canvas.height=1;
-        if(blob&&blob.size<=budget){
-          var ext=blob.type==='image/png'?'.png':blob.type==='image/jpeg'?'.jpg':'.webp';
-          var result={blob:blob,ext:ext};
-          photoCache.set(file,result);
-          return result;
+        if(output&&output.size<=budget){
+          var prepared={blob:output,mime:'image/jpeg'};
+          photoCache.set(file,prepared);
+          return prepared;
         }
       }
-      // No enviar una foto diminuta / borrosa; solicitar otro formato.
-      throw new Error('La foto necesita más espacio. Usa una versión JPG de tamaño normal o reduce la cantidad de fotografías de esta sesión.');
+      throw new Error('La foto no entra en el presupuesto de la sesión; intenta JPG de 2 a 5 MB.');
     }finally{decoded.close();}
   }
-  async function livePhoto(file,label,problems,activeRoom,budget){
-    if(!file)return '';
+  async function livePhoto(file,label,activeRoom,budget){
+    if(!file)return null;
     var hit=mediaCache.get(file);
-    if(hit&&hit.room===activeRoom&&hit.type==='photo'&&Date.now()-hit.time<85*60*1000)return hit.url;
-    var payload=await prepareImage(file,budget);
-    var photoUrl=await publishFile(activeRoom,payload.blob,'aura-photo-'+label+payload.ext);
-    mediaCache.set(file,{room:activeRoom,type:'photo',url:photoUrl,time:Date.now()});
-    return photoUrl;
+    if(hit&&hit.room===activeRoom&&hit.type==='photo'&&Date.now()-hit.time<85*60*1000)return hit.manifest;
+    var media=await prepareImage(file,budget);
+    var blob=media.blob,partCount=Math.ceil(blob.size/PHOTO_CHUNK_BYTES);
+    if(!partCount||partCount>10)throw new Error('Fotografía demasiado grande para la transmisión.');
+    var urls=[];
+    for(var i=0;i<partCount;i++){
+      if(room!==activeRoom)throw new Error('La sesión se cerró.');
+      progress('Enviando '+label+' · parte '+(i+1)+' de '+partCount+'…');
+      var part=blob.slice(i*PHOTO_CHUNK_BYTES,Math.min(blob.size,(i+1)*PHOTO_CHUNK_BYTES),'application/octet-stream');
+      try{
+        urls.push(await publishFile(activeRoom,part,'aura-foto-'+label+'-'+(i+1)+'-'+partCount+'.bin'));
+      }catch(error){throw new Error('Parte '+(i+1)+' de '+partCount+': '+error.message);}
+    }
+    var manifest={urls:urls,mime:media.mime,size:blob.size};
+    mediaCache.set(file,{room:activeRoom,type:'photo',manifest:manifest,time:Date.now()});
+    return manifest;
   }
   /* Audio Live View: las canciones grandes se envían en fragmentos de menos
      de 2 MB. En el teléfono se reconstruye un Blob sin recomprimir el audio. */
@@ -174,47 +186,41 @@
     return manifest;
   }
   async function makeSnapshot(activeRoom){
-    var p=getFormParams();
-    var assets=previewAssets(p);
-    var notes=[];
+    var p=getFormParams(),assets=previewAssets(p),notes=[];
     var byKey={cover:p.portadaFile,banner:p.bannerFile,extra:p.bannerExtraFile,extra2:p.bannerExtra2File,bg:p.bgFile,poster:p.videoPosterFile,transferPhoto:p.transferPhotoFile};
-    var names=Object.keys(byKey);
-    var gallery=p.galleryFiles||[];
+    var names=Object.keys(byKey),gallery=p.galleryFiles||[];
     var photoCount=gallery.length+names.filter(function(key){return Boolean(byKey[key]);}).length;
-    var budget=photoBudget(photoCount);
-    var transferred=0;
+    var budget=photoBudget(p,photoCount),photoManifests=[],transferred=0,serial=0;
+    async function insert(file,label){
+      var token='__AURA_LIVE_PHOTO_'+(serial++)+'__';
+      var m=await livePhoto(file,label,activeRoom,budget);
+      photoManifests.push({token:token,urls:m.urls,mime:m.mime,size:m.size});
+      transferred++;
+      return token;
+    }
     for(var i=0;i<names.length;i++){
       var key=names[i];
-      if(!byKey[key])continue;
-      progress('Enviando fotografía '+(transferred+1)+' de '+photoCount+' en alta calidad…');
-      try{assets[key]=await livePhoto(byKey[key],key,notes,activeRoom,budget);}
-      catch(error){throw new Error('Foto "'+key+'": '+error.message);}
-      transferred++;
+      if(byKey[key]){
+        try{assets[key]=await insert(byKey[key],key);}
+        catch(error){throw new Error('Foto "'+key+'": '+error.message);}
+      }
     }
     assets.gallery=[];
     for(var k=0;k<gallery.length;k++){
-      progress('Enviando fotografía '+(transferred+1)+' de '+photoCount+' en alta calidad…');
-      try{assets.gallery.push(await livePhoto(gallery[k],'gallery-'+k,notes,activeRoom,budget));}
-      catch(error){throw new Error('Foto de galería '+(k+1)+': '+error.message);}
-      transferred++;
+      try{assets.gallery.push(await insert(gallery[k],'gallery-'+k));}
+      catch(error){throw new Error('Galería, foto '+(k+1)+': '+error.message);}
     }
     if(assets.sharePreview&&/^blob:/.test(assets.sharePreview))assets.sharePreview='';
-    var manifest=null;
+    var musicManifest=null;
     if(p.musicFile){
-      try{manifest=await liveMusic(p.musicFile,notes,activeRoom);}
-      catch(error){notes.push('No se transmitió la música: '+error.message);}
+      try{musicManifest=await liveMusic(p.musicFile,notes,activeRoom);}
+      catch(error){notes.push('Música no transmitida: '+error.message);}
     }
-    // El reproductor se crea en la invitación sin cargar todavía el archivo;
-    // el visor construirá una única URL local con los fragmentos recibidos.
-    assets.music=manifest?'__AURA_LIVE_MUSIC_PENDING__':'';
+    assets.music=musicManifest?'__AURA_LIVE_MUSIC_PENDING__':'';
     var html=buildInvitation(p,assets);
-    if(manifest){
-      var manifestTag='<script id="aura-live-audio-manifest" type="application/json">'+JSON.stringify(manifest)+'</script>';
-      html=html.replace('</head>',manifestTag+'</head>');
-    }
-    if(/(?:src|href)=["']blob:/i.test(html)){
-      notes.push('Hay elementos locales que no se pueden compartir en vivo.');
-    }
+    if(musicManifest)html=html.replace('</head>','<script id="aura-live-audio-manifest" type="application/json">'+JSON.stringify(musicManifest)+'</script></head>');
+    if(photoManifests.length)html=html.replace('</head>','<script id="aura-live-photo-manifest" type="application/json">'+JSON.stringify({version:1,photos:photoManifests})+'</script></head>');
+    if(/(?:src|href)=["']blob:/i.test(html))notes.push('Algunos recursos locales aún no se pueden transmitir.');
     return {html:html,notes:notes,photoTotal:transferred};
   }
   async function compressHtml(html) {
