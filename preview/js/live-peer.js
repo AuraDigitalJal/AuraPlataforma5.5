@@ -62,7 +62,8 @@ async function gather(pc){
 }
 function onHello(id){
  let prior=peers.get(id);
- if(prior&&prior.pc.connectionState!=='failed'&&prior.pc.connectionState!=='closed'&&Date.now()-prior.created<40000)return;
+ if(prior&&prior.dc.readyState==='open')return;
+ if(prior&&prior.pc.connectionState!=='failed'&&prior.pc.connectionState!=='closed'&&Date.now()-prior.created<45000)return;
  if(prior)closePeer(prior);
  if(typeof RTCPeerConnection!=='function'){message('Este navegador no admite conexión directa WebRTC.',true);return;}
  const pc=new RTCPeerConnection(ICE),dc=pc.createDataChannel('aura-invitacion',{ordered:true});
