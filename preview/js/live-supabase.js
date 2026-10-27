@@ -5,7 +5,7 @@
 */
 (function(){
 'use strict';
-const $=id=>document.getElementById(id),BUCKET='aura-live',KEY='aura-live-supabase-config-v1',VERS='aura-live-supabase-v11';
+const $=id=>document.getElementById(id),BUCKET='aura-live',KEY='aura-live-supabase-config-v1',VERS='aura-live-supabase-v12';
 const btn=$('aura-live-toggle'),panel=$('aura-live-panel'),input=$('aura-live-link'),copy=$('aura-live-copy'),stop=$('aura-live-stop'),status=$('aura-live-status');
 if(!btn||!panel||!input||!copy||!stop||!status)return;
 let sb=null,owner='',room='',channel=null,sending=false,queued=false,timer=0,revision=0,syncedRevision=0;
@@ -100,21 +100,24 @@ async function put(path,file,mime,overwrite=false){
 /* La compresión se aplica SOLO al archivo temporal del Live View:
    los originales del editor y la publicación final conservan su calidad.
    Un teléfono muestra bien fotos de 1800–2400 px; evitar bajar a miniaturas. */
+/* Copia ligera para Live View: objetivo 500 KB, margen 800 KB.
+   La invitación publicada y el archivo original NUNCA se modifican.
+   Animaciones GIF se mantienen intactas para no perder movimiento. */
 async function prepareAsset(file){
  const mime=contentType(file);
  if(!/^(image\/(jpeg|png|webp|gif)|audio\/(mpeg|mp4|wav|ogg|webm|aac|flac)|video\/mp4)$/.test(mime)){
   throw Error('Formato no admitido: '+file.name+'. Usa JPG, PNG, WebP, MP3 o M4A.');
  }
  if(file.size>40*1024*1024)throw Error('El archivo '+file.name+' supera 40 MB.');
- if(!mime.startsWith('image/')||mime==='image/gif')return {blob:file,mime};
- const ALREADY_SMALL=900*1024;
- if(file.size<=ALREADY_SMALL)return {blob:file,mime};
+ const TARGET=500*1024,SOFT_MAX=800*1024;
+ if(!mime.startsWith('image/')||mime==='image/gif'||file.size<=TARGET)return {blob:file,mime};
  let decoded=null;
  try{
   if(typeof createImageBitmap==='function'){
-   try{const bitmap=await createImageBitmap(file,{imageOrientation:'from-image'});
-       decoded={src:bitmap,width:bitmap.width,height:bitmap.height,release:()=>bitmap.close?.()};}
-   catch(_){}
+   try{
+    const bitmap=await createImageBitmap(file,{imageOrientation:'from-image'});
+    decoded={src:bitmap,width:bitmap.width,height:bitmap.height,release:()=>bitmap.close?.()};
+   }catch(_){}
   }
   if(!decoded){
    decoded=await new Promise((resolve,reject)=>{
@@ -126,8 +129,11 @@ async function prepareAsset(file){
   }
   const width=decoded.width,height=decoded.height,largest=Math.max(width,height);
   if(!largest)throw Error('La fotografía no tiene dimensiones válidas.');
-  const candidates=[[2400,.91],[2200,.89],[2000,.87],[1850,.85],[1700,.84],[1600,.82]];
-  let fallback=null;
+  // Empieza con 2000px: suficiente nitidez para el Live View móvil.
+  // Reducir progresivamente hasta llegar a ~500 KB conservando detalle.
+  const candidates=[[2000,.9],[2000,.85],[1900,.83],[1850,.8],
+    [1750,.79],[1650,.77],[1600,.74],[1500,.73],[1450,.7]];
+  let bestSoft=null,smallest=null;
   for(const [side,quality] of candidates){
    const scale=Math.min(1,side/largest);
    const can=document.createElement('canvas');
@@ -137,15 +143,16 @@ async function prepareAsset(file){
    ctx.drawImage(decoded.src,0,0,can.width,can.height);
    const blob=await new Promise(resolve=>can.toBlob(resolve,'image/webp',quality));
    can.width=1;can.height=1;
-   if(!blob)continue;
-   const optimizedMime=blob.type||'image/webp';
-   if(blob.size<file.size&&(!fallback||blob.size<fallback.blob.size))fallback={blob,mime:optimizedMime};
-   if(blob.size<=1200*1024&&blob.size<file.size)return {blob,mime:optimizedMime};
+   if(!blob||blob.size>=file.size)continue;
+   const result={blob,mime:'image/webp'};
+   if(!smallest||blob.size<smallest.blob.size)smallest=result;
+   if(blob.size<=TARGET)return result;
+   // La primera copia <=800 KB conserva mayor resolución/calidad.
+   if(blob.size<=SOFT_MAX&&!bestSoft)bestSoft=result;
   }
-  // No pixelar la invitación por cumplir una cifra arbitraria:
-  // preservar la versión más nítida que realmente ahorre espacio.
-  if(fallback&&fallback.blob.size<file.size)return fallback;
-  return {blob:file,mime};
+  if(bestSoft)return bestSoft;
+  // Sin resultado ideal: evita perder calidad innecesariamente.
+  return smallest||{blob:file,mime};
  }finally{decoded?.release?.();}
 }
 async function uploadAsset(file,label){
