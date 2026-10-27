@@ -45,7 +45,7 @@ function acceptSignal(packet){
  if(m.to!==id||m.action!=='sdp'||m.kind!=='offer')return;
  if(typeof m.batch!=='string'||!Number.isInteger(m.n)||m.n<1||m.n>20||!Number.isInteger(m.i)||m.i<0||m.i>=m.n||typeof m.chunk!=='string')return;
  let result=offerChunks.get(m.batch);
- if(!result||result.n!==m.n){result={n:m.n,chunks:new Array(m.n)};offerChunks.set(m.batch,result);}
+ if(!result||result.n!==m.n){result={n:m.n,chunks:new Array(m.n).fill(null)};offerChunks.set(m.batch,result);}
  result.chunks[m.i]=m.chunk;
  if(result.chunks.every(s=>typeof s==='string')){
    offerChunks.delete(m.batch);
