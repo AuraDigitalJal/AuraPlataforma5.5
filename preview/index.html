@@ -9,7 +9,7 @@
     // Las pruebas siempre abren la revisión más reciente, incluso desde un enlace viejo.
     (function () {
       if (window.location.protocol === 'file:') return;
-      var build = 'aura-live-fotos-chunks-v6';
+      var build = 'aura-live-overlay-v7';
       var target = new URL(window.location.href);
       if (target.searchParams.get('v') === build) return;
       target.searchParams.set('v', build);
@@ -474,6 +474,6 @@
   <script src="preview/js/palette-inverter.js?v=inversor-paleta-pruebas-20261010-v1"></script>
   <script src="preview/js/wedding-trial-editorials.js?v=editoriales-lino-velo-papel-v1"></script>
   <script src="preview/js/baptism-layers.js?v=bautizo-lightbox-blanco-89-v20"></script>
-  <script src="preview/js/live-view.js?v=aura-live-fotos-chunks-v6"></script>
+  <script src="preview/js/live-view.js?v=aura-live-overlay-v7"></script>
 </body>
 </html>
