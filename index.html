@@ -41,6 +41,57 @@
 .aura-palette-invert-row button[aria-pressed="true"]{border-color:#8c7868;background:#eee8df;color:#382e29}
 .aura-palette-invert-row small{flex:1 1 180px;min-width:150px;color:#786c64;line-height:1.55;font-size:11px}
 </style>
+<style id="aura-live-view-style">
+/* V15: menu de Live View sujeto al boton de la barra superior.
+   Cerrado, no ocupa espacio ni tapa el editor ni la vista previa. */
+.aura-live-toolbar{position:relative;display:flex;align-items:center;flex:none}
+#aura-live-toggle{display:inline-flex;align-items:center;justify-content:center;gap:7px;white-space:nowrap}
+#aura-live-toggle .aura-live-trigger-dot{width:7px;height:7px;border-radius:50%;background:#418c5c;flex:none;display:none}
+#aura-live-toggle[aria-pressed="true"]{border-color:#6f987c!important;background:#e7f2e9!important;color:#275339!important}
+#aura-live-toggle[aria-pressed="true"] .aura-live-trigger-dot{display:block}
+#aura-live-toggle .aura-live-caret{font-size:11px;opacity:.65;line-height:1}
+#aura-live-panel[hidden],#aura-live-panel #aura-sb-settings[hidden],
+#aura-live-panel #aura-live-extras[hidden],#aura-live-panel button[hidden],
+#aura-live-panel input[hidden],#aura-live-panel label[hidden]{display:none!important}
+#aura-live-panel{position:absolute;z-index:101;top:calc(100% + 12px);right:0;
+  width:min(298px,calc(100vw - 28px));max-width:none;box-sizing:border-box;
+  margin:0;padding:17px;background:#fffdfa;color:#322b27;border:1px solid #e1d8cf;
+  border-radius:14px;box-shadow:0 12px 38px rgba(42,32,23,.16);
+  font-family:system-ui,-apple-system,sans-serif;line-height:1.45}
+#aura-live-panel:before{content:"";position:absolute;right:25px;top:-6px;
+  width:10px;height:10px;transform:rotate(45deg);background:#fffdfa;
+  border-top:1px solid #e1d8cf;border-left:1px solid #e1d8cf}
+#aura-live-panel .aura-live-head{display:flex;justify-content:space-between;align-items:center;gap:12px}
+#aura-live-panel .aura-live-title{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:750;letter-spacing:.02em}
+#aura-live-panel .aura-live-dot{width:8px;height:8px;border-radius:50%;flex:none;background:#428a5d;box-shadow:0 0 0 3px rgba(66,138,93,.12)}
+#aura-live-panel #aura-live-status{margin:7px 0 11px;font-size:11px;color:#536954;overflow-wrap:anywhere}
+#aura-live-panel .aura-live-actions{display:flex;flex-direction:column;gap:1px;margin:7px 0 0}
+#aura-live-panel .aura-live-actions button{display:flex;align-items:center;width:100%;text-align:left;
+  padding:12px 9px;cursor:pointer;border:0;border-radius:8px;background:transparent;
+  font:600 12px system-ui,sans-serif;color:#463c35}
+#aura-live-panel .aura-live-actions button:hover{background:#f4f0ea}
+#aura-live-panel #aura-live-stop{color:#a04b48;border-top:1px solid #eee7e0;border-radius:0}
+#aura-live-panel #aura-live-extras{border-top:1px solid #e8dfd7;margin-top:10px;padding-top:10px}
+#aura-live-panel #aura-live-extras-toggle{border:0;background:transparent;color:#74675c;
+  font:500 10px system-ui,sans-serif;text-decoration:underline;text-underline-offset:2px;cursor:pointer;padding:5px 0}
+#aura-live-panel .aura-live-help{font-size:11px;color:#75665b;margin:7px 0}
+#aura-live-panel #aura-live-link{display:block;box-sizing:border-box;width:100%;padding:9px;
+  background:#f7f2ec;border:1px solid #ddd0c4;border-radius:7px;color:#57453a;font-size:10px}
+#aura-live-panel .aura-live-notice{font-size:10px;line-height:1.4;color:#857970;margin:8px 0}
+@media(max-width:700px){
+  .aura-live-toolbar{position:static}
+  #aura-live-panel{position:absolute;top:calc(100% + 6px);left:12px;right:12px;
+    width:auto;max-width:none}
+  #aura-live-panel:before{display:none}
+}
+@media(max-width:620px){
+  .topbar-actions #aura-live-toggle{display:inline-flex!important;padding:9px 10px;font-size:11px}
+  .topbar-actions{gap:5px}
+  .topbar-brand{min-width:0}
+  .topbar-brand strong{font-size:10px}
+  .topbar #generate-zip{padding:9px 10px;font-size:11px}
+}
+</style>
 </head>
 <body>
   <div id="app">
@@ -50,7 +101,27 @@
         <span class="save-indicator"><i></i> Vista en vivo</span>
         <button type="button" id="open-preview-window" class="btn secondary">Abrir preview ↗</button>
         <button type="button" id="update-preview" class="btn secondary">Actualizar</button>
-        <button type="button" id="open-github" class="btn secondary">Publicar en GitHub</button>
+<div class="aura-live-toolbar">
+          <button type="button" id="aura-live-toggle" class="btn secondary" aria-pressed="false" aria-expanded="false" aria-controls="aura-live-panel" aria-haspopup="dialog"><span class="aura-live-trigger-dot" aria-hidden="true"></span><span id="aura-live-trigger-label">Live View</span><span class="aura-live-caret" aria-hidden="true">▾</span></button>
+          <aside id="aura-live-panel" hidden role="dialog" aria-label="Controles de Live View">
+            <div class="aura-live-head">
+              <div class="aura-live-title"><span class="aura-live-dot" aria-hidden="true"></span>Live View conectado</div>
+              <button type="button" id="aura-live-extras-toggle" aria-expanded="false" aria-controls="aura-live-extras">Ver detalles</button>
+            </div>
+            <p id="aura-live-status" role="status" aria-live="polite">Preparando conexión…</p>
+            <div class="aura-live-actions">
+              <button id="aura-live-copy" type="button"><span aria-hidden="true">⧉</span>&nbsp; Copiar enlace</button>
+              <button id="aura-live-stop" type="button"><span aria-hidden="true">□</span>&nbsp; Terminar sesión</button>
+            </div>
+            <div id="aura-live-extras" hidden>
+              <p class="aura-live-help">El cliente ve la invitación mientras la editas, sin entrar al editor.</p>
+              <label for="aura-live-link" style="display:block;font-size:11px;font-weight:650;margin-bottom:6px">Enlace de Live View</label>
+              <input id="aura-live-link" readonly aria-label="Enlace de Live View del cliente" spellcheck="false">
+              <p class="aura-live-notice">Se eliminan los archivos temporales al terminar la sesión. Usa solamente contenido de demostración.</p>
+            </div>
+          </aside>
+        </div>
+                <button type="button" id="open-github" class="btn secondary">Publicar en GitHub</button>
         <button type="button" id="generate-zip" class="btn primary">Generar ZIP</button>
       </div>
     </header>
@@ -438,5 +509,10 @@
   <script src="js/wedding-mediterranean-pro-v14.js?v=pro-mediterranea-v14-foto10-20261010"></script>
   <script src="js/palette-inverter.js?v=inversor-paleta-pro-20261010-v1"></script>
   <script src="js/baptism-layers.js?v=pro-bautizo-capas-v1"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tus-js-client@4/dist/tus.min.js"></script>
+  <script src="js/live-delta.js?v=aura-live-supabase-v18"></script>
+  <script src="js/live-media-cache.js?v=aura-live-supabase-v18"></script>
+  <script src="js/live-supabase.js?v=aura-live-supabase-v18-pro1"></script>
 </body>
 </html>
