@@ -9,7 +9,7 @@
     // Las pruebas siempre abren la revisión más reciente, incluso desde un enlace viejo.
     (function () {
       if (window.location.protocol === 'file:') return;
-      var build = 'lumina-clean-v4-20261028';
+      var build = 'lumina-direct-menu-v4-20261028';
       var target = new URL(window.location.href);
       if (target.searchParams.get('v') === build) return;
       target.searchParams.set('v', build);
@@ -71,9 +71,9 @@
 </style>
 
   <meta name="theme-color" content="#f2eee8" />
-  <title>Lúmina Studio · Editor intuitivo V4 · Pruebas</title>
+  <title>Lúmina Studio · Menús directos · Pruebas V4</title>
   <link rel="stylesheet" href="css/style.css?v=editoriales-lino-velo-papel-v1" />
-  <link rel="stylesheet" href="preview/lumina-v4.css?v=20261028-1" />
+  <link rel="stylesheet" href="preview/lumina-v4.css?v=20261028-2" />
   <script src="js/vendor/jszip.min.js"></script>
   
 <style id="aura-gallery-delete-style">
@@ -526,7 +526,7 @@
   <script src="preview/js/live-delta.js?v=aura-live-supabase-v18"></script>
   <script src="preview/js/live-media-cache.js?v=aura-live-supabase-v18"></script>
   <script src="preview/js/live-supabase.js?v=aura-live-supabase-v18"></script>
-  <script src="preview/js/lumina-v4.js?v=20261028-1"></script>
+  <script src="preview/js/lumina-v4.js?v=20261028-2"></script>
 <template id="lumina-v4-template">
 <div class="lu4-eyebrow">LÚMINA · INVITACIONES DIGITALES</div>
 <h1>Haz una invitación a tu estilo.</h1>
