@@ -96,6 +96,8 @@ function init(){
   state.catalog=mode==="event"?"event":"all";
   const original=src("designCollection");if(original){original.value=state.catalog;original.dispatchEvent(new Event("change",{bubbles:true}))}
   if(typeof renderThemeStrip==="function")renderThemeStrip();
+  if(typeof renderPaletteStrip==="function")renderPaletteStrip();
+  renderPalettes();
   q("lu4-filter").querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.lu4Filter===state.catalog)));
   renderThemes();
  }
