@@ -37,11 +37,23 @@ def find(root,label):
             m=re.match(r"\[(\d+),(\d+)\]\[(\d+),(\d+)\]",n.attrib.get("bounds",""))
             if m:
                 a,b,c,d=map(int,m.groups())
+                if c<=a or d<=b or a<0 or b<0:
+                    continue
                 return ((a+c)//2,(b+d)//2, n.attrib.get("text") or n.attrib.get("content-desc"))
     return None
-def tap(label, name, required=True):
+def tap(label, name, required=True, direction="up"):
     root=hierarchy("before-"+name)
     match=find(root,label)
+    # La vista WebView tiene desplazamiento interno: no pulsar nodos [0,0][0,0].
+    for attempt in range(6):
+        if match:break
+        if direction=="down":
+            adb("shell","input","swipe","330","660","330","300","380",check=False)
+        else:
+            adb("shell","input","swipe","330","300","330","660","380",check=False)
+        time.sleep(1)
+        root=hierarchy("scroll-"+name+"-"+str(attempt))
+        match=find(root,label)
     if match:
         adb("shell","input","tap",str(match[0]),str(match[1]))
         time.sleep(3)
@@ -49,7 +61,7 @@ def tap(label, name, required=True):
         nextroot=hierarchy("after-"+name)
         step("tocar "+label,True,f"({match[0]}, {match[1]})")
         return nextroot
-    step("tocar "+label,not required,"No encontrado en jerarquía de accesibilidad")
+    step("tocar "+label,not required,"No visible ni después de desplazar la pantalla")
     return None
 
 try:
@@ -85,15 +97,16 @@ try:
         hasPhotos=find(root,"Fotografías") is not None or find(root,"Foto de portada") is not None
         step("acceso a fotografías y música",hasPhotos)
         if hasPhotos:
-            root=tap("Elegir archivo","05-selector-archivos",required=False)
-            chooser=find(root,"Recientes") if root is not None else None
-            picker=find(root,"Fotos") if root is not None else None
-            ui=adb("shell","dumpsys","activity","activities",check=False).stdout
-            opened="documentsui" in ui.lower() or chooser is not None or picker is not None
-            step("selector nativo de archivos",opened,"Comprobación del diálogo de Android")
-            adb("shell","input","keyevent","4",check=False)
-            time.sleep(2)
-        root=tap("Datos y textos","06-editor-textos")
+            root=tap("Elegir archivo","05-selector-archivos",required=True,direction="down")
+            nodes=list(root.iter("node")) if root is not None else []
+            packages={n.attrib.get("package","") for n in nodes}
+            labels=[n.attrib.get("text","") for n in nodes if n.attrib.get("text","")]
+            opened=any("documentsui" in p.lower() or "permissioncontroller" in p.lower() for p in packages) or any(x in labels for x in ["Recientes","Browse","Examinar","Browse files","Archivos"])
+            step("selector nativo de archivos",opened,"Paquetes: "+", ".join(sorted(packages))[:150])
+            if opened:
+                adb("shell","input","keyevent","4",check=False)
+                time.sleep(2)
+        root=tap("Datos y textos","06-editor-textos",direction="up")
         step("acceso a edición de textos",find(root,"Información y textos") is not None or find(root,"Selecciona el texto") is not None)
         root=tap("Entrega","07-entrega")
         step("acceso a entrega",find(root,"Preparar invitación") is not None or find(root,"Generar ZIP") is not None)
