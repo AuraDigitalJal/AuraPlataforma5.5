@@ -86,8 +86,10 @@ function init(){
    b.appendChild(make("span","",icon));b.appendChild(document.createTextNode(name));
    b.addEventListener("click",()=>{
     if(src("preset")?.value===id)return;
-    if(state.edited&&!confirm("Cambiar de celebración puede actualizar textos de ejemplo. ¿Quieres continuar?"))return;
+    const modified=allTextFields().some(x=>x.original&&state.defaults.has(x.key)&&x.original.value!==state.defaults.get(x.key));
+    if(modified&&!confirm("Cambiar de celebración puede actualizar algunos textos de ejemplo. ¿Continuar?"))return;
     send("preset",id);
+    allTextFields().forEach(x=>{if(x.original)state.defaults.set(x.key,x.original.value)});
     setFilter(state.catalog);syncInputs();
    });q("lu4-events").appendChild(b);
   });
