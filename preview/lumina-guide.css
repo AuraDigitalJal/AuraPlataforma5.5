@@ -1,0 +1,51 @@
+
+/* Lúmina · interfaz guiada de prueba. Capa visual independiente de Aura PRO. */
+body.lumina-easy{--lumina-plum:#694d67;--lumina-ink:#322d35;--lumina-soft:#faf7f7;--lumina-border:#e8dedf}
+body.lumina-easy .editor-intro,body.lumina-easy .editor-guide{display:none!important}
+body.lumina-easy .editor-pane{padding-top:26px}
+body.lumina-easy .topbar-brand .brand-mark{background:#694d67;color:white}
+body.lumina-easy .topbar-actions #open-github,body.lumina-easy .topbar-actions .aura-live-toolbar,body.lumina-easy #sec-system{display:none!important}
+body.lumina-easy .form-section.lumina-section-hidden{display:none!important}
+body.lumina-easy .form-section.editor-filtered:not(.lumina-section-hidden){display:block!important}
+body.lumina-easy #config-form .form-section summary{padding:19px 0;font-size:14px}
+body.lumina-easy #config-form .section-body label{font-size:12px}
+body.lumina-easy #config-form .section-body .helper{font-size:11px;line-height:1.6}
+.lumina-welcome{border:1px solid var(--lumina-border);background:linear-gradient(145deg,#fdfbf9,#f6edf1);padding:32px 30px;border-radius:22px;box-shadow:0 14px 42px rgba(60,36,60,.05)}
+.lumina-overline{display:inline-block;text-transform:uppercase;letter-spacing:.19em;font-size:10px;font-weight:800;color:var(--lumina-plum)}
+.lumina-welcome h1{font-family:'Playfair Display',Georgia,serif;font-weight:500;color:var(--lumina-ink);font-size:clamp(28px,3vw,39px);line-height:1.15;margin:14px 0 12px}
+.lumina-welcome p{font-size:13px;line-height:1.7;color:#746776;margin:0 0 21px}
+.lumina-welcome-actions{display:grid;gap:10px}
+.lumina-btn{appearance:none;cursor:pointer;border-radius:12px;border:1px solid var(--lumina-border);padding:13px 15px;font:700 12px/1.3 'Manrope',system-ui,sans-serif;background:white;color:#4e4050;transition:background .15s,border-color .15s;display:inline-flex;align-items:center;justify-content:center;gap:9px;text-align:center}
+.lumina-btn:hover{border-color:#b49cad;background:#fcf9fb}
+.lumina-btn.primary{background:var(--lumina-plum);color:white;border-color:var(--lumina-plum)}
+.lumina-btn.primary:hover{background:#51384f}
+.lumina-btn:focus-visible,.lumina-step:focus-visible{outline:3px solid #b28ea9;outline-offset:2px}
+.lumina-welcome-tip{margin-top:24px;padding-top:17px;border-top:1px solid #e5dae0;color:#817381;font-size:11px;line-height:1.6}
+.lumina-wizard{margin-bottom:18px;position:sticky;top:76px;z-index:18;padding:15px 16px;background:rgba(253,250,249,.97);backdrop-filter:blur(12px);border:1px solid #e9e1e4;border-radius:16px;box-shadow:0 9px 25px rgba(51,35,51,.06)}
+.lumina-wizard-top{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:12px}
+.lumina-wizard-top strong{color:#493c49;font-size:12px}
+.lumina-wizard-top button{border:0;background:transparent;color:#786377;font-size:11px;text-decoration:underline;cursor:pointer}
+.lumina-progress{height:4px;background:#eee6ec;border-radius:10px;overflow:hidden;margin:4px 0 12px}
+.lumina-progress span{display:block;height:100%;width:16.6%;background:var(--lumina-plum);border-radius:10px;transition:width .2s}
+.lumina-steps{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px}
+.lumina-step{appearance:none;border:1px solid transparent;background:transparent;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;color:#8e818c;padding:8px 2px;border-radius:10px;cursor:pointer;font-size:10px;font-weight:600;min-height:57px}
+.lumina-step b{display:grid;place-items:center;border:1px solid #ddd0db;border-radius:50%;width:23px;height:23px;font-size:10px;background:white;color:#745e6f}
+.lumina-step[aria-current="step"]{background:#f3ebf1;color:#553d53;border-color:#e8dbe5}
+.lumina-step[aria-current="step"] b{background:var(--lumina-plum);border-color:var(--lumina-plum);color:white}
+.lumina-stage{padding:14px 3px 11px}
+.lumina-stage h2{font-family:'Playfair Display',Georgia,serif;font-weight:500;font-size:24px;letter-spacing:-.025em;color:var(--lumina-ink);margin:0 0 6px}
+.lumina-stage p{font-size:12px;line-height:1.6;color:#756b74;margin:0}
+.lumina-stage .lumina-note{margin-top:12px;padding:11px 13px;border-radius:9px;background:#f8f3f6;color:#6d5968;font-size:11px}
+.lumina-actions{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:18px 0 20px}
+.lumina-actions .lumina-btn{min-width:104px}
+.lumina-actions small{font-size:10px;color:#877c87}
+.lumina-advanced-banner{display:none;padding:10px 12px;margin:10px 0 12px;border:1px solid #e8dce4;background:#fff;border-radius:10px;color:#7c6979;font-size:11px}
+body.lumina-advanced .lumina-advanced-banner{display:block}
+body.lumina-advanced .lumina-steps{opacity:.6}
+.lumina-help[hidden],.lumina-welcome[hidden],.lumina-wizard[hidden],.lumina-stage[hidden],.lumina-actions[hidden]{display:none!important}
+.lumina-help{padding:16px;margin-top:13px;border:1px solid #e4d9e2;border-radius:11px;background:white;font-size:12px;color:#665b66;line-height:1.75}
+.lumina-help strong{color:#503f4e}
+body.lumina-home-active #config-form,body.lumina-home-active .lumina-stage,body.lumina-home-active .lumina-actions,body.lumina-home-active .lumina-wizard{display:none!important}
+body.lumina-easy .topbar-actions .btn{font-size:11px;padding:9px 12px}
+@media(max-width:1000px){.lumina-wizard{top:0;position:relative}}
+@media(max-width:620px){body.lumina-easy .editor-pane{padding:18px 16px 32px}.lumina-welcome{padding:26px 20px}.lumina-wizard{padding:12px 9px}.lumina-steps{gap:1px}.lumina-step{font-size:9px;min-height:57px}.lumina-step b{width:22px;height:22px}.lumina-actions{gap:5px}.lumina-actions .lumina-btn{min-width:88px}.topbar-brand small{display:none}}
