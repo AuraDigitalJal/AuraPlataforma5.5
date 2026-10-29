@@ -80,3 +80,71 @@ body.lu4.lu-tablet .preview-pane .device-shell{max-width:calc(100% - 20px);margi
  body.lu4.lu-tablet .lu4-palette-mock{height:109px}
  body.lu4.lu-tablet .lu4-events{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
+
+/* Corrección crítica preview tablet 2026-10-28:
+   NUNCA reducir el iframe de 390 px al adaptar la pantalla.
+   Un único panel en horizontal y vertical: Editar | Vista previa. */
+body.lu4.lu-tablet .lu-tablet-view{display:flex!important}
+body.lu4.lu-tablet .lu-tablet-view button{min-height:48px!important;padding:11px 17px!important;font-size:13px!important}
+body.lu4.lu-tablet .lu-tablet-view button[aria-pressed="true"]{background:#6b465c!important;color:#fff!important}
+body.lu4.lu-tablet .workspace{
+ display:block!important;
+ grid-template-columns:none!important;
+ min-height:calc(100dvh - var(--lu-tablet-header) - var(--lu-tablet-tools))!important;
+ width:100%!important;
+}
+body.lu4.lu-tablet .workspace>.editor-pane{
+ display:block!important;box-sizing:border-box!important;
+ min-width:0!important;max-width:100%!important;width:100%!important;
+ height:auto!important;max-height:none!important;overflow:visible!important;
+ padding:17px clamp(16px,3.5vw,52px) 88px!important;
+ margin:0!important;border-right:0!important;
+}
+body.lu4.lu-tablet .workspace>.preview-pane{
+ display:none!important;
+ position:relative!important;top:auto!important;
+ box-sizing:border-box!important;
+ width:100%!important;max-width:none!important;
+ height:auto!important;max-height:none!important;
+ min-height:calc(100dvh - var(--lu-tablet-header) - var(--lu-tablet-tools))!important;
+ padding:18px 20px 48px!important;overflow-x:auto!important;overflow-y:visible!important;
+ justify-content:flex-start!important;align-items:center!important;
+ background:#eae3df!important;
+}
+body.lu4.lu-tablet[data-lu-tablet-view="preview"] .workspace>.editor-pane{display:none!important}
+body.lu4.lu-tablet[data-lu-tablet-view="preview"] .workspace>.preview-pane{display:flex!important}
+body.lu4.lu-tablet .preview-pane .device-shell{
+ box-sizing:border-box!important;
+ display:block!important;
+ position:relative!important;
+ flex:0 0 864px!important;
+ width:410px!important;min-width:410px!important;max-width:none!important;
+ height:864px!important;min-height:864px!important;max-height:none!important;
+ border:10px solid #1d1b18!important;
+ border-radius:42px!important;
+ margin:0 auto!important;
+ overflow:hidden!important;
+}
+body.lu4.lu-tablet .preview-pane .device-shell iframe#preview-frame{
+ display:block!important;
+ box-sizing:border-box!important;
+ width:100%!important;min-width:390px!important;
+ height:100%!important;min-height:844px!important;
+ border:0!important;
+ transform:none!important;
+ zoom:1!important;
+}
+body.lu4.lu-tablet .preview-pane .device-island{
+ width:92px!important;height:24px!important;top:8px!important
+}
+body.lu4.lu-tablet .preview-head{width:min(410px,100%)!important;max-width:100%!important}
+body.lu4.lu-tablet .preview-note{max-width:410px!important}
+body.lu4.lu-tablet .lu4-nav{position:sticky!important;top:calc(var(--lu-tablet-header) + var(--lu-tablet-tools))!important;z-index:21!important}
+body.lu4.lu-tablet .lu4-app{max-width:1050px!important}
+body.lu4.lu-tablet .lu4-theme-grid{grid-template-columns:repeat(auto-fill,minmax(178px,1fr))!important}
+body.lu4.lu-tablet .lu4-palette-grid{grid-template-columns:repeat(auto-fill,minmax(174px,1fr))!important}
+@media(max-width:500px){
+ body.lu4.lu-tablet .preview-pane .device-shell{margin-left:max(0px,calc((100vw - 450px)/2))!important;margin-right:0!important}
+ body.lu4.lu-tablet .lu-tablet-view button{padding:9px!important;font-size:11px!important}
+ body.lu4.lu-tablet .lu4-theme-grid,body.lu4.lu-tablet .lu4-palette-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}
