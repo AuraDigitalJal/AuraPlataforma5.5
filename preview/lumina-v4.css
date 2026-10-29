@@ -106,3 +106,15 @@ body.lu4 .preview-note{max-width:410px;line-height:1.65;text-align:center}
 .lu4-return{border:1px solid #bfaab7;background:white;border-radius:10px;padding:10px 13px;font-size:11px;color:#65465c;font-weight:700;display:none;margin:13px}
 @media(max-width:1050px){body.lu4 .workspace{grid-template-columns:1fr}body.lu4 .preview-pane{position:relative;top:auto;height:auto;min-height:890px}.lu4-preview-jump,.lu4-return{display:block}}
 @media(max-width:620px){body.lu4 .topbar{padding:0 12px}body.lu4 .topbar-brand small{display:none}body.lu4 .editor-pane{padding:20px 14px 44px}.lu4-theme-image{height:130px}.lu4-card{padding:15px}.lu4-head{padding:19px}.lu4-grid-fields{grid-template-columns:1fr}.lu4-events{grid-template-columns:repeat(2,minmax(0,1fr))}.lu4-palette-mock{height:105px}.lu4-tab{min-height:70px}.lu4-tab-icon{width:30px;height:30px}}
+
+/* Navegación directa: seis destinos visibles, sin etapas anidadas. */
+body.lu4 .lu4-nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;position:sticky;top:68px;z-index:35;margin:16px 0 19px;border:1px solid #e5d9e0;background:rgba(249,245,248,.97);padding:8px;border-radius:14px;box-shadow:0 7px 18px rgba(63,39,56,.08);backdrop-filter:blur(12px)}
+body.lu4 .lu4-nav .lu4-page{min-height:43px;border:1px solid transparent;border-radius:9px;background:transparent;color:#765e70;font:750 11px/1.35 'Manrope',system-ui,sans-serif;cursor:pointer;padding:8px 6px;text-align:center;white-space:normal}
+body.lu4 .lu4-nav .lu4-page[aria-current=page]{background:#6b465c;color:white;border-color:#6b465c;box-shadow:0 2px 8px rgba(73,42,64,.15)}
+body.lu4 .lu4-tabs,body.lu4 .lu4-bottom{display:none!important}
+body.lu4 .lu4-nav .lu4-page:focus-visible{outline:3px solid #b18fa5;outline-offset:1px}
+body.lu4 .lu4-edit-head{margin-bottom:10px}
+@media(max-width:620px){
+ body.lu4 .lu4-nav{top:62px;padding:6px;gap:5px;margin-top:12px}
+ body.lu4 .lu4-nav .lu4-page{min-height:43px;font-size:10px;padding:7px 3px}
+}
