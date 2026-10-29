@@ -15,6 +15,29 @@ function setup(){
  if(!top||!pane||!preview||!app||!form)return;
  const bar=document.createElement("div");bar.className="lu-tablet-bar";
  bar.setAttribute("role","toolbar");bar.setAttribute("aria-label","Herramientas de tablet");
+
+ // Reproduce exactamente la geometría del teléfono de Aura Pro.
+ // El WebView/iframe mantiene 390x844; únicamente reducimos visualmente su marco completo.
+ const phone=preview.querySelector(".device-shell");
+ if(phone&&!preview.querySelector(".lu-preview-fit-holder")){
+  const holder=document.createElement("div");
+  holder.className="lu-preview-fit-holder";
+  phone.parentNode.insertBefore(holder,phone);
+  holder.appendChild(phone);
+  function fitPhone(){
+   const style=getComputedStyle(preview);
+   const usable=Math.max(260,preview.clientWidth-(parseFloat(style.paddingLeft)||0)-(parseFloat(style.paddingRight)||0)-6);
+   const scale=Math.min(1,Math.max(.48,usable/410));
+   preview.style.setProperty("--lu-preview-scale",String(scale));
+   preview.style.setProperty("--lu-preview-width",(410*scale)+"px");
+   preview.style.setProperty("--lu-preview-height",(864*scale)+"px");
+  }
+  fitPhone();
+  if(typeof ResizeObserver==="function")new ResizeObserver(fitPhone).observe(preview);
+  else window.addEventListener("resize",fitPhone,{passive:true});
+  window.addEventListener("orientationchange",()=>requestAnimationFrame(fitPhone));
+ }
+
  const brand=document.createElement("div");brand.className="lu-tablet-brand";
  const dot=document.createElement("span");dot.className="lu-tablet-dot";
  const brandText=document.createElement("span");brandText.textContent="Editor para tablet";
