@@ -109,3 +109,9 @@ body.lumina-v2 .preview-note{line-height:1.6}
  .lu-step{font-size:10px;padding:11px 3px}
  .lu-step i{width:19px;height:19px}
 }
+
+.lu-disclosure{border:1px solid var(--lu-line);border-radius:11px;background:#fff;margin-top:14px;padding:10px 13px}
+.lu-disclosure>summary{font:700 11px/1.5 'Manrope',system-ui,sans-serif;color:#80677a;cursor:pointer;padding:4px 0;list-style:revert}
+.lu-disclosure[open]>summary{padding-bottom:15px}
+.lu-disclosure>.lu-action-main{width:100%;margin:0 0 11px}
+.lu-disclosure>.lu-actions-secondary{margin:0 0 4px}
