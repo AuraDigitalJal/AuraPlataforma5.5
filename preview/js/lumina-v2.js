@@ -26,6 +26,15 @@ function init(){
  var mobileJump=mk("button","lu-mobile-jump","Ver invitación ↗");mobileJump.type="button";document.body.appendChild(mobileJump);
  var previewPane=document.querySelector(".preview-pane");
  var mobileBack=mk("button","lu-preview-return","← Volver a editar");mobileBack.type="button";if(previewPane)previewPane.appendChild(mobileBack);
+ /* La entrega simple muestra dos acciones. El resto queda disponible al expandirlo. */
+ var deliver=get("lu-stage-delivery"),actionGrid=deliver.querySelector(".lu-action-grid");
+ var disclosure=mk("details","lu-disclosure"),sum=mk("summary","","Más opciones: publicar o guardar avances");
+ disclosure.appendChild(sum);
+ disclosure.appendChild(get("lu-publish"));
+ var extras=deliver.querySelector(".lu-actions-secondary");if(extras)disclosure.appendChild(extras);
+ actionGrid.after(disclosure);
+ var githubSection=byId("sec-github");
+ if(githubSection){var ghBody=githubSection.querySelector(".section-body");if(ghBody){var notice=mk("p","helper","VERSIÓN DE PRUEBA: el publicador sigue utilizando la configuración de Aura. No uses sus repositorios oficiales ni compartas esta versión con clientes como Lúmina hasta configurar publicación independiente.");notice.style.cssText="padding:12px;border:1px solid #d7b8c8;border-radius:10px;background:#fff8fb;color:#79465e;font-weight:600";ghBody.prepend(notice)}}
  var state={step:0,cat:"textos",extra:false},copies=new Map();
  function top(){qs(".lu-steps").scrollIntoView({behavior:"smooth",block:"start"})}
  function hideExtra(){state.extra=false;document.body.classList.remove("lumina-extra");get("lu-advanced-toggle").textContent="Ajustes especiales";}
