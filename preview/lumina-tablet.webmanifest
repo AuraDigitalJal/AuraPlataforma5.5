@@ -3,8 +3,8 @@
   "short_name": "Lúmina",
   "description": "Editor de invitaciones digitales para tablet Android.",
   "lang": "es-MX",
-  "id": "./lumina-v4.html",
-  "start_url": "./lumina-v4.html?v=lumina-direct-menu-v4-20261028",
+  "id": "./lumina-v4",
+  "start_url": "./lumina-v4?v=lumina-direct-menu-v4-20261028",
   "scope": "./",
   "display": "standalone",
   "display_override": [
