@@ -4,6 +4,7 @@
   if(window.__luminaAndroidDownloads)return;
   if(!window.LuminaAndroid||typeof window.LuminaAndroid.postMessage!=="function")return;
   window.__luminaAndroidDownloads=true;
+  var pwaInstall=document.querySelector(".lu-tablet-install");if(pwaInstall)pwaInstall.hidden=true;
   function post(data){window.LuminaAndroid.postMessage(JSON.stringify(data))}
   function safeName(name){return String(name||"Lumina-invitacion.zip").replace(/[\\/:*?"<>|]/g,"_").slice(0,100)}
   document.addEventListener("click",function(event){
