@@ -66,6 +66,9 @@ function init(){
   const pal=src("colorPalette")?.value;
   if(pal&&pal!=="custom")state.lastPalette=pal;
   q("lu4-palettes").querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.palette===pal)));
+  const coverName=String(src("title")?.value||"Una celebración").replace(/\n/g," ").slice(0,26);
+  q("lu4-palettes").querySelectorAll(".lu4-palette-mock strong").forEach(e=>{if(e.textContent!==coverName)e.textContent=coverName});
+  q("lu4-themes").querySelectorAll(".lu4-theme-fallback strong").forEach(e=>{if(e.textContent!==coverName)e.textContent=coverName});
   q("lu4-text-list").querySelectorAll("[data-text]").forEach(b=>{
    b.setAttribute("aria-pressed",String(b.dataset.text===state.textKey));
    if(b.dataset.text.startsWith("field:")){
@@ -122,7 +125,7 @@ function init(){
    }else{
     const sample=make("div","lu4-theme-fallback");
     sample.style.background=safeGradient(theme?.swatch);sample.style.color="#332831";
-    sample.appendChild(make("small","","INVITACIÓN DIGITAL"));sample.appendChild(make("strong","","Un gran día"));sample.appendChild(make("em","","Una celebración especial"));frame.appendChild(sample);
+    sample.appendChild(make("small","","INVITACIÓN DIGITAL"));sample.appendChild(make("strong","",String(src("title")?.value||"Una celebración").replace(/\n/g," ").slice(0,26)));sample.appendChild(make("em","","Una celebración especial"));frame.appendChild(sample);
    }
    b.appendChild(frame);b.appendChild(make("div","lu4-theme-caption",name));b.appendChild(make("div","lu4-theme-sub","Toca para verlo en el teléfono"));
    b.addEventListener("click",()=>{
@@ -245,7 +248,7 @@ function init(){
    const c=paletteData(key),label=real.querySelector(".palette-name")?.textContent.trim()||key.replace(/_/g," ");
    const b=make("button","lu4-palette");b.type="button";b.dataset.palette=key;
    const mock=make("div","lu4-palette-mock");mock.style.background=c[5]||"#fff";mock.style.color=c[2]||"#3d3040";
-   mock.appendChild(make("small","","UN MOMENTO ESPECIAL"));mock.appendChild(make("strong","","Valentina"));mock.appendChild(make("em","","Una celebración inolvidable"));
+   mock.appendChild(make("small","","UN MOMENTO ESPECIAL"));mock.appendChild(make("strong","",String(src("title")?.value||"Una celebración").replace(/\n/g," ").slice(0,26)));mock.appendChild(make("em","","Una celebración inolvidable"));
    b.appendChild(mock);
    const colors=make("div","lu4-palette-swatch");[c[4],c[5],c[0],c[2]].forEach(hex=>{const sw=make("span");sw.style.background=hex||"#eee";colors.appendChild(sw)});
    b.appendChild(colors);b.appendChild(make("div","lu4-palette-name",label));
