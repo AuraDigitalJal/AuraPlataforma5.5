@@ -54,14 +54,11 @@ function setup(){
   view("preview");
  });
  function onSize(){
-  if(!portrait()&&document.body.dataset.luTabletView==="preview"){
-   // En horizontal las dos columnas permanecen visibles.
-   editButton.setAttribute("aria-pressed","true");
-   previewButton.setAttribute("aria-pressed","true");
-  }else{
-   editButton.setAttribute("aria-pressed",String(document.body.dataset.luTabletView!=="preview"));
-   previewButton.setAttribute("aria-pressed",String(document.body.dataset.luTabletView==="preview"));
-  }
+  // Mantener un único modo activo también en horizontal:
+  // nunca comprimir el iframe para mostrar editor y teléfono juntos.
+  const previewMode=document.body.dataset.luTabletView==="preview";
+  editButton.setAttribute("aria-pressed",String(!previewMode));
+  previewButton.setAttribute("aria-pressed",String(previewMode));
  }
  window.addEventListener("resize",onSize,{passive:true});onSize();
  // Al tocar nombres dentro de la vista previa, devolver la pantalla al editor.
