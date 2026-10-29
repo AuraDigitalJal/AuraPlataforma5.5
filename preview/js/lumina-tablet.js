@@ -26,8 +26,13 @@ function setup(){
   holder.appendChild(phone);
   function fitPhone(){
    const style=getComputedStyle(preview);
-   const usable=Math.max(260,preview.clientWidth-(parseFloat(style.paddingLeft)||0)-(parseFloat(style.paddingRight)||0)-6);
-   const scale=Math.min(1,Math.max(.48,usable/410));
+   const usableWidth=Math.max(235,preview.clientWidth-(parseFloat(style.paddingLeft)||0)-(parseFloat(style.paddingRight)||0)-10);
+   const stacked=window.matchMedia("(max-width:859px), (orientation:portrait)").matches;
+   const heading=preview.querySelector(".preview-head");
+   const headingHeight=heading?heading.offsetHeight:65;
+   const usableHeight=stacked?864:Math.max(200,preview.clientHeight-headingHeight-45);
+   // Escala uniforme el teléfono completo; el iframe sigue a 390 x 844 CSS px.
+   const scale=Math.min(1,usableWidth/410,stacked?1:Math.max(.52,usableHeight/864));
    preview.style.setProperty("--lu-preview-scale",String(scale));
    preview.style.setProperty("--lu-preview-width",(410*scale)+"px");
    preview.style.setProperty("--lu-preview-height",(864*scale)+"px");
