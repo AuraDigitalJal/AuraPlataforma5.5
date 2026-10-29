@@ -1,0 +1,82 @@
+/* Lúmina · Modo tablet Android · sólo se aplica a la V4 y dispositivos táctiles. */
+body.lu4.lu-tablet{--lu-tablet-header:64px;--lu-tablet-tools:58px;background:#fbf9f8}
+body.lu4.lu-tablet .topbar{height:var(--lu-tablet-header);min-height:var(--lu-tablet-header);position:sticky!important;top:0!important;z-index:75!important;padding:0 18px!important}
+body.lu4.lu-tablet .topbar-brand{min-width:0}
+body.lu4.lu-tablet .topbar-brand strong{font-size:13px!important;letter-spacing:.09em!important}
+body.lu4.lu-tablet .topbar-actions{gap:6px}
+body.lu4.lu-tablet .topbar-actions #open-preview-window{display:none!important}
+body.lu4.lu-tablet .lu-tablet-bar{position:sticky;top:var(--lu-tablet-header);z-index:74;display:flex;align-items:center;gap:10px;justify-content:space-between;min-height:var(--lu-tablet-tools);padding:8px 18px;background:#fffdfd;border-bottom:1px solid #e6dbe3;box-shadow:0 4px 14px #62445a10}
+body.lu4.lu-tablet .lu-tablet-bar .lu-tablet-brand{font-size:12px;font-weight:750;color:#6b465c;white-space:nowrap;display:flex;align-items:center;gap:8px}
+body.lu4.lu-tablet .lu-tablet-dot{width:8px;height:8px;border-radius:50%;background:#9d7d90;flex:none}
+body.lu4.lu-tablet .lu-tablet-bar .lu-tablet-right{display:flex;gap:8px;align-items:center;justify-content:flex-end;min-width:0}
+body.lu4.lu-tablet .lu-tablet-install,body.lu4.lu-tablet .lu-tablet-view button{border:1px solid #decfd9;background:white;border-radius:11px;min-height:42px;padding:10px 13px;color:#65475a;font:750 12px/1.15 'Manrope',system-ui,sans-serif;cursor:pointer;white-space:nowrap}
+body.lu4.lu-tablet .lu-tablet-install{background:#6b465c;border-color:#6b465c;color:#fff}
+body.lu4.lu-tablet .lu-tablet-view{display:flex;align-items:center;gap:4px;padding:3px;background:#f2eaf0;border-radius:12px}
+body.lu4.lu-tablet .lu-tablet-view button{border:0;background:transparent}
+body.lu4.lu-tablet .lu-tablet-view button[aria-pressed=true]{background:#fff;color:#492f41;box-shadow:0 2px 7px #73576a18}
+body.lu4.lu-tablet .lu-tablet-view button:focus-visible,body.lu4.lu-tablet .lu-tablet-install:focus-visible{outline:3px solid #a9849a;outline-offset:2px}
+body.lu4.lu-tablet .lu4-nav{position:sticky!important;top:0!important;z-index:25!important;display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:8px!important;padding:8px!important;margin:14px 0 20px!important}
+body.lu4.lu-tablet .lu4-page{font-size:13px!important;line-height:1.2!important;padding:10px 9px!important;min-height:56px!important;touch-action:manipulation}
+body.lu4.lu-tablet .lu4-events{grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}
+body.lu4.lu-tablet .lu4-event{min-height:94px!important;font-size:13px!important}
+body.lu4.lu-tablet .lu4-event span{font-size:28px!important}
+body.lu4.lu-tablet .lu4-theme-image{height:174px}
+body.lu4.lu-tablet .lu4-theme-caption{font-size:13px}
+body.lu4.lu-tablet .lu4-palette-mock{height:140px}
+body.lu4.lu-tablet .lu4-palette-name{font-size:12px}
+body.lu4.lu-tablet .lu4-card{padding:21px}
+body.lu4.lu-tablet .lu4-card-title{font-size:13px}
+body.lu4.lu-tablet .lu4-field label{font-size:13px}
+body.lu4.lu-tablet .lu4-field input:not([type=checkbox]),body.lu4.lu-tablet .lu4-field textarea,body.lu4.lu-tablet .lu4-field select{min-height:48px;font-size:16px!important;padding:12px 13px}
+body.lu4.lu-tablet .lu4-field textarea{min-height:98px}
+body.lu4.lu-tablet .lu4-button{min-height:48px;font-size:13px;padding:12px 14px}
+body.lu4.lu-tablet .lu4-text-row{min-height:54px;padding:12px 13px}
+body.lu4.lu-tablet .lu4-text-row strong{font-size:13px}
+body.lu4.lu-tablet .lu4-text-row small{font-size:11px}
+body.lu4.lu-tablet .lu4-search{min-height:47px;font-size:16px}
+body.lu4.lu-tablet .lu4-two-choice button{min-height:49px;font-size:13px}
+body.lu4.lu-tablet .lu4-disclosure summary{font-size:13px;padding:3px}
+body.lu4.lu-tablet .lu4-preview-jump,body.lu4.lu-tablet .lu4-return{display:none!important}
+body.lu4.lu-tablet .lu-tablet-resume{display:flex;flex-wrap:wrap;gap:10px;align-items:center;background:#fff6f7;border:1px solid #e5cfd9;border-radius:14px;padding:13px 16px;margin:10px 0 16px}
+body.lu4.lu-tablet .lu-tablet-resume[hidden]{display:none!important}
+body.lu4.lu-tablet .lu-tablet-resume .lu-tablet-resume-copy{flex:1 1 180px;font:500 12px/1.45 'Manrope',system-ui,sans-serif;color:#65495a}
+body.lu4.lu-tablet .lu-tablet-resume button{min-height:42px;padding:10px 13px;border:1px solid #bda9b6;border-radius:10px;background:white;color:#6b465c;font-size:12px;font-weight:750}
+body.lu4.lu-tablet .lu-tablet-resume .lu-tablet-resume-yes{background:#6b465c;color:white;border-color:#6b465c}
+body.lu4.lu-tablet .lu-tablet-save-note{font-size:11px;color:#84737e;line-height:1.35}
+body.lu4.lu-tablet .lu-tablet-message{font-size:12px;color:#66495d;padding:8px 13px;margin:5px 0;background:#f6ecf3;border-radius:8px}
+body.lu4.lu-tablet .lu-tablet-message[hidden]{display:none!important}
+body.lu4.lu-tablet .preview-head h2{font-size:23px}
+body.lu4.lu-tablet .device-label{display:none}
+body.lu4.lu-tablet .preview-pane .device-shell{max-width:calc(100% - 20px);margin-inline:auto}
+@media (min-width:900px) and (orientation:landscape){
+ body.lu4.lu-tablet .workspace{display:grid!important;grid-template-columns:minmax(460px,55%) minmax(350px,45%)!important;align-items:start;min-height:calc(100dvh - var(--lu-tablet-header) - var(--lu-tablet-tools))}
+ body.lu4.lu-tablet .workspace>.editor-pane{min-width:0!important;max-width:none!important;height:calc(100dvh - var(--lu-tablet-header) - var(--lu-tablet-tools));overflow-y:auto!important;padding:12px clamp(15px,2.2vw,30px) 60px!important;overscroll-behavior:contain}
+ body.lu4.lu-tablet .workspace>.preview-pane{position:sticky!important;top:calc(var(--lu-tablet-header) + var(--lu-tablet-tools))!important;min-height:0!important;height:calc(100dvh - var(--lu-tablet-header) - var(--lu-tablet-tools))!important;max-width:none!important;padding:15px 12px!important;overflow:auto!important;display:flex!important}
+ body.lu4.lu-tablet .preview-pane .device-shell{height:min(65dvh,740px)!important;width:min(342px,calc(65dvh * .46),95%)!important;flex:0 0 auto!important;border-width:8px;border-radius:33px}
+ body.lu4.lu-tablet .preview-pane .device-island{width:75px;height:19px}
+ body.lu4.lu-tablet .preview-note{max-width:335px!important;margin-top:10px;font-size:10px}
+ body.lu4.lu-tablet .lu-tablet-view{display:none}
+}
+@media (max-width:899px), (orientation:portrait){
+ body.lu4.lu-tablet .workspace{display:block!important;min-height:calc(100dvh - var(--lu-tablet-header) - var(--lu-tablet-tools))}
+ body.lu4.lu-tablet .workspace>.editor-pane{display:block!important;max-width:none!important;min-width:0!important;height:auto!important;overflow:visible!important;border:0!important;padding:15px clamp(15px,3vw,30px) 70px!important}
+ body.lu4.lu-tablet .workspace>.preview-pane{display:none!important;position:relative!important;top:auto!important;min-height:calc(100dvh - var(--lu-tablet-header) - var(--lu-tablet-tools))!important;height:auto!important;padding:20px 14px!important;overflow:visible!important}
+ body.lu4.lu-tablet[data-lu-tablet-view=preview] .workspace>.editor-pane{display:none!important}
+ body.lu4.lu-tablet[data-lu-tablet-view=preview] .workspace>.preview-pane{display:flex!important}
+ body.lu4.lu-tablet .lu4-nav{top:calc(var(--lu-tablet-header) + var(--lu-tablet-tools))!important;z-index:21!important}
+ body.lu4.lu-tablet .preview-pane .device-shell{height:min(70dvh,800px)!important;width:min(382px,calc(70dvh * .46),100%)!important;border-width:8px!important;border-radius:34px!important}
+ body.lu4.lu-tablet .preview-note{max-width:350px!important}
+}
+@media(max-width:560px){
+ body.lu4.lu-tablet .lu-tablet-bar{padding:7px 10px}
+ body.lu4.lu-tablet .lu-tablet-brand{font-size:10px}
+ body.lu4.lu-tablet .lu-tablet-install{padding:8px 9px;font-size:10px;min-height:38px}
+ body.lu4.lu-tablet .lu-tablet-view button{padding:8px 9px;font-size:11px;min-height:38px}
+ body.lu4.lu-tablet .lu4-nav{gap:5px!important;padding:5px!important;top:calc(var(--lu-tablet-header) + var(--lu-tablet-tools))!important}
+ body.lu4.lu-tablet .lu4-page{font-size:11px!important;min-height:49px!important;padding:6px 3px!important}
+ body.lu4.lu-tablet .lu4-theme-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ body.lu4.lu-tablet .lu4-theme-image{height:133px}
+ body.lu4.lu-tablet .lu4-palette-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ body.lu4.lu-tablet .lu4-palette-mock{height:109px}
+ body.lu4.lu-tablet .lu4-events{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
