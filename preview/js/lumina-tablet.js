@@ -25,14 +25,18 @@ function setup(){
   phone.parentNode.insertBefore(holder,phone);
   holder.appendChild(phone);
   function fitPhone(){
+   // No fijar un tamaño mínimo que desborde pantallas bajas (o Chrome con barras visibles).
+   // Se mantiene intacto el iframe nativo de 390 x 844; escala uniforme de su marco.
    const style=getComputedStyle(preview);
-   const usableWidth=Math.max(235,preview.clientWidth-(parseFloat(style.paddingLeft)||0)-(parseFloat(style.paddingRight)||0)-10);
-   const stacked=window.matchMedia("(max-width:859px), (orientation:portrait)").matches;
+   const padX=(parseFloat(style.paddingLeft)||0)+(parseFloat(style.paddingRight)||0);
+   const padY=(parseFloat(style.paddingTop)||0)+(parseFloat(style.paddingBottom)||0);
+   const usableWidth=Math.max(1,preview.clientWidth-padX-12);
+   const split=window.matchMedia("(min-width:860px) and (orientation:landscape)").matches;
    const heading=preview.querySelector(".preview-head");
-   const headingHeight=heading?heading.offsetHeight:65;
-   const usableHeight=stacked?864:Math.max(200,preview.clientHeight-headingHeight-45);
-   // Escala uniforme el teléfono completo; el iframe sigue a 390 x 844 CSS px.
-   const scale=Math.min(1,usableWidth/410,stacked?1:Math.max(.52,usableHeight/864));
+   const headingStyle=heading?getComputedStyle(heading):null;
+   const headingHeight=heading?heading.getBoundingClientRect().height+(parseFloat(headingStyle.marginBottom)||0):0;
+   const usableHeight=split?Math.max(1,preview.clientHeight-padY-headingHeight-10):864;
+   const scale=Math.max(.1,Math.min(1,usableWidth/410,split?usableHeight/864:1));
    preview.style.setProperty("--lu-preview-scale",String(scale));
    preview.style.setProperty("--lu-preview-width",(410*scale)+"px");
    preview.style.setProperty("--lu-preview-height",(864*scale)+"px");
