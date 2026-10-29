@@ -9,7 +9,7 @@
     // Las pruebas siempre abren la revisión más reciente, incluso desde un enlace viejo.
     (function () {
       if (window.location.protocol === 'file:') return;
-      var build = 'lumina-direct-menu-v4-20261028';
+      var build = 'lumina-tablet-layout-v5-20261028';
       var target = new URL(window.location.href);
       if (target.searchParams.get('v') === build) return;
       target.searchParams.set('v', build);
