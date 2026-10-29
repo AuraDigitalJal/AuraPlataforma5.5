@@ -1,0 +1,78 @@
+name: Compilar APK Lúmina Tablet
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "android-lumina/**"
+      - ".github/workflows/lumina-android-apk.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: lumina-android-beta
+  cancel-in-progress: true
+
+jobs:
+  apk:
+    name: Compilar y verificar APK Android
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - name: Descargar proyecto
+        uses: actions/checkout@v4
+
+      - name: Preparar Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Preparar Android SDK
+        uses: android-actions/setup-android@v4
+
+      - name: Instalar SDK Android 35
+        run: |
+          sdkmanager --install "platforms;android-35" "build-tools;35.0.0"
+
+      - name: Preparar Gradle
+        uses: gradle/actions/setup-gradle@v6
+        with:
+          gradle-version: '8.11.1'
+
+      - name: Construir APK de prueba firmado
+        working-directory: android-lumina
+        run: gradle --no-daemon --stacktrace :app:assembleDebug
+
+      - name: Verificar el paquete y la firma
+        run: |
+          APK="android-lumina/app/build/outputs/apk/debug/app-debug.apk"
+          test -s "$APK"
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --verbose "$APK"
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$APK" | head -25
+          cp "$APK" Lumina-Studio-Tablet-beta.apk
+          ls -lh Lumina-Studio-Tablet-beta.apk
+
+      - name: Adjuntar APK para descargar
+        uses: actions/upload-artifact@v4
+        with:
+          name: Lumina-Studio-Tablet-APK
+          path: Lumina-Studio-Tablet-beta.apk
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Publicar APK beta en GitHub Releases
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="lumina-tablet-beta-v1"
+          if ! gh release view "$TAG" >/dev/null 2>&1; then
+            gh release create "$TAG" \
+              --title "Lúmina Studio · Android Tablet beta" \
+              --notes "APK de prueba para uso privado. Abre la V4 de Lúmina en su URL original. Android 8+. Requiere internet. El APK de prueba se firma con clave de depuración; no usar como actualización definitiva." \
+              --prerelease
+          fi
+          gh release upload "$TAG" Lumina-Studio-Tablet-beta.apk --clobber
+          gh release view "$TAG" --json assets,url
