@@ -1,0 +1,108 @@
+
+/* Lúmina V4 · editor sencillo de cuatro espacios. Sólo afecta a lumina-v4.html */
+body.lu4{--lu4-wine:#6b465c;--lu4-ink:#362c35;--lu4-muted:#827780;--lu4-line:#e6dfe4;--lu4-bg:#fbf9f8;--lu4-soft:#f6f0f3}
+body.lu4 .topbar{background:rgba(251,249,248,.96);height:68px;padding:0 20px}
+body.lu4 .topbar-brand .brand-mark{background:#6b465c;color:#fff}
+body.lu4 .topbar-brand strong{font-size:12px;letter-spacing:.1em}
+body.lu4 .topbar-brand small{font-size:10px;color:#967e8d}
+body.lu4 .topbar-actions #open-github,body.lu4 .topbar-actions #generate-zip,body.lu4 .topbar-actions #update-preview,body.lu4 .topbar-actions .aura-live-toolbar{display:none!important}
+body.lu4 .topbar-actions #open-preview-window{display:inline-flex!important;font-size:11px;padding:10px 12px}
+body.lu4 .workspace{grid-template-columns:minmax(440px,1fr) minmax(440px,.95fr)}
+body.lu4 .editor-pane{max-width:none;padding:25px clamp(20px,3vw,46px) 70px;border-right:1px solid var(--lu4-line)}
+body.lu4 .editor-intro,body.lu4 .editor-guide{display:none!important}
+body.lu4 #config-form{display:none!important}
+body.lu4.lu4-advanced #config-form{display:block!important;border:1px solid var(--lu4-line);border-radius:15px;background:white;padding:10px 16px;margin-top:15px}
+body.lu4.lu4-advanced .form-section.editor-filtered:not(.lu4-hidden-original){display:block!important}
+body.lu4 .form-section.lu4-hidden-original,body.lu4 #sec-system{display:none!important}
+body.lu4 .preview-pane{top:68px;height:calc(100vh - 68px);background:#eae3df}
+body.lu4 .preview-head{width:min(410px,100%)}
+body.lu4 .preview-note{max-width:410px;line-height:1.65;text-align:center}
+.lu4-app{font-family:'Manrope',system-ui,sans-serif;color:var(--lu4-ink);max-width:700px;margin:0 auto}
+.lu4-app *{box-sizing:border-box}
+.lu4-eyebrow{font:800 10px/1.5 'Manrope',system-ui,sans-serif;letter-spacing:.15em;text-transform:uppercase;color:#926b82}
+.lu4-app h1,.lu4-app h2,.lu4-app h3{font-family:'Playfair Display',Georgia,serif;font-weight:500;letter-spacing:-.025em}
+.lu4-app h1{font-size:clamp(28px,2.7vw,38px);line-height:1.16;margin:6px 0 8px}
+.lu4-app h2{font-size:25px;margin:0 0 7px}
+.lu4-app h3{font-size:20px;margin:0}
+.lu4-app p{font-size:12px;color:var(--lu4-muted);line-height:1.65;margin:0 0 12px}
+.lu4-nav{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));background:#efe8ed;padding:5px;border-radius:13px;margin:21px 0 20px;gap:4px}
+.lu4-nav button{border:0;border-radius:10px;background:transparent;color:#806b7a;padding:12px 6px;font:700 11px/1.3 'Manrope',system-ui,sans-serif;cursor:pointer}
+.lu4-nav button[aria-current=step]{background:#fff;color:#5f3e54;box-shadow:0 3px 12px #57344813}
+.lu4-stage[hidden],.lu4-panel[hidden],.lu4-text-detail[hidden],.lu4-extra-fields[hidden]{display:none!important}
+.lu4-head{border:1px solid #e7dbe3;border-radius:18px;background:linear-gradient(130deg,#fffdfa,#faf2f6);padding:23px;margin-bottom:13px}
+.lu4-card{border:1px solid var(--lu4-line);border-radius:17px;background:#fff;padding:20px;margin-bottom:13px;box-shadow:0 4px 22px #392a3510}
+.lu4-card-title{font:800 12px/1.5 'Manrope',system-ui,sans-serif;color:#4c3d48;margin-bottom:13px}
+.lu4-events{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.lu4-event{border:1px solid #e5dce2;border-radius:12px;min-height:76px;background:#fff;text-align:center;color:#6c5765;font:700 11px/1.35 'Manrope',system-ui,sans-serif;cursor:pointer;padding:9px}
+.lu4-event span{display:block;font-size:24px;margin-bottom:6px}
+.lu4-event[aria-pressed=true]{border:2px solid #906d85;background:#f8f0f5;padding:8px;color:#53384a}
+.lu4-two-choice{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:#f4eef2;border-radius:12px;padding:5px;margin-bottom:14px}
+.lu4-two-choice button{border:0;border-radius:9px;background:transparent;color:#806d79;font:700 11px/1.25 'Manrope',system-ui,sans-serif;padding:11px 7px;cursor:pointer}
+.lu4-two-choice button[aria-pressed=true]{background:#fff;color:#5b3e53;box-shadow:0 2px 10px #56364714}
+.lu4-theme-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;max-height:540px;overflow:auto;padding:2px}
+.lu4-theme{border:1px solid #e5dbe1;border-radius:13px;background:#fff;text-align:left;cursor:pointer;padding:7px;min-width:0}
+.lu4-theme[aria-pressed=true]{border:2px solid #8c607b;background:#faf4f8;padding:6px}
+.lu4-theme-image{width:100%;height:164px;border-radius:9px;overflow:hidden;background:#efebea;display:flex;justify-content:center;align-items:center;position:relative}
+.lu4-theme-image img{display:block;width:100%;height:100%;object-fit:cover}
+.lu4-theme-fallback{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;position:relative}
+.lu4-theme-fallback::before{content:"";position:absolute;inset:7px;border:1px solid currentColor;opacity:.18;pointer-events:none}
+.lu4-theme-fallback small{font:700 8px/1.3 system-ui,sans-serif;letter-spacing:.15em;text-transform:uppercase}
+.lu4-theme-fallback strong{font:italic 29px/1.1 Georgia,serif;text-align:center;letter-spacing:-.04em}
+.lu4-theme-fallback em{font:normal 10px Georgia,serif;opacity:.8}
+.lu4-theme-caption{font-size:11px;font-weight:750;margin:8px 3px 1px;color:#4c3a47}
+.lu4-theme-sub{font-size:10px;color:#998894;margin:2px 3px 3px}
+.lu4-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:15px}
+.lu4-tab{display:flex;gap:10px;align-items:center;text-align:left;border:1px solid #e5dce3;border-radius:13px;background:white;padding:12px 10px;cursor:pointer;min-height:76px}
+.lu4-tab[aria-pressed=true]{background:#f8f0f5;border:2px solid #97738d;padding:11px 9px}
+.lu4-tab-icon{display:grid;place-items:center;flex:none;height:34px;width:34px;background:#f5edf3;border-radius:10px;font-size:19px;color:#76516d}
+.lu4-tab strong{display:block;color:#513e4c;font-size:11px}
+.lu4-tab small{display:block;color:#978895;font-size:10px;line-height:1.35;margin-top:3px}
+.lu4-edit-head{display:flex;align-items:start;justify-content:space-between;gap:10px;margin-bottom:13px}
+.lu4-edit-head button{border:0;background:transparent;color:#855f79;font-size:11px;text-decoration:underline;cursor:pointer}
+.lu4-field{margin:0 0 14px;min-width:0}
+.lu4-field label{display:block;color:#594956;font:700 11px/1.45 'Manrope',system-ui,sans-serif;margin:0 0 7px}
+.lu4-field input:not([type=checkbox]),.lu4-field textarea,.lu4-field select{width:100%;max-width:100%;border:1px solid #e4d9e1;border-radius:10px;padding:12px;background:#fff;color:#3d333b;font:500 12px/1.45 'Manrope',system-ui,sans-serif}
+.lu4-field input[type=color]{height:47px;padding:5px;cursor:pointer}
+.lu4-field input[type=checkbox]{accent-color:#805571;width:18px;height:18px}
+.lu4-check{display:flex;align-items:center;gap:10px}
+.lu4-check label{margin:0;cursor:pointer}
+.lu4-field[hidden]{display:none!important}
+.lu4-field small{display:block;font-size:10px;color:#988794;margin-top:5px}
+.lu4-grid-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 12px}
+.lu4-span{grid-column:1/-1}
+.lu4-upload{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px;border:1px dashed #d2c2cc;border-radius:10px;background:#fffcfe}
+.lu4-upload span{color:#938391;font-size:10px;min-width:0;overflow-wrap:anywhere}
+.lu4-button{appearance:none;border:1px solid #d9c8d4;background:#fff;color:#64465d;border-radius:10px;padding:11px 14px;cursor:pointer;font:700 11px/1.4 'Manrope',system-ui,sans-serif}
+.lu4-button.primary{background:#6b465c;color:#fff;border-color:#6b465c}
+.lu4-button:disabled{opacity:.45;cursor:default}
+.lu4-bottom{display:flex;justify-content:space-between;gap:10px;margin:15px 0}
+.lu4-bottom .lu4-button{min-width:105px}
+.lu4-button:focus-visible,.lu4-nav button:focus-visible,.lu4-tab:focus-visible,.lu4-theme:focus-visible,.lu4-event:focus-visible,.lu4-two-choice button:focus-visible,.lu4-text-row:focus-visible,.lu4-palette:focus-visible{outline:3px solid #a57b99;outline-offset:2px}
+.lu4-search{display:block;width:100%;border:1px solid #e6dce3;border-radius:10px;padding:11px 12px;background:white;color:#493c46;font-size:12px;margin:10px 0}
+.lu4-text-list{border:1px solid #ebe0e8;border-radius:12px;overflow:auto;max-height:290px;background:#fff}
+.lu4-text-group{padding:9px 12px;font-size:10px;color:#86657e;font-weight:800;background:#f8f2f6;border-top:1px solid #eee6eb}
+.lu4-text-group:first-child{border-top:0}
+.lu4-text-row{display:block;border:0;border-top:1px solid #f3ecf1;padding:10px 12px;text-align:left;background:#fff;cursor:pointer;width:100%}
+.lu4-text-row[aria-pressed=true]{background:#faeff6;box-shadow:inset 3px 0 0 #99728c}
+.lu4-text-row strong{display:block;font-size:11px;color:#594654}
+.lu4-text-row small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:10px;color:#978794;margin-top:4px}
+.lu4-text-detail{background:#fcf8fb;border:1px solid #e8d8e3;border-radius:12px;padding:15px;margin-top:12px}
+.lu4-palette-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;max-height:500px;overflow:auto;margin-bottom:15px}
+.lu4-palette{border:1px solid #e6dce3;border-radius:12px;background:#fff;padding:7px;text-align:left;cursor:pointer}
+.lu4-palette[aria-pressed=true]{border:2px solid #99738c;padding:6px;background:#fbf5f9}
+.lu4-palette-mock{height:120px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:5px}
+.lu4-palette-mock small{font-size:8px;letter-spacing:.14em;text-transform:uppercase}
+.lu4-palette-mock strong{font:italic 25px/1 Georgia,serif}
+.lu4-palette-mock em{font:normal 9px Georgia,serif}
+.lu4-palette-swatch{display:flex;gap:4px;height:10px;margin:9px 2px}
+.lu4-palette-swatch span{flex:1;border-radius:9px}
+.lu4-palette-name{font-weight:750;color:#5b4555;font-size:11px;margin:8px 3px 0}
+.lu4-disclosure{margin-top:12px;border:1px solid #e9dce5;border-radius:11px;background:white;padding:12px}
+.lu4-disclosure summary{font-size:11px;font-weight:700;color:#785c70;cursor:pointer;list-style:revert}
+.lu4-disclosure[open] summary{margin-bottom:14px}
+.lu4-note{font-size:11px!important;background:#faf3f7;border-radius:10px;padding:12px;color:#795f70!important}
+.lu4-status{font-size:11px;color:#815e72;line-height:1.5;margin:12px 0}
+.lu4-preview-jump{position:fixed;z-index:28;bottom:16px;right:15px;background:#6b465c;color:white;border:0;border-radius:99px;padding:13px 15px;font-size:11px;font-weight:750;box-shadow:0 5px 20px #54374b47;cursor:pointer;display:none}
+.lu4-return{border:1px solid #bfaab7;background:white;border-radius:10px;padding:10px 13px;font-size:11px;color:#65465c;font-weight:700;display:none;margin:13px}
+@media(max-width:1050px){body.lu4 .workspace{grid-template-columns:1fr}body.lu4 .preview-pane{position:relative;top:auto;height:auto;min-height:890px}.lu4-preview-jump,.lu4-return{display:block}}
+@media(max-width:620px){body.lu4 .topbar{padding:0 12px}body.lu4 .topbar-brand small{display:none}body.lu4 .editor-pane{padding:20px 14px 44px}.lu4-theme-image{height:130px}.lu4-card{padding:15px}.lu4-head{padding:19px}.lu4-grid-fields{grid-template-columns:1fr}.lu4-events{grid-template-columns:repeat(2,minmax(0,1fr))}.lu4-palette-mock{height:105px}.lu4-tab{min-height:70px}.lu4-tab-icon{width:30px;height:30px}}
