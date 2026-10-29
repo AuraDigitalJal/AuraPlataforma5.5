@@ -90,11 +90,14 @@ try:
     foreground=adb("shell","dumpsys","activity","activities",check=False).stdout
     step("actividad en primer plano", "com.luminastudio.tablet" in foreground, "Paquete detectado")
     if menu:
-        root=tap("Vista previa","02b-modo-vista-previa")
+        # Misma distribución que Aura Pro: teléfono y editor visibles simultáneamente.
+        # No existen botones Editar/Vista previa que deban activarse.
+        root=hierarchy("02b-editor-y-telefono")
+        editor_visible=find(root,"Diseños") is not None
         preview_visible=find(root,"Vista móvil") is not None or find(root,"PREVIEW") is not None
-        step("vista previa separada y accesible",preview_visible,"Pantalla de teléfono sin compartir columna con el editor")
-        root=tap("Editar","02c-volver-a-editar")
-        step("regresar a modo edición",find(root,"Diseños") is not None)
+        step("editor y vista previa simultáneos",editor_visible and preview_visible,
+             "El editor y el teléfono aparecen juntos, como en Aura Pro.")
+        screenshot("02b-editor-y-telefono")
         root=tap("Colores y estilo","03-colores")
         hasColors=find(root,"Elige los colores") is not None or find(root,"Apariencia") is not None
         step("acceso a menú de colores",hasColors,"Título de sección localizado" if hasColors else "Pantalla de colores no identificada")
