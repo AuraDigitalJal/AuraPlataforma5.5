@@ -93,7 +93,7 @@ function init(){
    var lab=mk("label","",label);lab.htmlFor=el.id;wrap.appendChild(el);wrap.appendChild(lab);
   }else{el.setAttribute("aria-label",label);wrap.appendChild(el)}
   if(src.placeholder)el.placeholder=src.placeholder;
-  if(src.min)el.min=src.min;if(src.max)el.max=src.max;if(src.step)el.step=src.step;
+  if(src.min)el.min=src.min;if(src.max)el.max=src.max;if(src.step)el.step=src.step;if(src.disabled)el.disabled=true;
   el.addEventListener("input",function(){sourceChange(id,t==="checkbox"?el.checked:el.value)});
   el.addEventListener("change",function(){sourceChange(id,t==="checkbox"?el.checked:el.value)});
   register(id,{kind:"control",el:el,src:src});return wrap;
@@ -320,6 +320,7 @@ function init(){
  allTexts().forEach(function(x){if(x.source)textBaseline.set(x.key,x.source.value)});
  renderEvents();renderCategories();designSettings();setCategory("textos",false);
  if(byId("designCollection"))sourceChange("designCollection","all");
+ var selectedPalette=byId("colorPalette");if(selectedPalette&&selectedPalette.value!=="custom")selectedPalette.dataset.lastRealPalette=selectedPalette.value;
  var themeSource=byId("theme-strip");if(themeSource&&typeof MutationObserver==="function"){new MutationObserver(renderThemes).observe(themeSource,{childList:true})}
  setStep(0,false);syncQuick();
  shell.addEventListener("click",function(e){
