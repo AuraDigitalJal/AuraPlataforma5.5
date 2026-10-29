@@ -16,6 +16,20 @@ function init(){
  if(section3&&!section3.id)section3.id="sec-apariencia";
  const app=make("div","lu4-app");app.appendChild(template.content.cloneNode(true));pane.insertBefore(app,form);
  const q=id=>app.querySelector("#"+id);
+ const pages=[["design","Diseños"],["datos","Datos y textos"],["media","Fotos y música"],["look","Colores y estilo"],["extras","Extras"],["delivery","Entrega"]];
+ const nav=app.querySelector(".lu4-nav");
+ nav.replaceChildren();
+ pages.forEach(([id,label])=>{
+   const b=make("button","lu4-page",label);
+   b.type="button";b.dataset.lu4Page=id;
+   b.addEventListener("click",()=>openPage(id,true));
+   nav.appendChild(b);
+ });
+ const instructions=app.querySelector("h1 + p");
+ if(instructions)instructions.textContent="Abre directamente el apartado que necesites. No hay pasos obligatorios.";
+ q("lu4-stage-0").querySelector(".lu4-eyebrow").textContent="DISEÑOS";
+ q("lu4-stage-1").querySelector(".lu4-eyebrow").textContent="PERSONALIZAR";
+ q("lu4-stage-2").querySelector(".lu4-eyebrow").textContent="ENTREGA";
  const state={step:0,tab:"datos",catalog:"all",textKey:"",search:"",edited:false,lastPalette:"",defaults:new Map()};
  const proxies=new Map();
  const groups={datos:["sec-portada","sec-evento","sec-ubicaciones","sec-familia","sec-cierre","sec-aura-fixed-copy"],media:["sec-media"],look:["sec-identidad","sec-portada","sec-apariencia","sec-movimiento"],extras:["sec-familia","sec-transferencia","sec-video","sec-orden"]};
@@ -136,6 +150,23 @@ function init(){
   });
   q("lu4-theme-notice").textContent=all.length?all.length+" diseños disponibles. La vista del teléfono muestra el resultado real del modelo.":"Cargando catálogo…";
  }
+ function refreshNavigation(){
+  const selected=state.step===0?"design":state.step===2?"delivery":state.tab;
+  nav.querySelectorAll("[data-lu4-page]").forEach(b=>{
+   if(b.dataset.lu4Page===selected)b.setAttribute("aria-current","page");
+   else b.removeAttribute("aria-current");
+  });
+ }
+ function openPage(id,scroll=true){
+  if(id==="design")showStage(0,false);
+  else if(id==="delivery")showStage(2,false);
+  else{
+   showStage(1,false);
+   selectPanel(id,false);
+  }
+  refreshNavigation();
+  if(scroll)nav.scrollIntoView({behavior:"smooth",block:"start"});
+ }
  function showStage(n,scroll=true){
   state.step=Math.max(0,Math.min(2,n));
   [0,1,2].forEach(i=>q("lu4-stage-"+i).hidden=i!==state.step);
@@ -143,9 +174,10 @@ function init(){
   q("lu4-prev").disabled=state.step===0;
   q("lu4-next").textContent=state.step===2?"Ver invitación ↗":"Continuar →";
   q("lu4-advanced").hidden=state.step===2;
-  closeAdvanced();
+  hideAdvanced();
   if(state.step===0)renderThemes();
-  if(scroll)app.querySelector(".lu4-nav").scrollIntoView({behavior:"smooth",block:"start"});
+  refreshNavigation();
+  if(scroll)nav.scrollIntoView({behavior:"smooth",block:"start"});
  }
  function makeTabs(){
   tabs.forEach(([id,title,icon,note])=>{
@@ -159,8 +191,9 @@ function init(){
   state.tab=id;
   tabs.forEach(([key])=>q("lu4-panel-"+key).hidden=key!==id);
   q("lu4-tabs").querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.panel===id)));
-  closeAdvanced();
-  if(scroll)q("lu4-panel-"+id).scrollIntoView({behavior:"smooth",block:"start"});
+  hideAdvanced();
+  refreshNavigation();
+  if(scroll)nav.scrollIntoView({behavior:"smooth",block:"start"});
  }
  function isTextField(input){
   if(!input||!input.id||input.disabled||!form.contains(input)||input.closest("#sec-github,#sec-system,#sec-exportar,#auraFixedControls"))return false;
