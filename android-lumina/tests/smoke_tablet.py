@@ -101,7 +101,7 @@ try:
             nodes=list(root.iter("node")) if root is not None else []
             packages={n.attrib.get("package","") for n in nodes}
             labels=[n.attrib.get("text","") for n in nodes if n.attrib.get("text","")]
-            opened=any("documentsui" in p.lower() or "permissioncontroller" in p.lower() for p in packages) or any(x in labels for x in ["Recientes","Browse","Examinar","Browse files","Archivos"])
+            opened=any("documentsui" in p.lower() or "permissioncontroller" in p.lower() or "providers.media.module" in p.lower() for p in packages) or any(x in labels for x in ["Recientes","Browse","Examinar","Browse files","Archivos","No photos or videos","Photos","Albums"])
             step("selector nativo de archivos",opened,"Paquetes: "+", ".join(sorted(packages))[:150])
             if opened:
                 adb("shell","input","keyevent","4",check=False)
