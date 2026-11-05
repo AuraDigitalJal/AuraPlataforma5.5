@@ -2851,7 +2851,8 @@ function auraGithubPreviewRepoAllowed(name){
 const AURA_PROTECTED_REPOS_5620=new Set([
   'auradigitaljal/auradigitaljal.github.io',
   'auradigitaljal/auraplataforma5.5',
-  'auradigitaljal/aurawebstudio'
+  'auradigitaljal/aurawebstudio',
+  'auradigitaljal/gallerystudio'
 ]);
 function auraGithubRepoProtected5620(repo){
   const full=String(repo?.full_name||'').trim().toLowerCase();
