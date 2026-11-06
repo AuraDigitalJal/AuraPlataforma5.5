@@ -1,6 +1,6 @@
 /* Aura Digital · Firma institucional por defecto.
  * Respeta la firma compacta de Cassandra y Armando.
- * En Capas interactivas se muestra reducida sobre «CON CARIÑO, PARA TI».
+ * En Capas interactivas se muestra más pequeña, debajo de «CON CARIÑO, PARA TI».
  * Se incorpora a la vista previa y al HTML publicado, nunca a invitaciones ya entregadas.
  */
 (function auraBrandCreditDefault566(){
@@ -25,24 +25,24 @@
     '@media(max-width:480px){main.page .content:has(> .aura-brand-credit){padding-bottom:16px!important}.aura-close-panel>.aura-brand-credit{margin-top:10px}}'
   ].join('\n');
   const LAYERS_CSS=[
-    '/* Capas interactivas: crédito reducido encima de «CON CARIÑO, PARA TI» */',
+    '/* Capas interactivas: crédito mínimo debajo de «CON CARIÑO, PARA TI» */',
     'body.theme-baptism_layers .bl-menu .bl-screen-footer{margin-top:clamp(4px,.65dvh,7px)!important}',
-    'body.theme-baptism_layers .bl-menu .bl-screen-footer>.aura-brand-credit{display:block;width:100%;max-width:100%;margin:0 auto 4px;padding:0;background:transparent!important;border:0!important;box-shadow:none!important;text-align:center;letter-spacing:normal}',
-    'body.theme-baptism_layers .bl-menu .bl-screen-footer>.aura-brand-credit a{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:0;padding:1px 6px;text-decoration:none;color:var(--heading);transition:opacity .2s ease}',
+    'body.theme-baptism_layers .bl-menu .bl-screen-footer>.aura-brand-credit{display:block;width:100%;max-width:100%;margin:5px auto 0;padding:0;background:transparent!important;border:0!important;box-shadow:none!important;text-align:center;letter-spacing:normal}',
+    'body.theme-baptism_layers .bl-menu .bl-screen-footer>.aura-brand-credit a{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;gap:0;padding:0 4px;text-decoration:none;color:var(--heading);transition:opacity .2s ease}',
     'body.theme-baptism_layers .bl-menu .bl-screen-footer>.aura-brand-credit a:hover{opacity:.75}',
     'body.theme-baptism_layers .bl-menu .bl-screen-footer>.aura-brand-credit a:focus-visible{outline:2px solid var(--accent);outline-offset:3px}',
-    'body.theme-baptism_layers .bl-menu .bl-screen-footer .aura-brand-credit-kicker{font:400 7px/1.18 var(--body);color:var(--muted);letter-spacing:.015em}',
-    'body.theme-baptism_layers .bl-menu .bl-screen-footer .aura-brand-credit strong{font:500 10px/1.2 "DM Sans",sans-serif;letter-spacing:.10em;color:var(--heading)}',
-    'body.theme-baptism_layers .bl-menu .bl-screen-footer .aura-brand-credit-link{font:400 7px/1.18 var(--body);letter-spacing:.015em;color:var(--muted);text-decoration:underline;text-underline-offset:2px}'
+    'body.theme-baptism_layers .bl-menu .bl-screen-footer .aura-brand-credit-kicker{font:400 6px/1.15 var(--body);color:var(--muted);letter-spacing:.01em}',
+    'body.theme-baptism_layers .bl-menu .bl-screen-footer .aura-brand-credit strong{font:500 9px/1.15 "DM Sans",sans-serif;letter-spacing:.08em;color:var(--heading)}',
+    'body.theme-baptism_layers .bl-menu .bl-screen-footer .aura-brand-credit-link{font:400 6px/1.15 var(--body);letter-spacing:.01em;color:var(--muted);text-decoration:underline;text-underline-offset:1.5px}'
   ].join('\n');
   function addBrand(p,html){
     if(!p||typeof html!=='string'||html.includes('data-aura-brand-credit="default-v1"')||html.includes('class="aura-brand-credit"'))return html;
     if(!html.includes('</style>')||!html.includes('</main>'))return html;
     if(p.themeVisual==='baptism_layers'){
-      const target='<div class="bl-screen-footer"><span class="bl-menu-footer-label">CON CARIÑO, PARA TI</span>';
+      const target='<div class="bl-screen-footer"><span class="bl-menu-footer-label">CON CARIÑO, PARA TI</span> <span aria-hidden="true">✦</span>';
       if(!html.includes(target))return html;
       const layerBrand=BRAND_MARKUP.replace('<footer ','<div ').replace('</footer>','</div>');
-      const replacement='<div class="bl-screen-footer">'+layerBrand+'<span class="bl-menu-footer-label">CON CARIÑO, PARA TI</span>';
+      const replacement=target+layerBrand;
       return html.replace(target,replacement).replace('</style>','\n'+LAYERS_CSS+'\n</style>');
     }
     let updated=html;
